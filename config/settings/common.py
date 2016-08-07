@@ -46,6 +46,10 @@ LOCAL_APPS = (
     # custom users app
     'hidromed.users.apps.UsersConfig',
     # Your stuff: custom apps go here
+    'hidromed.empresas',
+    'hidromed.izarnetv1',
+    'hidromed.izarnetv2',
+    'hidromed.medidores',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -210,8 +214,8 @@ AUTHENTICATION_BACKENDS = (
 
 # Some really nice defaults
 ACCOUNT_AUTHENTICATION_METHOD = 'username'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 ACCOUNT_ALLOW_REGISTRATION = env.bool('DJANGO_ACCOUNT_ALLOW_REGISTRATION', True)
 ACCOUNT_ADAPTER = 'hidromed.users.adapters.AccountAdapter'
