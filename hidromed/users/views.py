@@ -1,13 +1,24 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
+from django.shortcuts import render
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import User
+from .forms import CargueUsuarios
 
+def CrearUsuariosView(request):
+    if request.method == 'POST':
+        form = CargueUsuarios(request.POST, request.FILES)
+        if form.is_valid():
+            messages.success(request, 'Archivo cargado correctamente')
+    else:
+        form = CargueUsuarios()
+    return render(request, 'pages/crear_usuarios.html', {'form': form})
 
 class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
