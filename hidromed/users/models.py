@@ -7,7 +7,7 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
-from hidromed.empresas.models import Empresa
+from hidromed.empresas.models import Empresa, Poliza
 from hidromed.medidores.models import Medidor
 
 PERFILES = (
@@ -22,6 +22,7 @@ class User(AbstractUser):
     name = models.CharField(_('Name of User'), blank=True, max_length=255)
     empresa = models.ForeignKey(Empresa, null=True, blank=True)
     medidor = models.ForeignKey(Medidor, null=True, blank=True)
+    poliza = models.ForeignKey(Poliza, null=True, blank=True)
     perfil = models.CharField(
 		max_length=1, choices=PERFILES, default=0)
 
