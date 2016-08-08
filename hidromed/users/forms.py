@@ -7,12 +7,6 @@ from crispy_forms.bootstrap import FormActions
 
 class CargueUsuarios(forms.Form):
 	archivo_usuarios = forms.FileField()
-
-	def __init__(self, *args, **kwargs):
-		super(CargueUsuarios, self).__init__(*args, **kwargs)
-		self.helper = FormHelper(self)
-		self.helper.layout.append(
-			FormActions(
-				Submit('save', 'Crear'),
-			)
-		)
+	helper = FormHelper()
+	helper.form_method = 'POST'
+	helper.add_input(Submit('enviar', 'Crear', css_class='btn-primary'))

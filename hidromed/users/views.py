@@ -10,11 +10,19 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import User
 from .forms import CargueUsuarios
+from hidromed.utils import CargueExcel
+
+def CrearUsuarios(data):
+    hojas = data.sheet_names
+    info = data.parse(hojas)
+    print info
 
 def CrearUsuariosView(request):
     if request.method == 'POST':
         form = CargueUsuarios(request.POST, request.FILES)
         if form.is_valid():
+            data = CargueExcel(request.FILES['archivo_usuarios'])
+            CrearUsuarios(data)
             messages.success(request, 'Archivo cargado correctamente')
     else:
         form = CargueUsuarios()

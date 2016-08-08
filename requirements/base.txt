@@ -47,6 +47,7 @@ celery==3.1.23
 
 
 # Your custom requirements go here
-mysql-python
-numpy
-pandas
+MySQL-python==1.2.5
+numpy==1.11.1
+pandas==0.18.1
+xlrd==1.0.0
