@@ -13,9 +13,13 @@ from .forms import CargueUsuarios
 from hidromed.utils import CargueExcel
 
 def CrearUsuarios(data):
-    hojas = data.sheet_names
-    info = data.parse(hojas)
-    print info
+    for row in data.iterrows():
+        nit = row[1]['ID NIT Empresa']
+        empresa = row[1]['Empresa']
+        poliza = row[1]['Póliza']
+        serial = row[1]['Serial Medidor']
+        username = row[1]['Nombre Usuario']
+
 
 def CrearUsuariosView(request):
     if request.method == 'POST':
