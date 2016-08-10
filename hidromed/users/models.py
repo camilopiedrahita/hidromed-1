@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
+from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from hidromed.empresas.models import Empresa, Poliza
@@ -36,7 +35,7 @@ class PolizaUser(models.Model):
     usuario = models.ForeignKey(User, null=True, blank=True)
 
     def __str__(self):
-        return self.poliza
+        return str(self.poliza)
 
 @python_2_unicode_compatible
 class MedidorUser(models.Model):
@@ -44,4 +43,4 @@ class MedidorUser(models.Model):
     usuario = models.ForeignKey(User, null=True, blank=True)
 
     def __str__(self):
-        return self.medidor
+        return str(self.medidor)

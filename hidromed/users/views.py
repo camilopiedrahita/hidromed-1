@@ -14,7 +14,7 @@ from hidromed.utils import CargueExcel
 from hidromed.empresas.models import Empresa, Poliza
 from hidromed.medidores.models import Medidor
 
-def CrearUsuarios(request, data):
+def CrearUsuarios(data):
     for row in data.iterrows():
         nit = row[1]['ID NIT Empresa']
         nombre = row[1]['Empresa']
@@ -67,7 +67,7 @@ def CrearUsuariosView(request):
         form = CargueUsuarios(request.POST, request.FILES)
         if form.is_valid():
             data = CargueExcel(request.FILES['archivo_usuarios'])
-            CrearUsuarios(request, data)
+            CrearUsuarios(data)
             messages.success(request, 'Usuarios creados correctamente')
     else:
         form = CargueUsuarios()
