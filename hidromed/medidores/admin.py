@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import *
+
+@admin.register(Medidor)
+class AdminMedidor(admin.ModelAdmin):
+	list_display = ('id', 'serial', 'empresa',)

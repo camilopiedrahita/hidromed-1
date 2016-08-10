@@ -21,8 +21,6 @@ class User(AbstractUser):
     # around the globe.
     name = models.CharField(_('Name of User'), blank=True, max_length=255)
     empresa = models.ForeignKey(Empresa, null=True, blank=True)
-    medidor = models.ForeignKey(Medidor, null=True, blank=True)
-    poliza = models.ForeignKey(Poliza, null=True, blank=True)
     perfil = models.CharField(
 		max_length=1, choices=PERFILES, default=0)
 
@@ -31,3 +29,19 @@ class User(AbstractUser):
 
     def get_absolute_url(self):
         return reverse('users:detail', kwargs={'username': self.username})
+
+@python_2_unicode_compatible
+class PolizaUser(models.Model):
+    poliza = models.ForeignKey(Poliza, null=True, blank=True)
+    usuario = models.ForeignKey(User, null=True, blank=True)
+
+    def __str__(self):
+        return self.poliza
+
+@python_2_unicode_compatible
+class MedidorUser(models.Model):
+    medidor = models.ForeignKey(Medidor, null=True, blank=True)
+    usuario = models.ForeignKey(User, null=True, blank=True)
+
+    def __str__(self):
+        return self.medidor
