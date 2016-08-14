@@ -1,0 +1,24 @@
+%tablas_general {
+	table {
+		width: 100%;
+		th {
+			background: gray;
+			text-transform: uppercase;
+			color: white;
+			border: 1px solid white;
+			text-align: center;
+			padding: 0 1em;
+		}
+		td {
+			text-align: center;
+			border: 1px solid gray;
+		}
+	}
+}
+
+.confirm_usuarios_creados {
+	@extend %tablas_general;
+	div {
+		padding: 1em;
+	}
+}
