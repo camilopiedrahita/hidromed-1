@@ -9,5 +9,62 @@
 			{% csrf_token %}
 			{% crispy form %} 
 		</div>
+		{% if data.users %}
+			<div class="row">
+				<div>
+					<h1>Usuarios creados</h1>
+					<table>
+						<tr>
+							<th>NIT</th>
+							<th>Empresa</th>
+							<th>Usuario creado</th>
+							<th>Perfil</th>
+						</tr>
+						{% for usuario in data.users %}
+							<tr>
+								<td>{{ usuario.empresa.nit }}</td>
+								<td>{{ usuario.empresa.nombre }}</td>
+								<td>{{ usuario.username }}</td>
+								<td>{{ usuario.get_perfil_display }}</td>
+							</tr>
+						{% endfor %}
+					</table>	
+				</div>
+				<div>
+					<h1>Polizas por usuario</h1>
+					<table>
+						<tr>
+							<th>Póliza</th>
+							<th>usuario</th>
+						</tr>
+						{% for polizas in data.polizas %}
+							{% for poliza in polizas %}
+								<tr>
+									<td>{{ poliza.poliza }}</td>
+									<td>{{ poliza.usuario }}</td>
+								</tr>
+							{% endfor %}
+						{% endfor %}
+					</table>	
+				</div>
+				<div>
+					<h1>Medidores por usuario</h1>
+					<table>
+						<tr>
+							<th>Medidor</th>
+							<th>Usuario</th>
+						</tr>
+						{% for medidores in data.medidores %}
+							{% for medidor in medidores %}
+								<tr>
+									<td>{{ medidor.medidor }}</td>
+									<td>{{ medidor.usuario }}</td>
+								</tr>
+							{% endfor %}
+						{% endfor %}
+					</table>
+				</div>
+			</div>
+		{% endif %}
 	</div>
 {% endblock %}

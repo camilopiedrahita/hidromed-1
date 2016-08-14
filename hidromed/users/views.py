@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals
 
 from django.shortcuts import render
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 
@@ -15,12 +16,14 @@ from hidromed.empresas.models import Empresa, Poliza
 from hidromed.medidores.models import Medidor
 
 def CrearUsuarios(data):
+    created_users = []
     for row in data.iterrows():
         nit = row[1]['ID NIT Empresa']
         nombre = row[1]['Empresa']
         poliza = row[1]['Póliza']
         serial = row[1]['Serial Medidor']
-        username = row[1]['Nombre Usuario']
+        username = row[1]['Nombre Usuario'].replace(' ', '')
+        username = username.lower()
         if Empresa.objects.filter(nit=nit):
             empresa_id = Empresa.objects.get(nit=nit)
         else:
@@ -61,17 +64,34 @@ def CrearUsuarios(data):
             MedidorUser.objects.create(
                 medidor=medidor_id, 
                 usuario=user_id)
+        created_users.append(username)
+    return created_users
 
+@login_required
 def CrearUsuariosView(request):
     if request.method == 'POST':
         form = CargueUsuarios(request.POST, request.FILES)
         if form.is_valid():
+            users = []
+            polizas = []
+            medidores = []
             data = CargueExcel(request.FILES['archivo_usuarios'])
-            CrearUsuarios(data)
+            created_users = CrearUsuarios(data)
             messages.success(request, 'Usuarios creados correctamente')
+            for user in created_users:
+                usuario = User.objects.get(username=user)
+                users.append(usuario)
+                polizas.append(PolizaUser.objects.filter(usuario=usuario))
+                medidores.append(MedidorUser.objects.filter(usuario=usuario))
+            data = {
+                'users' : users,
+                'polizas': polizas,
+                'medidores': medidores,
+            }
     else:
         form = CargueUsuarios()
-    return render(request, 'pages/crear_usuarios.html', {'form': form})
+        data = {}
+    return render(request, 'pages/crear_usuarios.html', {'form': form,  'data': data})
 
 class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
