@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}Creación de usuarios{% endblock %}
 {% block content %}
 	<div class="container">
 		<div class="row form-container">
+			<h1>Creación de usuarios</h1>
+			<p>Descargue <a href="static/archivos/Usuarios.xlsx">aquí</a> el formato para la creación de usuarios</p>
 			{% csrf_token %}
 			{% crispy form %} 
 		</div>
