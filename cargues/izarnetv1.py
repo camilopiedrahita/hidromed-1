@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 import MySQLdb
+from datetime import datetime
 
 conn = MySQLdb.connect(host='localhost',
                   user='root',
@@ -14,26 +15,31 @@ def CargueExcel(archivo):
 
 def CargueRegistros(data):
 	headers = []
+	add_partial = ('INSERT INTO izarnetv1_izarnetv1 '
+		'(fecha, volumen, consumo, volumen_litros, caudal, alarma) ')
+
 	for header in list(data.columns.values):
 		headers.append(header)
 
-	cuenta = 0
 	for row in data.iterrows():
-		tiempo = row[1][headers[1]]
-		volumen = row[1][headers[2]]
-		consumo = row[1][headers[3]]
+		fecha = row[1][headers[0]]
+		volumen = row[1][headers[1]]
+		consumo = row[1][headers[2]]
 		volumen_litros = volumen*1000
 		caudal = volumen_litros*60
 		alarma = row[1][headers[5]]
-		cuenta += 1
-		print (str(cuenta) + ' ' +
-			str(tiempo) + ' ' +
-			str(volumen) + ' ' +
-			str(consumo) + ' ' +
-			str(volumen_litros) + ' ' +
-			str(caudal) + ' ' +
-			alarma + ' ')
 
+		datetime.strptime(fecha, '%d/%m/%Y %H:%M')
+		print fecha
+
+		add_row = add_partial + ('VALUES ({}, {}, {}, {}, {}, {})'.format(
+			fecha, volumen, consumo, volumen_litros, caudal, alarma))
+		print add_row
+		#cursor.execute(add_row)
+
+	conn.commit()
+	cursor.close()
+	conn.close()
 
 data = CargueExcel('InfoC11LA004183_Pre.xls')
 CargueRegistros(data)
