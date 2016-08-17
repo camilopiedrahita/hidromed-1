@@ -57,8 +57,6 @@ def CargueRegistros(data, file_name):
 			Log('Error en archivo {}'.format(file_name))
 		
 	conn.commit()
-	cursor.close()
-	conn.close()
 	print 'Se han cargado todos los datos'
 
 path = ''
@@ -66,3 +64,6 @@ file_names = glob.glob(path + '*.xls')
 for file in file_names:
 	data = CargueExcel(file)
 	CargueRegistros(data, file)
+
+cursor.close()
+conn.close()
