@@ -13,6 +13,12 @@ cursor = conn.cursor()
 def CargueExcel(archivo):
 	return pd.read_excel(archivo)
 
+def Log(mensaje):
+	file_log = open(str(datetime.now().
+		strftime("%Y-%m-%d %H:%M")) + '_log','a')
+	file_log.write(mensaje + '\n')
+	file_log.close()
+
 def CargueRegistros(data, file_name):
 	headers = []
 	file_name = file_name.replace('Info', '')
@@ -23,7 +29,11 @@ def CargueRegistros(data, file_name):
 		'WHERE serial = "{}"'.format(file_name))
 	cursor.execute(get_medidor)
 	medidor_id = cursor.fetchone()
-	medidor_id = medidor_id[0]
+	if medidor_id == None:
+		Log('No existe el medidor {}'.format(file_name))
+		medidor_id = None
+	else:	
+		medidor_id = medidor_id[0]
 	for header in list(data.columns.values):
 		headers.append(header)
 
@@ -39,8 +49,13 @@ def CargueRegistros(data, file_name):
 		add_row = add_partial + ('VALUES ("{}", {}, {}, {}, {}, "{}", {})'.
 			format(fecha, volumen, consumo, volumen_litros, 
 				caudal, alarma, medidor_id))
-		cursor.execute(add_row)
-
+		try:
+			cursor.execute(add_row)
+		except Exception, e:
+			Log(str(e))
+			Log('Error en {}'.format(add_row))
+			Log('Error en archivo {}'.format(file_name))
+		
 	conn.commit()
 	cursor.close()
 	conn.close()
