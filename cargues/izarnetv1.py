@@ -2,6 +2,7 @@ import pandas as pd
 import MySQLdb
 from datetime import datetime
 import glob
+import shutil
 
 conn = MySQLdb.connect(host='localhost',
                   user='root',
@@ -81,6 +82,7 @@ file_names = glob.glob(path + '*.xls')
 for file in file_names:
 	data = CargueExcel(file)
 	CargueRegistros(data, file)
+	shutil.move(file, 'Procesados/' + file)
 
 cursor.close()
 conn.close()
