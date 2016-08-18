@@ -21,43 +21,60 @@ def Log(mensaje):
 
 def CargueRegistros(data, file_name):
 	headers = []
-	file_name = file_name.replace('Info', '')
-	file_name = file_name.replace('_Pre.xls', '')
-	add_partial = ('INSERT INTO izarnetv1_izarnetv1 '
-		'(fecha, volumen, consumo, volumen_litros, caudal, alarma, medidor_id) ')
-	get_medidor = ('SELECT id FROM medidores_medidor '
-		'WHERE serial = "{}"'.format(file_name))
-	cursor.execute(get_medidor)
-	medidor_id = cursor.fetchone()
-	if medidor_id == None:
-		Log('No existe el medidor {}'.format(file_name))
-		medidor_id = None
-	else:	
-		medidor_id = medidor_id[0]
-	for header in list(data.columns.values):
-		headers.append(header)
+	get_procesados = ('SELECT id FROM izarnetv1_izarnetv1procesados '
+		'WHERE nombre = "{}"'.format(file_name))
+	cursor.execute(get_procesados)
+	procesado_id = cursor.fetchone()
+	if procesado_id == None:
+		add_procesados_partial = ('INSERT INTO izarnetv1_izarnetv1procesados '
+			'(nombre, fecha, estado) ')
+		estado = 'Cargue correcto'
+		parsed_file_name = file_name.replace('Info', '')
+		parsed_file_name = parsed_file_name.replace('_Pre.xls', '')
+		add_partial = ('INSERT INTO izarnetv1_izarnetv1 '
+			'(fecha, volumen, consumo, volumen_litros, caudal, alarma, medidor_id) ')
+		get_medidor = ('SELECT id FROM medidores_medidor '
+			'WHERE serial = "{}"'.format(parsed_file_name))
+		cursor.execute(get_medidor)
+		medidor_id = cursor.fetchone()
+		if medidor_id == None:
+			Log('No existe el medidor {}'.format(parsed_file_name))
+			medidor_id = None
+			estado = 'Cargue con errores'
+		else:	
+			medidor_id = medidor_id[0]
+		for header in list(data.columns.values):
+			headers.append(header)
 
-	for row in data.iterrows():
-		fecha = row[1][headers[0]]
-		fecha = datetime.strptime(fecha, '%d/%m/%y %I:%M %p')
-		volumen = row[1][headers[1]]
-		consumo = row[1][headers[2]]
-		volumen_litros = volumen*1000
-		caudal = volumen_litros*60
-		alarma = row[1][headers[5]]
-		alarma = alarma.encode('ascii', 'ignore')
-		add_row = add_partial + ('VALUES ("{}", {}, {}, {}, {}, "{}", {})'.
-			format(fecha, volumen, consumo, volumen_litros, 
-				caudal, alarma, medidor_id))
-		try:
-			cursor.execute(add_row)
-		except Exception, e:
-			Log(str(e))
-			Log('Error en {}'.format(add_row))
-			Log('Error en archivo {}'.format(file_name))
+		for row in data.iterrows():
+			fecha = row[1][headers[0]]
+			fecha = datetime.strptime(fecha, '%d/%m/%y %I:%M %p')
+			volumen = row[1][headers[1]]
+			consumo = row[1][headers[2]]
+			volumen_litros = volumen*1000
+			caudal = volumen_litros*60
+			alarma = row[1][headers[5]]
+			alarma = alarma.encode('ascii', 'ignore')
+			add_row = add_partial + ('VALUES ("{}", {}, {}, {}, {}, "{}", {})'.
+				format(fecha, volumen, consumo, volumen_litros, 
+					caudal, alarma, medidor_id))
+			try:
+				cursor.execute(add_row)
+			except Exception, e:
+				Log(str(e))
+				Log('Error en {}'.format(add_row))
+				Log('Error en archivo {}'.format(parsed_file_name))
+				estado = 'Cargue con errores'
 		
-	conn.commit()
-	print 'Se han cargado todos los datos'
+		add_procesados = add_procesados_partial + ('VALUES ("{}", "{}", "{}")'.
+			format(file_name, 
+				datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
+				estado))
+		cursor.execute(add_procesados)
+		conn.commit()
+		print 'Se han cargado todos los datos'
+	else:
+		Log('El archivo {} ya ha sido procesado anteriormente'.format(file_name))
 
 path = ''
 file_names = glob.glob(path + '*.xls')
