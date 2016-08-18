@@ -17,3 +17,12 @@ class Izarnetv1(models.Model):
 
 	def __str__(self):
 		return str(self.medidor)
+
+@python_2_unicode_compatible
+class Izarnetv1Procesados(models.Model):
+	nombre = models.CharField(max_length=255)
+	fecha = models.DateTimeField()
+	estado = models.CharField(max_length=255)
+
+	def __str__(self):
+		return self.nombre
