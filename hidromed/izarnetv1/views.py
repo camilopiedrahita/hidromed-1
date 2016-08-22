@@ -1,17 +1,17 @@
-from django.shortcuts import render
+from django.shortcuts import render_to_response
 
 from chartit import DataPool, Chart
 
-from hidromed.izarnetv2.models import Izarnetv2
+from .models import Izarnetv1
 
 def FreeChartIzv1(request):
 	data = \
 		DataPool (
 			series = 
 			[{
-				'options': {'source': Izarnetv2.objects.all()},
+				'options': {'source': Izarnetv1.objects.all()},
 				'terms': [
-					'medidor',
+					'volumen',
 					'volumen_litros']}
 			])
 
@@ -22,7 +22,7 @@ def FreeChartIzv1(request):
 					'type': 'line',
 					'stacking': False},
 				'terms':{
-					'medidor': [
+					'volumen': [
 					'volumen_litros']
 				}}],
 			chart_options =
@@ -32,4 +32,4 @@ def FreeChartIzv1(request):
 					'title': {
 						'text': 'Nada'}}})
 
-	return render(request, 'pages/grafico_gratis.html', {'data': cht})
+	return render_to_response('pages/grafico_gratis.html', {'data': cht})
