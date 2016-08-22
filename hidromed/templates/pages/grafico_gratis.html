@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% load chartit %}
+{{ data|load_charts:"container" }}
+
+{% block title %}Gráfico gratis{% endblock %}
+{% block content %}
+	<div class="container">
+		Gráfico
+		{{ data|load_charts:"container" }}
+	</div>
+{% endblock %}
