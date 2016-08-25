@@ -12,10 +12,12 @@
         <div class="row">
             {% if data %}
                 {% for medidor1 in data.grafico_izarnetv1 %}
-                    <div id="gratis">{{ medidor1|load_charts:"gratis" }}</div>
+                    {% with forloop.counter|stringformat:"s"|add:"gratisizar1" as text %}
+                        <div id="{{ forloop.counter }}gratisizar1">{{ medidor1 }} {{ medidor1|load_charts:text }}</div>
+                    {% endwith %}
                 {% endfor %}
                 {% for medidor2 in data.grafico_izarnetv2 %}
-                    <div id="gratis">{{ medidor2|load_charts:"gratis" }}</div>
+                    {# <div id="gratisizar2{{ forloop.counter }}">{{ medidor2|load_charts:"gratisizar2{{ forloop.counter }}" }}</div> #}
                 {% endfor %}
             {% else %}
                 <div class="no-content">                
