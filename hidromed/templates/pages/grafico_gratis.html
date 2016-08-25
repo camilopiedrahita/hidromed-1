@@ -2,21 +2,25 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-	<meta charset="UTF-8">
-	<!--Graphs-->
-	<script src="http://code.highcharts.com/highcharts.js"></script>
+    <meta charset="UTF-8">
+    <!--Graphs-->
+    <script src="http://code.highcharts.com/highcharts.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
     
     <!-- This file store project specific CSS -->
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
-	<title>Gráfico gratuito</title>
+    <title>Gráfico gratuito</title>
 </head>
 <body>
-	{% include "partials/header.html" %}
-	{% load chartit %}
-    {{ data|load_charts:"container" }}
-    <div id='container'> Chart will be rendered here </div>
+    {% include "partials/header.html" %}
+    {% load chartit %}
+    {{ data|load_charts:"gratis" }}
+    <div class="container">
+        <div class="row">
+            <div id='gratis'> grafica grátis </div>
+        </div>
+    </div>
 </body>
 </html>

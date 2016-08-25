@@ -51,6 +51,7 @@ LOCAL_APPS = (
     'hidromed.izarnetv1',
     'hidromed.izarnetv2',
     'hidromed.medidores',
+    'hidromed.graficas',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

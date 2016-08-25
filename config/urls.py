@@ -9,7 +9,7 @@ from django.views.generic import TemplateView
 from django.views import defaults as default_views
 
 from hidromed.users import views as views_users
-from hidromed.izarnetv1 import views as views_izarnetv1
+from hidromed.graficas import views as views_graficas
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='pages/home.html'), name='home'),
@@ -26,7 +26,7 @@ urlpatterns = [
     url(r'^crear-usuarios', views_users.CrearUsuariosView, name='crear_usuarios'),
 
     #graficos
-    url(r'^gratis', views_izarnetv1.FreeChartIzv1, name='izarnetv1_gratis'),
+    url(r'^gratis', views_graficas.FreeChart, name='grafica_gratis'),
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
