@@ -1,20 +1,25 @@
+# -*- coding: utf-8 -*-
 from django.shortcuts import render
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 from chartit import DataPool, Chart
 
 from hidromed.izarnetv1.models import Izarnetv1
 from hidromed.izarnetv2.models import Izarnetv2
+from hidromed.medidores.models import Medidor
 from hidromed.users.models import User, PolizaUser, MedidorUser
 
-def FreeChart(request):
+def GetChartFree(medidor, filtro):
 	data = \
 		DataPool (
 			series = 
 			[{
-				'options': {'source': Izarnetv1.objects.all()},
+				'options': {'source': filtro},
 				'terms': [
-					'volumen',
-					'volumen_litros']}
+					'fecha',
+					'consumo']}
 			])
 
 	cht = Chart(
@@ -24,14 +29,41 @@ def FreeChart(request):
 					'type': 'line',
 					'stacking': False},
 				'terms':{
-					'volumen': [
-					'volumen_litros']
+					'fecha': [
+					'consumo']
 				}}],
 			chart_options =
 				{'title': {
-					'text': 'Muestra'},
+					'text': 'Medidor ' + medidor.serial},
 				'xAxis': {
 					'title': {
-						'text': 'Nada'}}})
+						'text': 'Datos'}}})
+	return cht
 
-	return render(request, 'pages/grafico_gratis.html', {'data': cht})
+@login_required
+def FreeChart(request):
+	usuario_medidores = MedidorUser.objects.filter(usuario=request.user)
+	
+	if not usuario_medidores:
+		messages.error(request, 'Su usuario no tiene medidores asociados')
+		data = ''
+	else:
+		grafico_izarnetv1 = []
+		grafico_izarnetv2 = []
+		for medidor in usuario_medidores:
+			medidor = Medidor.objects.get(serial=medidor)
+			if Izarnetv1.objects.filter(medidor=medidor).exists():
+				grafico_izarnetv1.append(GetChartFree(
+					medidor,
+					Izarnetv1.objects.filter(medidor=medidor)))
+			if Izarnetv2.objects.filter(medidor=medidor).exists():
+				grafico_izarnetv2.append(GetChartFree(
+					medidor,
+					Izarnetv2.objects.filter(medidor=medidor)))
+
+		data = {
+			'grafico_izarnetv1': grafico_izarnetv1,
+			'grafico_izarnetv2': grafico_izarnetv2,
+		}
+
+	return render(request, 'pages/grafico_gratis.html', {'data': data})
