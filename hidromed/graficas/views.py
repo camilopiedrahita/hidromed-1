@@ -57,27 +57,23 @@ def FreeChart(request):
 		messages.error(request, 'Su usuario no tiene medidores asociados')
 		data = ''
 	else:
-		grafico_izarnetv1 = []
-		grafico_izarnetv2 = []
+		graficos = []
 		for medidor in usuario_medidores:
 			medidor = Medidor.objects.get(serial=medidor)
 			if Izarnetv1.objects.filter(medidor=medidor).exists():
-				grafico_izarnetv1.append(GetChartFree(
+				graficos.append(GetChartFree(
 					medidor,
 					Izarnetv1.objects.filter(medidor=medidor)))
 			if Izarnetv2.objects.filter(medidor=medidor).exists():
-				grafico_izarnetv2.append(GetChartFree(
+				graficos.append(GetChartFree(
 					medidor,
 					Izarnetv2.objects.filter(medidor=medidor)))
 		
-		charts_counter_izarnetv1 = GetCounter(grafico_izarnetv1, '1')
-		charts_counter_izarnetv2 = GetCounter(grafico_izarnetv2, '2')
+		charts_counter = GetCounter(graficos, '1')
 
 		data = {
-			'grafico_izarnetv1': grafico_izarnetv1,
-			'charts_counter_izarnetv1': charts_counter_izarnetv1,
-			'grafico_izarnetv2': grafico_izarnetv2,
-			'charts_counter_izarnetv2': charts_counter_izarnetv2,
+			'graficos': graficos,
+			'charts_counter': charts_counter,
 		}
 
 	return render(request, 'pages/grafico_gratis.html', {'data': data})
