@@ -11,14 +11,24 @@
     <div class="container">
         <div class="row">
             {% if data %}
-                {% for medidor1 in data.grafico_izarnetv1 %}
-                    {% with forloop.counter|stringformat:"s"|add:"gratisizar1" as text %}
-                        <div id="{{ forloop.counter }}gratisizar1">{{ medidor1 }} {{ medidor1|load_charts:text }}</div>
-                    {% endwith %}
-                {% endfor %}
-                {% for medidor2 in data.grafico_izarnetv2 %}
-                    {# <div id="gratisizar2{{ forloop.counter }}">{{ medidor2|load_charts:"gratisizar2{{ forloop.counter }}" }}</div> #}
-                {% endfor %}
+                {% if data.grafico_izarnetv1 %}
+                    {{ data.grafico_izarnetv1|load_charts:data.charts_counter_izarnetv1 }}
+                    {% for chart1 in data.grafico_izarnetv1 %}
+                        <div class="col-md-12">
+                            <div id="chart1_{{ forloop.counter }}">hola1</div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                {% if data.grafico_izarnetv2 %}
+                    {{ data.grafico_izarnetv2|load_charts:data.charts_counter_izarnetv2 }}
+                    {% for chart2 in data.grafico_izarnetv2 %}
+                        <div class="col-md-12">
+                            <div id="chart2_{{ forloop.counter }}">hola2</div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
             {% else %}
                 <div class="no-content">                
                     <h1>NO SE ENCONTRARON DATOS</h1>

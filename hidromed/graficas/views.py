@@ -40,6 +40,15 @@ def GetChartFree(medidor, filtro):
 						'text': 'Datos'}}})
 	return cht
 
+def GetCounter(graficos, version):
+	string = ''
+	counter = 0
+	for chart in graficos:
+		counter += 1
+		string = (string + 'chart' + version + 
+			'_' + str(counter) + ',')
+	return string
+
 @login_required
 def FreeChart(request):
 	usuario_medidores = MedidorUser.objects.filter(usuario=request.user)
@@ -60,10 +69,15 @@ def FreeChart(request):
 				grafico_izarnetv2.append(GetChartFree(
 					medidor,
 					Izarnetv2.objects.filter(medidor=medidor)))
+		
+		charts_counter_izarnetv1 = GetCounter(grafico_izarnetv1, '1')
+		charts_counter_izarnetv2 = GetCounter(grafico_izarnetv2, '2')
 
 		data = {
 			'grafico_izarnetv1': grafico_izarnetv1,
+			'charts_counter_izarnetv1': charts_counter_izarnetv1,
 			'grafico_izarnetv2': grafico_izarnetv2,
+			'charts_counter_izarnetv2': charts_counter_izarnetv2,
 		}
 
 	return render(request, 'pages/grafico_gratis.html', {'data': data})
