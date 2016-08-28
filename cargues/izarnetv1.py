@@ -30,8 +30,7 @@ def CargueRegistros(data, file_name):
 		add_procesados_partial = ('INSERT INTO izarnetv1_izarnetv1procesados '
 			'(nombre, fecha, estado) ')
 		estado = 'Cargue correcto'
-		parsed_file_name = file_name.replace('Info', '')
-		parsed_file_name = parsed_file_name.replace('_Pre.xls', '')
+		parsed_file_name = file_name.split('_')[1]
 		add_partial = ('INSERT INTO izarnetv1_izarnetv1 '
 			'(fecha, volumen, consumo, volumen_litros, caudal, alarma, medidor_id) ')
 		get_medidor = ('SELECT id FROM medidores_medidor '
@@ -48,22 +47,28 @@ def CargueRegistros(data, file_name):
 			headers.append(header)
 
 		for row in data.iterrows():
-			fecha = row[1][headers[0]]
-			fecha = datetime.strptime(fecha, '%d/%m/%y %I:%M %p')
-			volumen = row[1][headers[1]]
-			consumo = row[1][headers[2]]
-			volumen_litros = volumen*1000
-			caudal = volumen_litros*60
-			alarma = row[1][headers[5]]
-			alarma = alarma.encode('ascii', 'ignore')
-			add_row = add_partial + ('VALUES ("{}", {}, {}, {}, {}, "{}", {})'.
-				format(fecha, volumen, consumo, volumen_litros, 
-					caudal, alarma, medidor_id))
 			try:
-				cursor.execute(add_row)
+				fecha = row[1][headers[0]]
+				fecha = datetime.strptime(fecha, '%d/%m/%y %I:%M %p')
+				volumen = row[1][headers[1]]
+				consumo = row[1][headers[2]]
+				volumen_litros = volumen*1000
+				caudal = volumen_litros*60
+				alarma = row[1][headers[4]]
+				alarma = alarma.encode('ascii', 'ignore')
+				add_row = add_partial + ('VALUES ("{}", {}, {}, {}, {}, "{}", {})'.
+					format(fecha, volumen, consumo, volumen_litros, 
+						caudal, alarma, medidor_id))
+				try:
+					cursor.execute(add_row)
+				except Exception, e:
+					Log(str(e))
+					Log('Error en {}'.format(add_row))
+					Log('Error en archivo {}'.format(parsed_file_name))
+					estado = 'Cargue con errores'
 			except Exception, e:
 				Log(str(e))
-				Log('Error en {}'.format(add_row))
+				Log('Error en Headers del archivo Excel')
 				Log('Error en archivo {}'.format(parsed_file_name))
 				estado = 'Cargue con errores'
 		
@@ -78,8 +83,9 @@ def CargueRegistros(data, file_name):
 		Log('El archivo {} ya ha sido procesado anteriormente'.format(file_name))
 
 path = ''
-file_names = glob.glob(path + '*.xls')
+file_names = glob.glob(path + 'IzarNet1*.xls')
 for file in file_names:
+	print file
 	data = CargueExcel(file)
 	CargueRegistros(data, file)
 	shutil.move(file, 'Procesados/' + file)
