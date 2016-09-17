@@ -6,8 +6,9 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from hidromed.empresas.models import Empresa, Poliza
+from hidromed.empresas.models import Acueducto, Cliente
 from hidromed.medidores.models import Medidor
+from hidromed.polizas.models import Poliza
 
 PERFILES = (
     ('0', 'Gratuito'),
@@ -19,7 +20,7 @@ class User(AbstractUser):
     # First Name and Last Name do not cover name patterns
     # around the globe.
     name = models.CharField(_('Name of User'), blank=True, max_length=255)
-    empresa = models.ForeignKey(Empresa, null=True, blank=True)
+    cliente = models.ForeignKey(Cliente, null=True, blank=True)
     perfil = models.CharField(
 		max_length=1, choices=PERFILES, default=0)
 

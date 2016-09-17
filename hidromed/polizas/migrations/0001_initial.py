@@ -16,34 +16,34 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Medidor',
+            name='Poliza',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('serial', models.CharField(max_length=255)),
+                ('numero', models.CharField(max_length=255)),
             ],
         ),
         migrations.CreateModel(
-            name='Medidor_Acueducto',
+            name='Poliza_Acueducto',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('acueducto', models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='empresas.Acueducto')),
-                ('medidor', models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='medidores.Medidor')),
+                ('poliza', models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='polizas.Poliza')),
             ],
             options={
-                'verbose_name': 'Medidor vs Acueducto',
-                'verbose_name_plural': 'Medidor vs Acueductos',
+                'verbose_name': 'P\xf3liza vs Acueducto',
+                'verbose_name_plural': 'P\xf3lizas vs Acueductos',
             },
         ),
         migrations.CreateModel(
-            name='Medidor_Cliente',
+            name='Poliza_Cliente',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('cliente', models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='empresas.Cliente')),
-                ('medidor', models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='medidores.Medidor')),
+                ('poliza', models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='polizas.Poliza')),
             ],
             options={
-                'verbose_name': 'Medidor vs Cliente',
-                'verbose_name_plural': 'Medidor vs Clientes',
+                'verbose_name': 'P\xf3liza vs Cliente',
+                'verbose_name_plural': 'P\xf3lizas vs Clientes',
             },
         ),
     ]
