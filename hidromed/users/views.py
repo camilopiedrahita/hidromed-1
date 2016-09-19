@@ -12,12 +12,15 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import *
 from .forms import CargueUsuarios
 from hidromed.utils import CargueExcel
-from hidromed.empresas.models import Acueducto
-from hidromed.medidores.models import Medidor
-from hidromed.polizas.models import Poliza
+from hidromed.empresas.models import Acueducto, Cliente
+from hidromed.medidores.models import Medidor, Medidor_Cliente, Medidor_Acueducto
+from hidromed.polizas.models import Poliza, Poliza_Cliente, Poliza_Acueducto
+import numpy as np
 
-def CrearUsuarios(data):
+def CrearUsuarios(request, data):
     created_users = []
+    data = data.replace(np.nan, ' ', regex=True)
+    correcto = True
     for row in data.iterrows():
         nit_acueducto = row[1]['ID NIT Acueducto']
         acueducto = row[1]['Acueducto']
@@ -28,47 +31,83 @@ def CrearUsuarios(data):
         direccion_cliente = row[1]['Dirección Cliente']
         username = row[1]['Usuario Acceso'].replace(' ', '')
         username = username.lower()
-        if Acueducto.objects.filter(nit=nit_acueducto):
-            acueducto_id = Acueducto.objects.get(nit=nit_acueducto)
+        if (serial == ' ' or 
+            cliente == ' ' or
+            nit_cc_cliente == ' ' or 
+            direccion_cliente == ' ' or
+            username == ' ' or
+            nit_acueducto == ' ' or
+            acueducto == ' '):
+            correcto = False
         else:
-            acueducto_id = Acueducto.objects.create(
-                nombre=acueducto,
-                nit=nit_acueducto)
-        if Poliza.objects.filter(numero=poliza):
-            poliza_id = Poliza.objects.get(numero=poliza)
-        else:
-            poliza_id = Poliza.objects.create(
-                numero=poliza,
-                empresa=acueducto_id)
-        if Medidor.objects.filter(serial=serial):
-            medidor_id = Medidor.objects.get(serial=serial)
-        else:
-            medidor_id = Medidor.objects.create(
-                serial=serial,
-                empresa=acueducto_id)
-        if User.objects.filter(username=username):
-            user_id = User.objects.get(username=username)
-        else:
-            user_id = User.objects.create_user(
-                username,
-                '',
-                'Hidromed')
-            user_id.empresa = acueducto_id
-            user_id.perfil = 0
-            user_id.save()
-        if PolizaUser.objects.filter(poliza=poliza_id, usuario=user_id):
-            pass
-        else:
-            PolizaUser.objects.create(
-                poliza=poliza_id, 
-                usuario=user_id)
-        if MedidorUser.objects.filter(medidor=medidor_id, usuario=user_id):
-            pass
-        else:
-            MedidorUser.objects.create(
-                medidor=medidor_id, 
-                usuario=user_id)
-        created_users.append(username)
+            if Acueducto.objects.filter(nit=nit_acueducto):
+                acueducto_id = Acueducto.objects.get(nit=nit_acueducto)
+            else:
+                acueducto_id = Acueducto.objects.create(
+                    nombre=acueducto,
+                    nit=nit_acueducto)
+            if Poliza.objects.filter(numero=poliza):
+                poliza_id = Poliza.objects.get(numero=poliza)
+            else:
+                poliza_id = Poliza.objects.create(
+                    numero=poliza)
+            if Medidor.objects.filter(serial=serial):
+                medidor_id = Medidor.objects.get(serial=serial)
+            else:
+                medidor_id = Medidor.objects.create(
+                    serial=serial)
+            if Cliente.objects.filter(nit=nit_cc_cliente):
+                cliente_id = Cliente.objects.get(nit=nit_cc_cliente)
+            else:
+                cliente_id = Cliente.objects.create(
+                    nombre=cliente,
+                    nit=nit_cc_cliente,
+                    direccion=direccion_cliente)
+            if User.objects.filter(username=username):
+                user_id = User.objects.get(username=username)
+            else:
+                user_id = User.objects.create_user(
+                    username,
+                    '',
+                    'Hidromed')
+                user_id.cliente = cliente_id
+                user_id.perfil = 0
+                user_id.save()
+            if not Poliza_Cliente.objects.filter(poliza=poliza_id, 
+                cliente=cliente_id):
+                poliza_cliente_id = Poliza_Cliente.objects.create(
+                    poliza=poliza_id,
+                    cliente=cliente_id)
+            if not Poliza_Acueducto.objects.filter(poliza=poliza_id, 
+                acueducto=acueducto_id):
+                poliza_acueducto_id = Poliza_Acueducto.objects.create(
+                    poliza=poliza_id,
+                    acueducto=acueducto_id)
+            if not Medidor_Cliente.objects.filter(medidor=medidor_id, 
+                cliente=cliente_id):
+                medidor_cliente_id = Medidor_Cliente.objects.create(
+                    medidor=medidor_id,
+                    cliente=cliente_id)
+            if not Medidor_Acueducto.objects.filter(medidor=medidor_id, 
+                acueducto=acueducto_id):
+                medidor_acueducto_id = Medidor_Acueducto.objects.create(
+                    medidor=medidor_id,
+                    acueducto=acueducto_id)
+            if Poliza_Medidor_User.objects.filter(poliza=poliza_id, 
+                usuario=user_id, medidor=medidor_id):
+                pass
+            else:
+                Poliza_Medidor_User.objects.create(
+                    poliza=poliza_id, 
+                    medidor=medidor_id,
+                    usuario=user_id)
+            if not correcto == False:
+                correcto = True
+            created_users.append(username)
+    if correcto == True:
+        messages.success(request, 'Usuarios creados correctamente')
+    else:
+        messages.warning(request, 'Valide que los campos estén diligenciados')
     return created_users
 
 @login_required
@@ -77,21 +116,17 @@ def CrearUsuariosView(request):
         form = CargueUsuarios(request.POST, request.FILES)
         if form.is_valid():
             users = []
-            polizas = []
-            medidores = []
+            polizas_medidores = []
             cliente = []
             data = CargueExcel(request.FILES['archivo_usuarios'])
-            created_users = CrearUsuarios(data)
-            messages.success(request, 'Usuarios creados correctamente')
+            created_users = CrearUsuarios(request, data)
             for user in created_users:
                 usuario = User.objects.get(username=user)
                 users.append(usuario)
-                polizas.append(PolizaUser.objects.filter(usuario=usuario))
-                medidores.append(MedidorUser.objects.filter(usuario=usuario))
+                polizas_medidores.append(Poliza_Medidor_User.objects.get(usuario=usuario))
             data = {
                 'users' : users,
-                'polizas': polizas,
-                'medidores': medidores,
+                'polizas_medidores': polizas_medidores,
             }
     else:
         form = CargueUsuarios()

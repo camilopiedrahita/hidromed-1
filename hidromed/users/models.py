@@ -31,17 +31,10 @@ class User(AbstractUser):
         return reverse('users:detail', kwargs={'username': self.username})
 
 @python_2_unicode_compatible
-class PolizaUser(models.Model):
+class Poliza_Medidor_User(models.Model):
     poliza = models.ForeignKey(Poliza, null=True, blank=True)
-    usuario = models.ForeignKey(User, null=True, blank=True)
-
-    def __str__(self):
-        return str(self.poliza)
-
-@python_2_unicode_compatible
-class MedidorUser(models.Model):
     medidor = models.ForeignKey(Medidor, null=True, blank=True)
     usuario = models.ForeignKey(User, null=True, blank=True)
 
     def __str__(self):
-        return str(self.medidor)
+        return str(self.poliza) + ' - ' + str(self.medidor)

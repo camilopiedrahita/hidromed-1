@@ -9,7 +9,7 @@ from chartit import DataPool, Chart
 from hidromed.izarnetv1.models import Izarnetv1
 from hidromed.izarnetv2.models import Izarnetv2
 from hidromed.medidores.models import Medidor
-from hidromed.users.models import User, PolizaUser, MedidorUser
+from hidromed.users.models import User, Poliza_Medidor_User
 
 def GetChartFree(medidor, filtro):
 	data = \
