@@ -87,7 +87,7 @@ for file in file_names:
 	print file
 	data = CargueExcel(file)
 	CargueRegistros(data, file)
-	shutil.move(file, 'Procesados/' + file)
+	#shutil.move(file, 'Procesados/' + file)
 
 cursor.close()
 conn.close()
