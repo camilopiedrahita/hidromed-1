@@ -72,7 +72,10 @@ def CargueRegistros(data, file_name):
 					cursor.execute(last_fecha)
 					last_fecha_data = cursor.fetchone()
 					last_fecha_data = last_fecha_data[0]
-					minutos = ((fecha - last_fecha_data).total_seconds())/60
+					if (fecha - last_fecha_data).total_seconds() < 0:
+						minutos = (((fecha - last_fecha_data)*-1).total_seconds())/60
+					else:
+						minutos = ((fecha - last_fecha_data).total_seconds())/60
 					caudal = consumo * 1000 / minutos * 60
 
 				add_row = add_partial + ('VALUES ("{}", {}, {}, {}, {}, "{}", {})'.
