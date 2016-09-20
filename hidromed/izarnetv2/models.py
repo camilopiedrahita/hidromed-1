@@ -16,7 +16,7 @@ class Izarnetv2(models.Model):
 	alarma = models.CharField(max_length=255)
 
 	def __str__(self):
-		return self.medidor
+		return str(self.medidor)
 
 @python_2_unicode_compatible
 class Izarnetv2Procesados(models.Model):
