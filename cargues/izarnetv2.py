@@ -50,10 +50,10 @@ def CargueRegistros(data, file_name):
 			try:
 				fecha = row[1][headers[0]]
 				fecha = datetime.strptime(fecha, '%d-%m-%Y %H:%M:%S')
-				volumen_litros = row[1][headers[1]]
-				consumo = row[1][headers[2]]
+				volumen_litros = float(str(row[1][headers[1]]).replace(',', '.'))
+				consumo = float(str(row[1][headers[2]]).replace(',', '.'))
 				caudal = 0
-				alarma = row[1][headers[4]]
+				alarma = u'%s' % row[1][headers[4]]
 				alarma = alarma.encode('ascii', 'ignore')
 				add_row = add_partial + ('VALUES ("{}", {}, {}, {}, "{}", {})'.
 					format(fecha, consumo, volumen_litros, 
