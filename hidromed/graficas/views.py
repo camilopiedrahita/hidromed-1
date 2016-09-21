@@ -51,7 +51,7 @@ def GetCounter(graficos, version):
 
 @login_required
 def FreeChart(request):
-	usuario_medidores = MedidorUser.objects.filter(usuario=request.user)
+	usuario_medidores = Poliza_Medidor_User.objects.filter(usuario=request.user)
 	
 	if not usuario_medidores:
 		messages.error(request, 'Su usuario no tiene medidores asociados')
@@ -59,7 +59,7 @@ def FreeChart(request):
 	else:
 		graficos = []
 		for medidor in usuario_medidores:
-			medidor = Medidor.objects.get(serial=medidor)
+			medidor = Medidor.objects.get(serial=medidor.medidor)
 			if Izarnetv1.objects.filter(medidor=medidor).exists():
 				graficos.append(GetChartFree(
 					medidor,
