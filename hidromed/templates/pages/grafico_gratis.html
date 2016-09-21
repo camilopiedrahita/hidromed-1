@@ -9,6 +9,53 @@
         <script src="http://code.highcharts.com/highcharts.js"></script>
     {% endblock %}
     <div class="container">
+        <div class="row main-content">
+            <div class="col-sm-3 filtros">
+                <h2 class="filtro-titulo">
+                    Medidores
+                </h2>
+                <div class="tipo-titulo">
+                    {% if data.medidores %}
+                        <ul>
+                            {% for medidor in data.medidores %}
+                                <li>
+                                    <a href="">
+                                        {{ medidor.serial }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="no-content">
+                            <p>No hay medidores</p>
+                        </div>
+                    {% endif %}
+                </div>
+                <h2 class="filtro-titulo">
+                    Pólizas
+                </h2>
+                <div class="tipo-titulo">
+                    {% if data.polizas %}
+                        <ul>
+                            {% for poliza in data.polizas %}
+                                <li>
+                                    <a href="">
+                                        {{ poliza.numero }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="no-content">
+                            <p>No hay polizas</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    
+
+        {% comment %}
         <div class="row">
             {% if data %}
                 {% if data.graficos %}
@@ -25,5 +72,6 @@
                 </div>
             {% endif %}
         </div>
+        {% endcomment %}
     </div>
 {% endblock %}

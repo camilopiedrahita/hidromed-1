@@ -9,6 +9,7 @@ from chartit import DataPool, Chart
 from hidromed.izarnetv1.models import Izarnetv1
 from hidromed.izarnetv2.models import Izarnetv2
 from hidromed.medidores.models import Medidor
+from hidromed.polizas.models import Poliza
 from hidromed.users.models import User, Poliza_Medidor_User
 
 def GetChartFree(medidor, filtro):
@@ -54,9 +55,17 @@ def FreeChart(request):
 	usuario_medidores = Poliza_Medidor_User.objects.filter(usuario=request.user)
 	
 	if not usuario_medidores:
-		messages.error(request, 'Su usuario no tiene medidores asociados')
+		messages.error(request, 'Su usuario no tiene medidores o pólizas asociados')
 		data = ''
 	else:
+		medidores = []
+		polizas = []
+		for registro in usuario_medidores:
+			medidor = Medidor.objects.get(serial=registro.medidor)
+			poliza = Poliza.objects.get(numero=registro.poliza)
+			medidores.append(medidor)
+			polizas.append(poliza)
+		"""
 		graficos = []
 		for medidor in usuario_medidores:
 			medidor = Medidor.objects.get(serial=medidor.medidor)
@@ -69,11 +78,13 @@ def FreeChart(request):
 					medidor,
 					Izarnetv2.objects.filter(medidor=medidor)))
 		
-		charts_counter = GetCounter(graficos, '1')
-
+		#charts_counter = GetCounter(graficos, '1')
+		"""
 		data = {
-			'graficos': graficos,
-			'charts_counter': charts_counter,
+			#'graficos': graficos,
+			#'charts_counter': charts_counter,
+			'medidores': medidores,
+			'polizas': polizas,
 		}
 
 	return render(request, 'pages/grafico_gratis.html', {'data': data})
