@@ -64,26 +64,32 @@
   padding: 1em;
 }
 
-/* line 7, ../sass/_graficos.scss */
+/* line 8, ../sass/_graficos.scss */
+.filtros_form .form-group {
+  width: 50%;
+  float: left;
+}
+
+/* line 14, ../sass/_graficos.scss */
 .main-content {
   margin-top: 3%;
   padding-bottom: 3%;
 }
-/* line 10, ../sass/_graficos.scss */
+/* line 17, ../sass/_graficos.scss */
 .main-content .filtros {
   margin-bottom: 5%;
 }
-/* line 12, ../sass/_graficos.scss */
+/* line 19, ../sass/_graficos.scss */
 .main-content .filtros h2 {
   font-size: 24px;
   font-weight: bold;
   margin-top: 0;
 }
-/* line 18, ../sass/_graficos.scss */
+/* line 25, ../sass/_graficos.scss */
 .main-content .filtros .tipo-titulo ul {
   list-style-type: none;
 }
-/* line 20, ../sass/_graficos.scss */
+/* line 27, ../sass/_graficos.scss */
 .main-content .filtros .tipo-titulo ul li {
   -webkit-border-radius: 10px;
   -moz-border-radius: 10px;
@@ -93,7 +99,7 @@
   margin-left: -3em;
   margin-right: 3em;
 }
-/* line 26, ../sass/_graficos.scss */
+/* line 33, ../sass/_graficos.scss */
 .main-content .filtros .tipo-titulo ul li a {
   color: inherit;
   font-size: 16px;
