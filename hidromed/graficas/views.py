@@ -11,6 +11,7 @@ from hidromed.izarnetv2.models import Izarnetv2
 from hidromed.medidores.models import Medidor
 from hidromed.polizas.models import Poliza
 from hidromed.users.models import User, Poliza_Medidor_User
+from .forms import FiltrosForm
 
 def GetChartFree(medidor, filtro):
 	data = \
@@ -53,6 +54,7 @@ def GetCounter(graficos, version):
 @login_required
 def FreeChart(request):
 	usuario_medidores = Poliza_Medidor_User.objects.filter(usuario=request.user)
+	form = FiltrosForm()
 	
 	if not usuario_medidores:
 		messages.error(request, 'Su usuario no tiene medidores o pólizas asociados')
@@ -85,6 +87,7 @@ def FreeChart(request):
 			#'charts_counter': charts_counter,
 			'medidores': medidores,
 			'polizas': polizas,
+			'form': form,
 		}
 
 	return render(request, 'pages/grafico_gratis.html', {'data': data})
