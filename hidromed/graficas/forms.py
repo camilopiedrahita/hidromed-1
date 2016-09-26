@@ -19,16 +19,14 @@ PERIODO_CHOICES = (
 	)
 
 class FiltrosForm(forms.Form):
-    tipo_de_grafico = forms.ChoiceField(choices=TIPO_CHOICES)
-    periodo_datos = forms.ChoiceField(choices=PERIODO_CHOICES)
-    desde = forms.DateTimeField(
-    	widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'datetime-local'}))
-    hasta = forms.DateTimeField(
-    	widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'datetime-local'}))
-    helper = FormHelper()
-    helper.label_class = 'hide'
-    helper.form_method = 'GET'
-    helper.add_input(Submit('filtro', 'Filtrar', css_class='btn-primary'))
+	tipo_de_grafico = forms.ChoiceField(choices=TIPO_CHOICES)
+	periodo_datos = forms.ChoiceField(choices=PERIODO_CHOICES)
+	desde = forms.DateField(required=False,
+		widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date'}))
+	hasta = forms.DateField(required=False,
+		widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date'}))
+	helper = FormHelper()
+	helper.add_input(Submit('filtro', 'Filtrar', css_class='btn-primary'))
 
-    def __init__(self, *args, **kwargs):
-        super(FiltrosForm, self).__init__(*args, **kwargs)
+	def __init__(self, *args, **kwargs):
+		super(FiltrosForm, self).__init__(*args, **kwargs)

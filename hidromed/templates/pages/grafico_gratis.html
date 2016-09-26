@@ -20,7 +20,7 @@
                         <ul>
                             {% for medidor in data.medidores %}
                                 <li>
-                                    <a href="">
+                                    <a href="/gratis/?medidor={{ medidor.serial }}">
                                         {{ medidor.serial }}
                                     </a>
                                 </li>
@@ -40,7 +40,7 @@
                         <ul>
                             {% for poliza in data.polizas %}
                                 <li>
-                                    <a href="">
+                                    <a href="/gratis/?poliza={{ poliza.numero }}">
                                         {{ poliza.numero }}
                                     </a>
                                 </li>
@@ -55,7 +55,12 @@
             </div>
             <div class="col-sm-9">
                 <div class="filtros_form">
-                    {% crispy data.form %}
+                    {% if data.form %}
+                        {% crispy data.form %}
+                    {% endif %}
+                </div>
+                <div class="graficos">
+                    
                 </div>
             </div>
         </div>
