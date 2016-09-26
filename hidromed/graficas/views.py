@@ -3,6 +3,7 @@ from django.shortcuts import render
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 from chartit import DataPool, Chart
 
@@ -14,19 +15,9 @@ from hidromed.users.models import User, Poliza_Medidor_User
 from .forms import FiltrosForm
 
 def GetChartFree(medidor, tipo_de_grafico, periodo_datos, 
-	desde, hasta, filtro):
-	print ('medidor')
-	print (medidor)
-	print ('tipo_de_grafico')
-	print (tipo_de_grafico)
+	desde, hasta, filtro, izarnet):
 	print ('periodo_datos')
 	print (periodo_datos)
-	print ('desde')
-	print (desde)
-	print ('hasta')
-	print (hasta)
-	print ('filtro')
-	print (filtro)
 
 	data = \
 		DataPool (
@@ -35,7 +26,7 @@ def GetChartFree(medidor, tipo_de_grafico, periodo_datos,
 				'options': {'source': filtro},
 				'terms': [
 					'fecha',
-					'consumo']}
+					tipo_de_grafico]}
 			])
 
 	cht = Chart(
@@ -46,11 +37,11 @@ def GetChartFree(medidor, tipo_de_grafico, periodo_datos,
 					'stacking': False},
 				'terms':{
 					'fecha': [
-					'consumo']
+					tipo_de_grafico]
 				}}],
 			chart_options =
 				{'title': {
-					'text': 'Medidor ' + medidor.serial},
+					'text': 'Medidor ' + medidor.serial + ' - '+ izarnet},
 				'xAxis': {
 					'title': {
 						'text': 'Datos'}}})
@@ -76,10 +67,11 @@ def FreeChart(request):
 		form = FiltrosForm()
 		medidores = []
 		polizas = []
-		tipo_de_grafico = ''
+		tipo_de_grafico = 'consumo'
 		periodo_datos = ''
-		desde = ''
-		hasta = ''
+		desde = '1986-02-12'
+		hasta = '1986-02-12'
+		date_control = False
 		for registro in usuario_medidores:
 			medidor = Medidor.objects.get(serial=registro.medidor)
 			poliza = Poliza.objects.get(numero=registro.poliza)
@@ -102,22 +94,40 @@ def FreeChart(request):
 		graficos = []
 		medidor = Medidor.objects.get(serial=medidor_request)
 		if Izarnetv1.objects.filter(medidor=medidor).exists():
-			graficos.append(GetChartFree(
-				medidor,
-				tipo_de_grafico,
-				periodo_datos,
-				desde,
-				hasta,
-				Izarnetv1.objects.filter(medidor=medidor)))
+			if Izarnetv1.objects.filter(medidor=medidor, 
+					fecha__range=[desde, hasta]):
+				graficos.append(GetChartFree(
+					medidor,
+					tipo_de_grafico,
+					periodo_datos,
+					desde,
+					hasta,
+					Izarnetv1.objects.filter(medidor=medidor, 
+						fecha__range=[desde, hasta]),
+					'Izarnet 1'))
+				date_control = False
+			else:
+				date_control = True
+
 		if Izarnetv2.objects.filter(medidor=medidor).exists():
-			graficos.append(GetChartFree(
-				medidor,
-				tipo_de_grafico,
-				periodo_datos,
-				desde,
-				hasta,
-				Izarnetv2.objects.filter(medidor=medidor)))
+			if Izarnetv2.objects.filter(medidor=medidor,
+					fecha__range=[desde, hasta]):
+				graficos.append(GetChartFree(
+					medidor,
+					tipo_de_grafico,
+					periodo_datos,
+					desde,
+					hasta,
+					Izarnetv2.objects.filter(medidor=medidor,
+						fecha__range=[desde, hasta]),
+					'Izarnet 2'))
+				date_control = False
+			else:
+				date_control = True
 		
+		if date_control == True:
+			messages.warning(request, 'Por favor seleccione un rango de fechas')
+
 		charts_counter = GetCounter(graficos, '1')
 		data = {
 			'graficos': graficos,

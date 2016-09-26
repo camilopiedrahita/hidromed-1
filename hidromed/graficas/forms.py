@@ -7,8 +7,8 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
 TIPO_CHOICES = (
-		('1', 'Volumen Acumulado'),
-		('2', 'Consumo'),
+		('volumen_litros', 'Volumen Acumulado'),
+		('consumo', 'Consumo'),
 	)
 
 PERIODO_CHOICES = (
@@ -21,9 +21,9 @@ PERIODO_CHOICES = (
 class FiltrosForm(forms.Form):
 	tipo_de_grafico = forms.ChoiceField(choices=TIPO_CHOICES)
 	periodo_datos = forms.ChoiceField(choices=PERIODO_CHOICES)
-	desde = forms.DateField(required=False,
+	desde = forms.DateField(
 		widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date'}))
-	hasta = forms.DateField(required=False,
+	hasta = forms.DateField(
 		widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date'}))
 	helper = FormHelper()
 	helper.add_input(Submit('filtro', 'Filtrar', css_class='btn-primary'))
