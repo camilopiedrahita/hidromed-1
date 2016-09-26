@@ -59,30 +59,21 @@
                         {% crispy data.form %}
                     {% endif %}
                 </div>
-                <div class="graficos">
-                    
+                <div class="col-md-12 graficos">
+                    {% if data.graficos %}
+                        {{ data.graficos|load_charts:"chart1" }}
+                        {% for chart1 in data.graficos %}
+                            <div class="col-md-12">
+                                <div id="chart1"></div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-content">                
+                            <h1>NO SE ENCONTRARON DATOS</h1>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
-    
-
-        {% comment %}
-        <div class="row">
-            {% if data %}
-                {% if data.graficos %}
-                    {{ data.graficos|load_charts:data.charts_counter }}
-                    {% for chart1 in data.graficos %}
-                        <div class="col-md-12">
-                            <div id="chart1_{{ forloop.counter }}"></div>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% else %}
-                <div class="no-content">                
-                    <h1>NO SE ENCONTRARON DATOS</h1>
-                </div>
-            {% endif %}
-        </div>
-        {% endcomment %}
     </div>
 {% endblock %}

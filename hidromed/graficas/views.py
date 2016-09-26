@@ -13,7 +13,21 @@ from hidromed.polizas.models import Poliza
 from hidromed.users.models import User, Poliza_Medidor_User
 from .forms import FiltrosForm
 
-def GetChartFree(medidor, filtro):
+def GetChartFree(medidor, tipo_de_grafico, periodo_datos, 
+	desde, hasta, filtro):
+	print ('medidor')
+	print (medidor)
+	print ('tipo_de_grafico')
+	print (tipo_de_grafico)
+	print ('periodo_datos')
+	print (periodo_datos)
+	print ('desde')
+	print (desde)
+	print ('hasta')
+	print (hasta)
+	print ('filtro')
+	print (filtro)
+
 	data = \
 		DataPool (
 			series = 
@@ -57,12 +71,13 @@ def FreeChart(request):
 		periodo_datos = ''
 		desde = ''
 		hasta = ''
-		medidor_request = ''
 		for registro in usuario_medidores:
 			medidor = Medidor.objects.get(serial=registro.medidor)
 			poliza = Poliza.objects.get(numero=registro.poliza)
 			medidores.append(medidor)
 			polizas.append(poliza)
+
+		medidor_request = medidores[0]
 
 		if 'medidor' in request.GET.keys():
 			medidor_request = request.GET.get('medidor')
@@ -75,35 +90,27 @@ def FreeChart(request):
 				desde = form.cleaned_data['desde']
 				hasta = form.cleaned_data['hasta']
 
-		print ('tipo_de_grafico')
-		print (tipo_de_grafico)
-		print ('periodo_datos')
-		print (periodo_datos)
-		print ('desde')
-		print (desde)
-		print ('hasta')
-		print (hasta)
-		print ('medidor_request')
-		print (medidor_request)
-
-		"""
 		graficos = []
-		for medidor in usuario_medidores:
-			medidor = Medidor.objects.get(serial=medidor.medidor)
-			if Izarnetv1.objects.filter(medidor=medidor).exists():
-				graficos.append(GetChartFree(
-					medidor,
-					Izarnetv1.objects.filter(medidor=medidor)))
-			if Izarnetv2.objects.filter(medidor=medidor).exists():
-				graficos.append(GetChartFree(
-					medidor,
-					Izarnetv2.objects.filter(medidor=medidor)))
+		medidor = Medidor.objects.get(serial=medidor_request)
+		if Izarnetv1.objects.filter(medidor=medidor).exists():
+			graficos.append(GetChartFree(
+				medidor,
+				tipo_de_grafico,
+				periodo_datos,
+				desde,
+				hasta,
+				Izarnetv1.objects.filter(medidor=medidor)))
+		if Izarnetv2.objects.filter(medidor=medidor).exists():
+			graficos.append(GetChartFree(
+				medidor,
+				tipo_de_grafico,
+				periodo_datos,
+				desde,
+				hasta,
+				Izarnetv2.objects.filter(medidor=medidor)))
 		
-		#charts_counter = GetCounter(graficos, '1')
-		"""
 		data = {
-			#'graficos': graficos,
-			#'charts_counter': charts_counter,
+			'graficos': graficos,
 			'medidores': medidores,
 			'polizas': polizas,
 			'form': form,
