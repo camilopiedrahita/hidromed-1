@@ -61,10 +61,10 @@
                 </div>
                 <div class="col-md-12 graficos">
                     {% if data.graficos %}
-                        {{ data.graficos|load_charts:"chart1" }}
+                        {{ data.graficos|load_charts:data.charts_counter }}
                         {% for chart1 in data.graficos %}
                             <div class="col-md-12">
-                                <div id="chart1"></div>
+                                <div id="chart1_{{ forloop.counter }}"></div>
                             </div>
                         {% endfor %}
                     {% else %}

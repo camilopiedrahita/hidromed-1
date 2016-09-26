@@ -56,6 +56,15 @@ def GetChartFree(medidor, tipo_de_grafico, periodo_datos,
 						'text': 'Datos'}}})
 	return cht
 
+def GetCounter(graficos, version):
+	string = ''
+	counter = 0
+	for chart in graficos:
+		counter += 1
+		string = (string + 'chart' + version + 
+			'_' + str(counter) + ',')
+	return string
+
 @login_required
 def FreeChart(request):
 	usuario_medidores = Poliza_Medidor_User.objects.filter(usuario=request.user)
@@ -109,11 +118,13 @@ def FreeChart(request):
 				hasta,
 				Izarnetv2.objects.filter(medidor=medidor)))
 		
+		charts_counter = GetCounter(graficos, '1')
 		data = {
 			'graficos': graficos,
 			'medidores': medidores,
 			'polizas': polizas,
 			'form': form,
+			'charts_counter': charts_counter,
 		}
 
 	return render(request, 'pages/grafico_gratis.html', {'data': data})
