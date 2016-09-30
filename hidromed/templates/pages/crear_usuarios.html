@@ -42,11 +42,13 @@
 							<th>usuario</th>
 						</tr>
 						{% for poliza_medidor in data.polizas_medidores %}
-							<tr>
-								<td>{{ poliza_medidor.poliza }}</td>
-								<td>{{ poliza_medidor.medidor }}</td>
-								<td>{{ poliza_medidor.usuario }}</td>
-							</tr>
+							{% for pm in poliza_medidor %}
+								<tr>
+									<td>{{ pm.poliza }}</td>
+									<td>{{ pm.medidor }}</td>
+									<td>{{ pm.usuario }}</td>
+								</tr>
+							{% endfor %}
 						{% endfor %}
 					</table>	
 				</div>

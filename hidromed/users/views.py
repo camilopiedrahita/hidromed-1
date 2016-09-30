@@ -123,7 +123,7 @@ def CrearUsuariosView(request):
             for user in created_users:
                 usuario = User.objects.get(username=user)
                 users.append(usuario)
-                polizas_medidores.append(Poliza_Medidor_User.objects.get(usuario=usuario))
+                polizas_medidores.append(Poliza_Medidor_User.objects.filter(usuario=usuario))
             data = {
                 'users' : users,
                 'polizas_medidores': polizas_medidores,
