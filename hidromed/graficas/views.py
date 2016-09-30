@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 from django.shortcuts import render
 
 from django.contrib import messages
@@ -14,10 +15,7 @@ from hidromed.polizas.models import Poliza
 from hidromed.users.models import User, Poliza_Medidor_User
 from .forms import FiltrosForm
 
-def GetChartFree(medidor, tipo_de_grafico, periodo_datos, 
-	desde, hasta, filtro, izarnet):
-	print ('periodo_datos')
-	print (periodo_datos)
+def GetChartFree(medidor, tipo_de_grafico, filtro, izarnet):
 
 	data = \
 		DataPool (
@@ -91,6 +89,39 @@ def FreeChart(request):
 				desde = form.cleaned_data['desde']
 				hasta = form.cleaned_data['hasta']
 
+		if periodo_datos == '1':
+			periodo_datos = 60
+		elif periodo_datos == '2':
+			periodo_datos = 900
+		elif periodo_datos == '3':
+			periodo_datos = 3600
+		elif periodo_datos == '4':
+			periodo_datos = 86400
+
+		data_medidor_Izarnetv1 = Izarnetv1.objects.filter(medidor=medidor, 
+			fecha__range=[desde, hasta]).order_by('fecha')
+
+		data_medidor_Izarnetv2 = Izarnetv2.objects.filter(medidor=medidor,
+			fecha__range=[desde, hasta]).order_by('fecha')
+
+		data_med_def_Izarnetv1 = []
+		data_med_def_Izarnetv2 = []
+		
+		data_med_def_Izarnetv1.append(data_medidor_Izarnetv1[0].id)
+		f_inicial = data_medidor_Izarnetv1[0].fecha
+		f_next = f_inicial + datetime.timedelta(0, periodo_datos)
+		for data_medidor in data_medidor_Izarnetv1:
+			if data_medidor.fecha == f_next:
+				data_med_def_Izarnetv1.append(data_medidor.id)
+				f_next = (data_medidor.fecha + 
+					datetime.timedelta(0, periodo_datos))
+			elif data_medidor.fecha > f_next:
+				data_med_def_Izarnetv1.append(data_medidor.id)
+				f_next = (data_medidor.fecha + 
+					datetime.timedelta(0, periodo_datos))
+		data_medidor_Izarnetv1 = Izarnetv1.objects.filter(
+			id__in=data_med_def_Izarnetv1)
+
 		graficos = []
 		medidor = Medidor.objects.get(serial=medidor_request)
 		if Izarnetv1.objects.filter(medidor=medidor).exists():
@@ -99,11 +130,7 @@ def FreeChart(request):
 				graficos.append(GetChartFree(
 					medidor,
 					tipo_de_grafico,
-					periodo_datos,
-					desde,
-					hasta,
-					Izarnetv1.objects.filter(medidor=medidor, 
-						fecha__range=[desde, hasta]),
+					data_medidor_Izarnetv1,
 					'Izarnet 1'))
 				date_control = False
 			else:
@@ -115,11 +142,7 @@ def FreeChart(request):
 				graficos.append(GetChartFree(
 					medidor,
 					tipo_de_grafico,
-					periodo_datos,
-					desde,
-					hasta,
-					Izarnetv2.objects.filter(medidor=medidor,
-						fecha__range=[desde, hasta]),
+					data_medidor_Izarnetv2,
 					'Izarnet 2'))
 				date_control = False
 			else:
