@@ -2,16 +2,18 @@ from django.contrib import admin
 
 from .models import *
 
-@admin.register(Medidor)
+@admin.register(Poliza)
 class AdminMedidor(admin.ModelAdmin):
-	list_display = ('id', 'serial',)
+	list_display = ('id', 'numero',)
 
-@admin.register(Medidor_Cliente)
+@admin.register(Poliza_Cliente)
 class AdminMedidor(admin.ModelAdmin):
-	list_display = ('id', 'medidor', 'cliente',)
+	list_display = ('id', 'poliza', 'cliente',)
 	list_filter = ('cliente',)
 
-@admin.register(Medidor_Acueducto)
+@admin.register(Poliza_Acueducto)
 class AdminMedidor(admin.ModelAdmin):
-	list_display = ('id', 'medidor', 'acueducto',)
+	list_display = ('id', 'poliza', 'acueducto',)
 	list_filter = ('acueducto',)
+
+

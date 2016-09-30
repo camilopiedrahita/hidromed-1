@@ -41,10 +41,6 @@ class MyUserAdmin(AuthUserAdmin):
     list_display = ('username', 'name', 'is_superuser')
     search_fields = ['name']
 
-@admin.register(PolizaUser)
-class AdminPolizaUser(admin.ModelAdmin):
-    list_display = ('id', 'poliza', 'usuario',)
-
-@admin.register(MedidorUser)
-class AdminMedidorUser(admin.ModelAdmin):
-    list_display = ('id', 'medidor', 'usuario',)
+@admin.register(Poliza_Medidor_User)
+class AdminPolizaMedidorUser(admin.ModelAdmin):
+    list_display = ('id', 'poliza', 'medidor', 'usuario',)

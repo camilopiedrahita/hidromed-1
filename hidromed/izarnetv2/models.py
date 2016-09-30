@@ -11,11 +11,12 @@ class Izarnetv2(models.Model):
 	fecha = models.DateTimeField()
 	volumen_litros = models.FloatField(default=None)
 	consumo = models.FloatField(default=None)
-	caudal = models.FloatField(default=None)
+	caudal = models.FloatField(default=None,
+		verbose_name='Caudal Promedio')
 	alarma = models.CharField(max_length=255)
 
 	def __str__(self):
-		return self.medidor
+		return str(self.medidor)
 
 @python_2_unicode_compatible
 class Izarnetv2Procesados(models.Model):

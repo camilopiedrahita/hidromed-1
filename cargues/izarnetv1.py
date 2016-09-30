@@ -21,28 +21,34 @@ def Log(mensaje):
 	file_log.close()
 
 def CargueRegistros(data, file_name):
-	headers = []
+	#Queries partials
 	get_procesados = ('SELECT id FROM izarnetv1_izarnetv1procesados '
 		'WHERE nombre = "{}"'.format(file_name))
+	add_procesados_partial = ('INSERT INTO izarnetv1_izarnetv1procesados '
+		'(nombre, fecha, estado) ')
+	add_partial = ('INSERT INTO izarnetv1_izarnetv1 '
+		'(fecha, volumen, consumo, volumen_litros, caudal, alarma, medidor_id) ')
+	get_medidor_partial = ('SELECT id FROM medidores_medidor ')
+	last_id_partial = ('SELECT MAX(id) FROM izarnetv1_izarnetv1 ')
+	last_fecha_partial = ('SELECT fecha FROM izarnetv1_izarnetv1 ')
+
+	headers = []
 	cursor.execute(get_procesados)
 	procesado_id = cursor.fetchone()
 	if procesado_id == None:
-		add_procesados_partial = ('INSERT INTO izarnetv1_izarnetv1procesados '
-			'(nombre, fecha, estado) ')
 		estado = 'Cargue correcto'
 		parsed_file_name = file_name.split('_')[1]
-		add_partial = ('INSERT INTO izarnetv1_izarnetv1 '
-			'(fecha, volumen, consumo, volumen_litros, caudal, alarma, medidor_id) ')
-		get_medidor = ('SELECT id FROM medidores_medidor '
+		get_medidor = get_medidor_partial + (
 			'WHERE serial = "{}"'.format(parsed_file_name))
 		cursor.execute(get_medidor)
 		medidor_id = cursor.fetchone()
 		if medidor_id == None:
 			Log('No existe el medidor {}'.format(parsed_file_name))
-			medidor_id = None
 			estado = 'Cargue con errores'
 		else:	
 			medidor_id = medidor_id[0]
+			last_id = last_id_partial + (
+				'WHERE medidor_id = "{}"'.format(medidor_id))
 		for header in list(data.columns.values):
 			headers.append(header)
 
@@ -50,12 +56,28 @@ def CargueRegistros(data, file_name):
 			try:
 				fecha = row[1][headers[0]]
 				fecha = datetime.strptime(fecha, '%d/%m/%y %I:%M %p')
-				volumen = row[1][headers[1]]
-				consumo = row[1][headers[2]]
+				volumen = float(str(row[1][headers[1]]).replace(',', '.'))
+				consumo = float(str(row[1][headers[2]]).replace(',', '.'))
 				volumen_litros = volumen*1000
-				caudal = volumen_litros*60
-				alarma = row[1][headers[4]]
+				alarma = u'%s' % row[1][headers[4]]
 				alarma = alarma.encode('ascii', 'ignore')
+				cursor.execute(last_id)
+				last_medidor_data = cursor.fetchone()
+				last_medidor_data = last_medidor_data[0]
+				if last_medidor_data == None:
+					caudal = 0
+				else:
+					last_fecha = last_fecha_partial + (
+						'WHERE id = "{}"'.format(last_medidor_data))
+					cursor.execute(last_fecha)
+					last_fecha_data = cursor.fetchone()
+					last_fecha_data = last_fecha_data[0]
+					if (fecha - last_fecha_data).total_seconds() < 0:
+						minutos = (((fecha - last_fecha_data)*-1).total_seconds())/60
+					else:
+						minutos = ((fecha - last_fecha_data).total_seconds())/60
+					caudal = consumo * 1000 / minutos * 60
+
 				add_row = add_partial + ('VALUES ("{}", {}, {}, {}, {}, "{}", {})'.
 					format(fecha, volumen, consumo, volumen_litros, 
 						caudal, alarma, medidor_id))

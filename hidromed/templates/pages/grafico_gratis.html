@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load chartit %}
+{% load crispy_forms_tags %}
 {% block title %}Gráfico gratuito{% endblock %}
 
 {% block content %}
@@ -9,21 +10,70 @@
         <script src="http://code.highcharts.com/highcharts.js"></script>
     {% endblock %}
     <div class="container">
-        <div class="row">
-            {% if data %}
-                {% if data.graficos %}
-                    {{ data.graficos|load_charts:data.charts_counter }}
-                    {% for chart1 in data.graficos %}
-                        <div class="col-md-12">
-                            <div id="chart1_{{ forloop.counter }}"></div>
+        <div class="row main-content">
+            <div class="col-sm-3 filtros">
+                <h2 class="filtro-titulo">
+                    Medidores
+                </h2>
+                <div class="tipo-titulo">
+                    {% if data.medidores %}
+                        <ul>
+                            {% for medidor in data.medidores %}
+                                <li>
+                                    <a href="/gratis/?medidor={{ medidor.serial }}">
+                                        {{ medidor.serial }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="no-content">
+                            <p>No hay medidores</p>
                         </div>
-                    {% endfor %}
-                {% endif %}
-            {% else %}
-                <div class="no-content">                
-                    <h1>NO SE ENCONTRARON DATOS</h1>
+                    {% endif %}
                 </div>
-            {% endif %}
+                <h2 class="filtro-titulo">
+                    Pólizas
+                </h2>
+                <div class="tipo-titulo">
+                    {% if data.polizas %}
+                        <ul>
+                            {% for poliza in data.polizas %}
+                                <li>
+                                    <a href="/gratis/?poliza={{ poliza.numero }}">
+                                        {{ poliza.numero }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="no-content">
+                            <p>No hay polizas</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-sm-9">
+                <div class="filtros_form">
+                    {% if data.form %}
+                        {% crispy data.form %}
+                    {% endif %}
+                </div>
+                <div class="col-md-12 graficos">
+                    {% if data.graficos %}
+                        {{ data.graficos|load_charts:data.charts_counter }}
+                        {% for chart1 in data.graficos %}
+                            <div class="col-md-12">
+                                <div id="chart1_{{ forloop.counter }}"></div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-content">                
+                            <h1>NO SE ENCONTRARON DATOS</h1>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

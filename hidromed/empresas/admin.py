@@ -3,10 +3,10 @@ from django.contrib import admin
 
 from .models import *
 
-@admin.register(Empresa)
-class AdminEmpresa(admin.ModelAdmin):
+@admin.register(Acueducto)
+class AdminAcueducto(admin.ModelAdmin):
 	list_display = ('id', 'nombre', 'nit',)
 
-@admin.register(Poliza)
-class AdminPoliza(admin.ModelAdmin):
-	list_display = ('id', 'numero', 'empresa',)
+@admin.register(Cliente)
+class AdminCliente(admin.ModelAdmin):
+	list_display = ('id', 'nombre', 'nit', 'direccion',)

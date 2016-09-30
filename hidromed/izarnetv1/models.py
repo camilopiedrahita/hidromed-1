@@ -12,7 +12,8 @@ class Izarnetv1(models.Model):
 	volumen = models.FloatField(default=None)
 	consumo = models.FloatField(default=None)
 	volumen_litros = models.FloatField(default=None)
-	caudal = models.FloatField(default=None)
+	caudal = models.FloatField(default=None,
+		verbose_name='Caudal Promedio')
 	alarma = models.CharField(max_length=255)
 
 	def __str__(self):
