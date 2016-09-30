@@ -54,15 +54,32 @@ def GetCounter(graficos, version):
 			'_' + str(counter) + ',')
 	return string
 
+def GetData(data_medidor, periodo_datos, modelo):
+	data = []
+	data.append(data_medidor[0].id)
+	f_inicial = data_medidor[0].fecha
+	f_next = f_inicial + datetime.timedelta(0, periodo_datos)
+	for data_m in data_medidor:
+		if data_m.fecha == f_next:
+			data.append(data_m.id)
+			f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
+		elif data_m.fecha > f_next:
+			data.append(data_m.id)
+			f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
+	return modelo.filter(id__in=data)
+
 @login_required
 def FreeChart(request):
-	usuario_medidores = Poliza_Medidor_User.objects.filter(usuario=request.user)
+	usuario_medidores = Poliza_Medidor_User.objects.filter(
+		usuario=request.user)
 	
 	if not usuario_medidores:
-		messages.error(request, 'Su usuario no tiene medidores o pólizas asociados')
+		messages.error(request,
+			'Su usuario no tiene medidores o pólizas asociados')
 		data = ''
 	else:
 		form = FiltrosForm()
+		graficos = []
 		medidores = []
 		polizas = []
 		tipo_de_grafico = 'consumo'
@@ -98,32 +115,24 @@ def FreeChart(request):
 		elif periodo_datos == '4':
 			periodo_datos = 86400
 
-		data_medidor_Izarnetv1 = Izarnetv1.objects.filter(medidor=medidor, 
-			fecha__range=[desde, hasta]).order_by('fecha')
-
-		data_medidor_Izarnetv2 = Izarnetv2.objects.filter(medidor=medidor,
-			fecha__range=[desde, hasta]).order_by('fecha')
-
-		data_med_def_Izarnetv1 = []
-		data_med_def_Izarnetv2 = []
-		
-		data_med_def_Izarnetv1.append(data_medidor_Izarnetv1[0].id)
-		f_inicial = data_medidor_Izarnetv1[0].fecha
-		f_next = f_inicial + datetime.timedelta(0, periodo_datos)
-		for data_medidor in data_medidor_Izarnetv1:
-			if data_medidor.fecha == f_next:
-				data_med_def_Izarnetv1.append(data_medidor.id)
-				f_next = (data_medidor.fecha + 
-					datetime.timedelta(0, periodo_datos))
-			elif data_medidor.fecha > f_next:
-				data_med_def_Izarnetv1.append(data_medidor.id)
-				f_next = (data_medidor.fecha + 
-					datetime.timedelta(0, periodo_datos))
-		data_medidor_Izarnetv1 = Izarnetv1.objects.filter(
-			id__in=data_med_def_Izarnetv1)
-
-		graficos = []
 		medidor = Medidor.objects.get(serial=medidor_request)
+
+		if Izarnetv1.objects.filter(medidor=medidor,
+			fecha__range=[desde, hasta]):
+			data_medidor_Izarnetv1 = GetData(
+				Izarnetv1.objects.filter(medidor=medidor,
+					fecha__range=[desde, hasta]).order_by('fecha'),
+				periodo_datos,
+				Izarnetv1.objects.all())
+
+		if Izarnetv2.objects.filter(medidor=medidor,
+			fecha__range=[desde, hasta]):
+			data_medidor_Izarnetv2 = GetData(
+				Izarnetv2.objects.filter(medidor=medidor,
+					fecha__range=[desde, hasta]).order_by('fecha'),
+				periodo_datos,
+				Izarnetv2.objects.all())
+
 		if Izarnetv1.objects.filter(medidor=medidor).exists():
 			if Izarnetv1.objects.filter(medidor=medidor, 
 					fecha__range=[desde, hasta]):
@@ -149,7 +158,8 @@ def FreeChart(request):
 				date_control = True
 		
 		if date_control == True:
-			messages.warning(request, 'Por favor seleccione un rango de fechas')
+			messages.warning(request,
+				'Por favor seleccione un rango de fechas')
 
 		charts_counter = GetCounter(graficos, '1')
 		data = {
