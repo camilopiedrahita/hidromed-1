@@ -103,7 +103,8 @@ def CrearUsuarios(request, data):
                     usuario=user_id)
             if not correcto == False:
                 correcto = True
-            created_users.append(username)
+            if not any(i == username for i in created_users):
+                created_users.append(username)
     if correcto == True:
         messages.success(request, 'Usuarios creados correctamente')
     else:
