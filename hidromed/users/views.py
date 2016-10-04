@@ -119,6 +119,9 @@ def CrearUsuariosView(request):
             polizas_medidores = []
             cliente = []
             data = CargueExcel(request.FILES['archivo_usuarios'])
+
+            print (data)
+
             created_users = CrearUsuarios(request, data)
             for user in created_users:
                 usuario = User.objects.get(username=user)
