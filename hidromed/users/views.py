@@ -103,7 +103,8 @@ def CrearUsuarios(request, data):
                     usuario=user_id)
             if not correcto == False:
                 correcto = True
-            created_users.append(username)
+            if not any(i == username for i in created_users):
+                created_users.append(username)
     if correcto == True:
         messages.success(request, 'Usuarios creados correctamente')
     else:
@@ -119,9 +120,6 @@ def CrearUsuariosView(request):
             polizas_medidores = []
             cliente = []
             data = CargueExcel(request.FILES['archivo_usuarios'])
-
-            print (data)
-
             created_users = CrearUsuarios(request, data)
             for user in created_users:
                 usuario = User.objects.get(username=user)
