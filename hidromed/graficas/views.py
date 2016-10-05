@@ -8,7 +8,7 @@ from django.contrib import messages
 
 from chartit import DataPool, Chart
 
-from hidromed.izarnetv1.models import Izarnetv1
+from hidromed.izarnet.models import Izarnet
 from hidromed.medidores.models import Medidor
 from hidromed.polizas.models import Poliza
 from hidromed.users.models import User, Poliza_Medidor_User
@@ -107,21 +107,21 @@ def FreeChart(request):
 
 		medidor = Medidor.objects.get(serial=medidor_request)
 
-		if Izarnetv1.objects.filter(medidor=medidor,
+		if Izarnet.objects.filter(medidor=medidor,
 			fecha__range=[desde, hasta]):
-			data_medidor_Izarnetv1 = GetData(
-				Izarnetv1.objects.filter(medidor=medidor,
+			data_medidor_Izarnet = GetData(
+				Izarnet.objects.filter(medidor=medidor,
 					fecha__range=[desde, hasta]).order_by('fecha'),
 				periodo_datos,
-				Izarnetv1.objects.all())
+				Izarnet.objects.all())
 
-		if Izarnetv1.objects.filter(medidor=medidor).exists():
-			if Izarnetv1.objects.filter(medidor=medidor, 
+		if Izarnet.objects.filter(medidor=medidor).exists():
+			if Izarnet.objects.filter(medidor=medidor, 
 					fecha__range=[desde, hasta]):
 				graficos.append(GetChartFree(
 					medidor,
 					tipo_de_grafico,
-					data_medidor_Izarnetv1,
+					data_medidor_Izarnet,
 					'Izarnet 1'))
 				date_control = False
 			else:

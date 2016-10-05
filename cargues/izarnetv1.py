@@ -22,15 +22,15 @@ def Log(mensaje):
 
 def CargueRegistros(data, file_name):
 	#Queries partials
-	get_procesados = ('SELECT id FROM izarnetv1_izarnetv1procesados '
+	get_procesados = ('SELECT id FROM izarnet_izarnetprocesados '
 		'WHERE nombre = "{}"'.format(file_name))
-	add_procesados_partial = ('INSERT INTO izarnetv1_izarnetv1procesados '
+	add_procesados_partial = ('INSERT INTO izarnet_izarnetprocesados '
 		'(nombre, fecha, estado) ')
-	add_partial = ('INSERT INTO izarnetv1_izarnetv1 '
+	add_partial = ('INSERT INTO izarnet_izarnet '
 		'(fecha, volumen, consumo, volumen_litros, caudal, alarma, medidor_id) ')
 	get_medidor_partial = ('SELECT id FROM medidores_medidor ')
-	last_id_partial = ('SELECT MAX(id) FROM izarnetv1_izarnetv1 ')
-	last_fecha_partial = ('SELECT fecha FROM izarnetv1_izarnetv1 ')
+	last_id_partial = ('SELECT MAX(id) FROM izarnet_izarnet ')
+	last_fecha_partial = ('SELECT fecha FROM izarnet_izarnet ')
 
 	headers = []
 	cursor.execute(get_procesados)

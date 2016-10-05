@@ -22,15 +22,15 @@ def Log(mensaje):
 
 def CargueRegistros(data, file_name):
 	#Queries partials
-	get_procesados = ('SELECT id FROM izarnetv2_izarnetv2procesados '
+	get_procesados = ('SELECT id FROM izarnet_izarnetprocesados '
 		'WHERE nombre = "{}"'.format(file_name))
-	add_procesados_partial = ('INSERT INTO izarnetv2_izarnetv2procesados '
+	add_procesados_partial = ('INSERT INTO izarnet_izarnetprocesados '
 		'(nombre, fecha, estado) ')
-	add_partial = ('INSERT INTO izarnetv2_izarnetv2 '
-		'(fecha, consumo, volumen_litros, caudal, alarma, medidor_id) ')
+	add_partial = ('INSERT INTO izarnet_izarnet '
+		'(fecha, volumen, consumo, volumen_litros, caudal, alarma, medidor_id) ')
 	get_medidor_partial = ('SELECT id FROM medidores_medidor ')
-	last_id_partial = ('SELECT MAX(id) FROM izarnetv2_izarnetv2 ')
-	last_fecha_partial = ('SELECT fecha FROM izarnetv2_izarnetv2 ')
+	last_id_partial = ('SELECT MAX(id) FROM izarnet_izarnet ')
+	last_fecha_partial = ('SELECT fecha FROM izarnet_izarnet ')
 
 	headers = []
 	cursor.execute(get_procesados)
@@ -44,7 +44,6 @@ def CargueRegistros(data, file_name):
 		medidor_id = cursor.fetchone()
 		if medidor_id == None:
 			Log('No existe el medidor {}'.format(parsed_file_name))
-			medidor_id = None
 			estado = 'Cargue con errores'
 		else:	
 			medidor_id = medidor_id[0]
@@ -59,6 +58,7 @@ def CargueRegistros(data, file_name):
 				fecha = datetime.strptime(fecha, '%d-%m-%Y %H:%M:%S')
 				volumen_litros = float(str(row[1][headers[1]]).replace(',', '.'))
 				consumo = float(str(row[1][headers[2]]).replace(',', '.'))
+				volumen = volumen_litros/1000
 				alarma = u'%s' % row[1][headers[4]]
 				alarma = alarma.encode('ascii', 'ignore')
 				cursor.execute(last_id)
@@ -78,8 +78,8 @@ def CargueRegistros(data, file_name):
 						minutos = ((fecha - last_fecha_data).total_seconds())/60
 					caudal = consumo / minutos * 60
 
-				add_row = add_partial + ('VALUES ("{}", {}, {}, {}, "{}", {})'.
-					format(fecha, consumo, volumen_litros, 
+				add_row = add_partial + ('VALUES ("{}", {}, {}, {}, {}, "{}", {})'.
+					format(fecha, volumen, consumo, volumen_litros, 
 						caudal, alarma, medidor_id))
 				try:
 					cursor.execute(add_row)

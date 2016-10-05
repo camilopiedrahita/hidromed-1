@@ -4,4 +4,4 @@ from django.apps import AppConfig
 
 
 class Izarnetv1Config(AppConfig):
-    name = 'izarnetv1'
+    name = 'izarnet'
