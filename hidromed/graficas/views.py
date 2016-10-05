@@ -10,7 +10,6 @@ from chartit import DataPool, Chart
 
 from hidromed.izarnet.models import Izarnet
 from hidromed.medidores.models import Medidor
-from hidromed.polizas.models import Poliza
 from hidromed.users.models import User, Poliza_Medidor_User
 from .forms import FiltrosForm
 
@@ -71,7 +70,6 @@ def FreeChart(request):
 		form = FiltrosForm()
 		graficos = []
 		medidores = []
-		polizas = []
 		tipo_de_grafico = 'consumo'
 		periodo_datos = ''
 		desde = '1986-02-12'
@@ -79,9 +77,7 @@ def FreeChart(request):
 		date_control = False
 		for registro in usuario_medidores:
 			medidor = Medidor.objects.get(serial=registro.medidor)
-			poliza = Poliza.objects.get(numero=registro.poliza)
 			medidores.append(medidor)
-			polizas.append(poliza)
 
 		medidor_request = medidores[0]
 
@@ -134,7 +130,6 @@ def FreeChart(request):
 		data = {
 			'graficos': graficos,
 			'medidores': medidores,
-			'polizas': polizas,
 			'form': form,
 		}
 

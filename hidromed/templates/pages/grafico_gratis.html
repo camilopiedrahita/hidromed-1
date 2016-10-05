@@ -32,26 +32,6 @@
                         </div>
                     {% endif %}
                 </div>
-                <h2 class="filtro-titulo">
-                    Pólizas
-                </h2>
-                <div class="tipo-titulo">
-                    {% if data.polizas %}
-                        <ul>
-                            {% for poliza in data.polizas %}
-                                <li>
-                                    <a href="/gratis/?poliza={{ poliza.numero }}">
-                                        {{ poliza.numero }}
-                                    </a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <div class="no-content">
-                            <p>No hay polizas</p>
-                        </div>
-                    {% endif %}
-                </div>
             </div>
             <div class="col-sm-9">
                 <div class="filtros_form">
