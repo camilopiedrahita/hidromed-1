@@ -49,7 +49,6 @@ LOCAL_APPS = (
     # Your stuff: custom apps go here
     'hidromed.empresas',
     'hidromed.izarnetv1',
-    'hidromed.izarnetv2',
     'hidromed.medidores',
     'hidromed.graficas',
     'hidromed.polizas',

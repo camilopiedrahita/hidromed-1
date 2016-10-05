@@ -9,7 +9,6 @@ from django.contrib import messages
 from chartit import DataPool, Chart
 
 from hidromed.izarnetv1.models import Izarnetv1
-from hidromed.izarnetv2.models import Izarnetv2
 from hidromed.medidores.models import Medidor
 from hidromed.polizas.models import Poliza
 from hidromed.users.models import User, Poliza_Medidor_User
@@ -44,15 +43,6 @@ def GetChartFree(medidor, tipo_de_grafico, filtro, izarnet):
 					'title': {
 						'text': 'Datos'}}})
 	return cht
-
-def GetCounter(graficos, version):
-	string = ''
-	counter = 0
-	for chart in graficos:
-		counter += 1
-		string = (string + 'chart' + version + 
-			'_' + str(counter) + ',')
-	return string
 
 def GetData(data_medidor, periodo_datos, modelo):
 	data = []
@@ -125,14 +115,6 @@ def FreeChart(request):
 				periodo_datos,
 				Izarnetv1.objects.all())
 
-		if Izarnetv2.objects.filter(medidor=medidor,
-			fecha__range=[desde, hasta]):
-			data_medidor_Izarnetv2 = GetData(
-				Izarnetv2.objects.filter(medidor=medidor,
-					fecha__range=[desde, hasta]).order_by('fecha'),
-				periodo_datos,
-				Izarnetv2.objects.all())
-
 		if Izarnetv1.objects.filter(medidor=medidor).exists():
 			if Izarnetv1.objects.filter(medidor=medidor, 
 					fecha__range=[desde, hasta]):
@@ -144,30 +126,16 @@ def FreeChart(request):
 				date_control = False
 			else:
 				date_control = True
-
-		if Izarnetv2.objects.filter(medidor=medidor).exists():
-			if Izarnetv2.objects.filter(medidor=medidor,
-					fecha__range=[desde, hasta]):
-				graficos.append(GetChartFree(
-					medidor,
-					tipo_de_grafico,
-					data_medidor_Izarnetv2,
-					'Izarnet 2'))
-				date_control = False
-			else:
-				date_control = True
 		
 		if date_control == True:
 			messages.warning(request,
 				'Por favor seleccione un rango de fechas')
 
-		charts_counter = GetCounter(graficos, '1')
 		data = {
 			'graficos': graficos,
 			'medidores': medidores,
 			'polizas': polizas,
 			'form': form,
-			'charts_counter': charts_counter,
 		}
 
 	return render(request, 'pages/grafico_gratis.html', {'data': data})
