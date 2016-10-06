@@ -1,8 +1,8 @@
 import pandas as pd
 import MySQLdb
-from datetime import datetime
 import glob
 import shutil
+from datetime import datetime
 
 conn = MySQLdb.connect(host='localhost',
                   user='root',
@@ -109,7 +109,7 @@ file_names = glob.glob(path + 'IzarNet1*.xls')
 for file in file_names:
 	print file
 	data = CargueExcel(file)
-	CargueRegistros(data, file)
+	CargueRegistros(data.fillna(0), file)
 	shutil.move(file, 'Procesados/' + file)
 
 cursor.close()
