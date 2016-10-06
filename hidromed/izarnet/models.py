@@ -6,23 +6,32 @@ from django.utils.encoding import python_2_unicode_compatible
 from hidromed.medidores.models import Medidor
 
 @python_2_unicode_compatible
-class Izarnetv2(models.Model):
+class Izarnet(models.Model):
 	medidor = models.ForeignKey(Medidor, default=None)
 	fecha = models.DateTimeField()
-	volumen_litros = models.FloatField(default=None)
+	volumen = models.FloatField(default=None)
 	consumo = models.FloatField(default=None)
+	volumen_litros = models.FloatField(default=None)
 	caudal = models.FloatField(default=None,
 		verbose_name='Caudal Promedio')
 	alarma = models.CharField(max_length=255)
+
+	class Meta:
+		verbose_name = 'Izarnet'
+		verbose_name_plural = 'Izarnet'
 
 	def __str__(self):
 		return str(self.medidor)
 
 @python_2_unicode_compatible
-class Izarnetv2Procesados(models.Model):
+class IzarnetProcesados(models.Model):
 	nombre = models.CharField(max_length=255)
 	fecha = models.DateTimeField()
 	estado = models.CharField(max_length=255)
+
+	class Meta:
+		verbose_name = 'Archivos Procesados'
+		verbose_name_plural = 'Archivos Procesados'
 
 	def __str__(self):
 		return self.nombre

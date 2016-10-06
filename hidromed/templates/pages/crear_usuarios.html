@@ -12,8 +12,8 @@
 			{% csrf_token %}
 			{% crispy form %} 
 		</div>
-		{% if data.users %}
-			<div class="row confirm_usuarios_creados">
+		<div class="row confirm_usuarios_creados">
+			{% if data.users %}
 				<div>
 					<h1>Usuarios creados</h1>
 					<table>
@@ -52,7 +52,22 @@
 						{% endfor %}
 					</table>	
 				</div>
-			</div>
-		{% endif %}
+			{% endif %}
+			{% if data.log %}
+				<div>
+					<h1>Errores en creación de usuarios</h1>
+					<table>
+						<tr>
+							<th>Error</th>
+						</tr>
+						{% for error in data.log %}
+							<tr>
+								<td>{{ error }}</td>
+							</tr>
+						{% endfor %}
+					</table>
+				</div>
+			{% endif %}
+		</div>
 	</div>
 {% endblock %}

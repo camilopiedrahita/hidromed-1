@@ -48,8 +48,7 @@ LOCAL_APPS = (
     'hidromed.users.apps.UsersConfig',
     # Your stuff: custom apps go here
     'hidromed.empresas',
-    'hidromed.izarnetv1',
-    'hidromed.izarnetv2',
+    'hidromed.izarnet',
     'hidromed.medidores',
     'hidromed.graficas',
     'hidromed.polizas',

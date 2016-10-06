@@ -21,7 +21,9 @@ def CrearUsuarios(request, data):
     created_users = []
     data = data.replace(np.nan, ' ', regex=True)
     correcto = True
+    log = []
     for row in data.iterrows():
+        creation_error = False
         nit_acueducto = row[1]['ID NIT Acueducto']
         acueducto = row[1]['Acueducto']
         poliza = row[1]['Póliza']
@@ -73,46 +75,74 @@ def CrearUsuarios(request, data):
                 user_id.cliente = cliente_id
                 user_id.perfil = 0
                 user_id.save()
-            if not Poliza_Cliente.objects.filter(poliza=poliza_id, 
-                cliente=cliente_id):
-                poliza_cliente_id = Poliza_Cliente.objects.create(
-                    poliza=poliza_id,
-                    cliente=cliente_id)
-            if not Poliza_Acueducto.objects.filter(poliza=poliza_id, 
-                acueducto=acueducto_id):
-                poliza_acueducto_id = Poliza_Acueducto.objects.create(
-                    poliza=poliza_id,
+            if not Poliza_Cliente.objects.filter(poliza=poliza_id):
+                Poliza_Cliente.objects.create(poliza=poliza_id, cliente=cliente_id)
+            else:
+                poliza_cliente_id = Poliza_Cliente.objects.get(poliza=poliza_id)
+                if not poliza_cliente_id.cliente == cliente_id:
+                    creation_error = True
+                    log.append(
+                        'La póliza ' + str(poliza) + ' ya está asignada a un cliente')
+            if not Poliza_Acueducto.objects.filter(poliza=poliza_id):
+                Poliza_Acueducto.objects.create(poliza=poliza_id,
                     acueducto=acueducto_id)
-            if not Medidor_Cliente.objects.filter(medidor=medidor_id, 
-                cliente=cliente_id):
-                medidor_cliente_id = Medidor_Cliente.objects.create(
-                    medidor=medidor_id,
+            else:
+                poliza_acueducto_id = Poliza_Acueducto.objects.get(
+                    poliza=poliza_id)
+                if not poliza_acueducto_id.acueducto == acueducto_id:
+                    creation_error = True
+                    log.append(
+                        'La póliza ' + str(poliza) + ' ya está asignada a un acueducto')
+            if not Medidor_Cliente.objects.filter(medidor=medidor_id):
+                Medidor_Cliente.objects.create(medidor=medidor_id,
                     cliente=cliente_id)
-            if not Medidor_Acueducto.objects.filter(medidor=medidor_id, 
-                acueducto=acueducto_id):
-                medidor_acueducto_id = Medidor_Acueducto.objects.create(
-                    medidor=medidor_id,
+            else:
+                medidor_cliente_id = Medidor_Cliente.objects.get(
+                    medidor=medidor_id)
+                if not medidor_cliente_id.cliente == cliente_id:
+                    creation_error = True
+                    log.append(
+                        'El medidor ' + str(serial) + ' ya está asignado a un cliente')
+            if not Medidor_Acueducto.objects.filter(medidor=medidor_id):
+                Medidor_Acueducto.objects.create(medidor=medidor_id,
                     acueducto=acueducto_id)
+            else:
+                medidor_acueducto_id = Medidor_Acueducto.objects.get(
+                    medidor=medidor_id)
+                if not medidor_acueducto_id.acueducto == acueducto_id:
+                    creation_error = True
+                    log.append(
+                        'El medidor ' + str(serial) + ' ya está asignado a un acueducto')
             if Poliza_Medidor_User.objects.filter(poliza=poliza_id, 
                 usuario=user_id, medidor=medidor_id):
-                pass
+                log.append(
+                    'El usuario ' + str(username) + ' ya tiene asignado '+
+                    'el medidor ' + str(serial) + ' y la póliza ' +
+                    str(poliza))
             else:
-                Poliza_Medidor_User.objects.create(
-                    poliza=poliza_id, 
-                    medidor=medidor_id,
-                    usuario=user_id)
+                if creation_error == False:
+                    Poliza_Medidor_User.objects.create(
+                        poliza=poliza_id, 
+                        medidor=medidor_id,
+                        usuario=user_id)
+                    if not any(i == username for i in created_users):
+                        created_users.append(username)
+                else:
+                    log.append(
+                        'No se ha completado la asignación de medidores y ' +
+                        'pólizas al usuario ' + str(username) + 
+                        'Por favor valide el log de errores')
             if not correcto == False:
                 correcto = True
-            if not any(i == username for i in created_users):
-                created_users.append(username)
     if correcto == True:
-        messages.success(request, 'Usuarios creados correctamente')
+        messages.success(request, 'Proceso terminado')
     else:
         messages.warning(request, 'Valide que los campos estén diligenciados')
-    return created_users
+    return created_users, log
 
 @login_required
 def CrearUsuariosView(request):
+    data = {}
     if request.method == 'POST':
         form = CargueUsuarios(request.POST, request.FILES)
         if form.is_valid():
@@ -121,17 +151,17 @@ def CrearUsuariosView(request):
             cliente = []
             data = CargueExcel(request.FILES['archivo_usuarios'])
             created_users = CrearUsuarios(request, data)
-            for user in created_users:
+            for user in created_users[0]:
                 usuario = User.objects.get(username=user)
                 users.append(usuario)
                 polizas_medidores.append(Poliza_Medidor_User.objects.filter(usuario=usuario))
             data = {
                 'users' : users,
                 'polizas_medidores': polizas_medidores,
+                'log': created_users[1],
             }
     else:
         form = CargueUsuarios()
-        data = {}
     return render(request, 'pages/crear_usuarios.html', {'form': form,  'data': data})
 
 class UserDetailView(LoginRequiredMixin, DetailView):

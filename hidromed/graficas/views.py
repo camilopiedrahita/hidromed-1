@@ -8,14 +8,13 @@ from django.contrib import messages
 
 from chartit import DataPool, Chart
 
-from hidromed.izarnetv1.models import Izarnetv1
-from hidromed.izarnetv2.models import Izarnetv2
-from hidromed.medidores.models import Medidor
-from hidromed.polizas.models import Poliza
+from hidromed.izarnet.models import Izarnet
+from hidromed.medidores.models import Medidor, Medidor_Acueducto
 from hidromed.users.models import User, Poliza_Medidor_User
+
 from .forms import FiltrosForm
 
-def GetChartFree(medidor, tipo_de_grafico, filtro, izarnet):
+def GetChartFree(medidor, tipo_de_grafico, filtro, poliza):
 
 	data = \
 		DataPool (
@@ -39,20 +38,12 @@ def GetChartFree(medidor, tipo_de_grafico, filtro, izarnet):
 				}}],
 			chart_options =
 				{'title': {
-					'text': 'Medidor ' + medidor.serial + ' - '+ izarnet},
+					'text': ('Medidor ' + medidor.serial + 
+						' - ' + u'Póliza ' + str(poliza))},
 				'xAxis': {
 					'title': {
 						'text': 'Datos'}}})
 	return cht
-
-def GetCounter(graficos, version):
-	string = ''
-	counter = 0
-	for chart in graficos:
-		counter += 1
-		string = (string + 'chart' + version + 
-			'_' + str(counter) + ',')
-	return string
 
 def GetData(data_medidor, periodo_datos, modelo):
 	data = []
@@ -70,8 +61,11 @@ def GetData(data_medidor, periodo_datos, modelo):
 
 @login_required
 def FreeChart(request):
+	usuario = request.user
 	usuario_medidores = Poliza_Medidor_User.objects.filter(
-		usuario=request.user)
+		usuario=usuario)
+	client_data = usuario
+	acueducto_data = ''
 	
 	if not usuario_medidores:
 		messages.error(request,
@@ -81,7 +75,6 @@ def FreeChart(request):
 		form = FiltrosForm()
 		graficos = []
 		medidores = []
-		polizas = []
 		tipo_de_grafico = 'consumo'
 		periodo_datos = ''
 		desde = '1986-02-12'
@@ -89,9 +82,7 @@ def FreeChart(request):
 		date_control = False
 		for registro in usuario_medidores:
 			medidor = Medidor.objects.get(serial=registro.medidor)
-			poliza = Poliza.objects.get(numero=registro.poliza)
 			medidores.append(medidor)
-			polizas.append(poliza)
 
 		medidor_request = medidores[0]
 
@@ -116,43 +107,27 @@ def FreeChart(request):
 			periodo_datos = 86400
 
 		medidor = Medidor.objects.get(serial=medidor_request)
+		poliza = Poliza_Medidor_User.objects.get(
+			medidor=medidor, usuario=request.user).poliza
+		acueducto_data = Medidor_Acueducto.objects.get(
+			medidor=medidor).acueducto
 
-		if Izarnetv1.objects.filter(medidor=medidor,
+		if Izarnet.objects.filter(medidor=medidor,
 			fecha__range=[desde, hasta]):
-			data_medidor_Izarnetv1 = GetData(
-				Izarnetv1.objects.filter(medidor=medidor,
+			data_medidor_Izarnet = GetData(
+				Izarnet.objects.filter(medidor=medidor,
 					fecha__range=[desde, hasta]).order_by('fecha'),
 				periodo_datos,
-				Izarnetv1.objects.all())
+				Izarnet.objects.all())
 
-		if Izarnetv2.objects.filter(medidor=medidor,
-			fecha__range=[desde, hasta]):
-			data_medidor_Izarnetv2 = GetData(
-				Izarnetv2.objects.filter(medidor=medidor,
-					fecha__range=[desde, hasta]).order_by('fecha'),
-				periodo_datos,
-				Izarnetv2.objects.all())
-
-		if Izarnetv1.objects.filter(medidor=medidor).exists():
-			if Izarnetv1.objects.filter(medidor=medidor, 
+		if Izarnet.objects.filter(medidor=medidor).exists():
+			if Izarnet.objects.filter(medidor=medidor, 
 					fecha__range=[desde, hasta]):
 				graficos.append(GetChartFree(
 					medidor,
 					tipo_de_grafico,
-					data_medidor_Izarnetv1,
-					'Izarnet 1'))
-				date_control = False
-			else:
-				date_control = True
-
-		if Izarnetv2.objects.filter(medidor=medidor).exists():
-			if Izarnetv2.objects.filter(medidor=medidor,
-					fecha__range=[desde, hasta]):
-				graficos.append(GetChartFree(
-					medidor,
-					tipo_de_grafico,
-					data_medidor_Izarnetv2,
-					'Izarnet 2'))
+					data_medidor_Izarnet,
+					poliza))
 				date_control = False
 			else:
 				date_control = True
@@ -161,13 +136,12 @@ def FreeChart(request):
 			messages.warning(request,
 				'Por favor seleccione un rango de fechas')
 
-		charts_counter = GetCounter(graficos, '1')
 		data = {
 			'graficos': graficos,
 			'medidores': medidores,
-			'polizas': polizas,
 			'form': form,
-			'charts_counter': charts_counter,
+			'client_data': client_data,
+			'acueducto_data': acueducto_data,
 		}
 
 	return render(request, 'pages/grafico_gratis.html', {'data': data})
