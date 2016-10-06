@@ -13,7 +13,7 @@ from hidromed.medidores.models import Medidor
 from hidromed.users.models import User, Poliza_Medidor_User
 from .forms import FiltrosForm
 
-def GetChartFree(medidor, tipo_de_grafico, filtro, izarnet):
+def GetChartFree(medidor, tipo_de_grafico, filtro, poliza):
 
 	data = \
 		DataPool (
@@ -37,7 +37,8 @@ def GetChartFree(medidor, tipo_de_grafico, filtro, izarnet):
 				}}],
 			chart_options =
 				{'title': {
-					'text': 'Medidor ' + medidor.serial + ' - '+ izarnet},
+					'text': ('Medidor ' + medidor.serial + 
+						' - ' + u'Póliza ' + str(poliza))},
 				'xAxis': {
 					'title': {
 						'text': 'Datos'}}})
@@ -102,6 +103,8 @@ def FreeChart(request):
 			periodo_datos = 86400
 
 		medidor = Medidor.objects.get(serial=medidor_request)
+		poliza = Poliza_Medidor_User.objects.get(
+			medidor=medidor, usuario=request.user).poliza
 
 		if Izarnet.objects.filter(medidor=medidor,
 			fecha__range=[desde, hasta]):
@@ -118,7 +121,7 @@ def FreeChart(request):
 					medidor,
 					tipo_de_grafico,
 					data_medidor_Izarnet,
-					'Izarnet 1'))
+					poliza))
 				date_control = False
 			else:
 				date_control = True
