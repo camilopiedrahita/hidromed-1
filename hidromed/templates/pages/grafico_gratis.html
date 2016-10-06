@@ -39,7 +39,7 @@
                         {% crispy data.form %}
                     {% endif %}
                 </div>
-                <div class="col-md-12 graficos">
+                <div class="col-md-12">
                     {% if data.graficos %}
                         {{ data.graficos|load_charts:"chart1" }}
                         {% for chart1 in data.graficos %}
@@ -49,9 +49,39 @@
                         {% endfor %}
                     {% else %}
                         <div class="no-content">                
-                            <h1>NO SE ENCONTRARON DATOS</h1>
+                            <h1>NO SE ENCONTRARON GRÁFICOS</h1>
                         </div>
                     {% endif %}
+                </div>
+                <div class="col-md-12 info">
+                    <div class="col-md-6">
+                        <p>
+                            <strong>Usuario: </strong>
+                            {{ data.client_data.username }}
+                        </p>
+                        <p>
+                            <strong>Empresa Cliente: </strong>
+                            {{ data.client_data.cliente }}
+                        </p>
+                        <p>
+                            <strong>NIT Empresa Cliente: </strong>
+                            {{ data.client_data.cliente.nit }}
+                        </p>
+                        <p>
+                            <strong>Dirección: </strong>
+                            {{ data.client_data.cliente.direccion }}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>
+                            <strong>Acueducto: </strong>
+                            {{ data.acueducto_data.nombre }}
+                        </p>
+                        <p>
+                            <strong>NIT Acueducto: </strong>
+                            {{ data.acueducto_data.nit }}
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

@@ -9,8 +9,9 @@ from django.contrib import messages
 from chartit import DataPool, Chart
 
 from hidromed.izarnet.models import Izarnet
-from hidromed.medidores.models import Medidor
+from hidromed.medidores.models import Medidor, Medidor_Acueducto
 from hidromed.users.models import User, Poliza_Medidor_User
+
 from .forms import FiltrosForm
 
 def GetChartFree(medidor, tipo_de_grafico, filtro, poliza):
@@ -60,8 +61,11 @@ def GetData(data_medidor, periodo_datos, modelo):
 
 @login_required
 def FreeChart(request):
+	usuario = request.user
 	usuario_medidores = Poliza_Medidor_User.objects.filter(
-		usuario=request.user)
+		usuario=usuario)
+	client_data = usuario
+	acueducto_data = ''
 	
 	if not usuario_medidores:
 		messages.error(request,
@@ -105,6 +109,8 @@ def FreeChart(request):
 		medidor = Medidor.objects.get(serial=medidor_request)
 		poliza = Poliza_Medidor_User.objects.get(
 			medidor=medidor, usuario=request.user).poliza
+		acueducto_data = Medidor_Acueducto.objects.get(
+			medidor=medidor).acueducto
 
 		if Izarnet.objects.filter(medidor=medidor,
 			fecha__range=[desde, hasta]):
@@ -134,6 +140,8 @@ def FreeChart(request):
 			'graficos': graficos,
 			'medidores': medidores,
 			'form': form,
+			'client_data': client_data,
+			'acueducto_data': acueducto_data,
 		}
 
 	return render(request, 'pages/grafico_gratis.html', {'data': data})
