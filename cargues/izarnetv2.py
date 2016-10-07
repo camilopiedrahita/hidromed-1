@@ -118,12 +118,11 @@ for file in file_names:
 	print file
 	data = CargueExcel(file)
 	data = data.fillna(0)
-	data['event.timestamp'] = pd.to_datetime(data['event.timestamp'])
+	data['event.timestamp'] = pd.to_datetime(
+		data['event.timestamp'],
+		format='%d-%m-%Y %H:%M:%S')
 	data = data.sort_values('event.timestamp')
-
-	print (data)
-
-	#CargueRegistros(data, file)
+	CargueRegistros(data, file)
 	#shutil.move(file, 'Procesados/' + file)
 
 cursor.close()

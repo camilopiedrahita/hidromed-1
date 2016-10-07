@@ -118,12 +118,11 @@ for file in file_names:
 	print file
 	data = CargueExcel(file)
 	data = data.fillna(0)
-	data['Marca de tiempo'] = pd.to_datetime(data['Marca de tiempo'])
+	data['Marca de tiempo'] = pd.to_datetime(
+		data['Marca de tiempo'],
+		format='%d/%m/%y %I:%M %p')
 	data = data.sort_values('Marca de tiempo')
-
-	print (data)
-
-	#CargueRegistros(data, file)
+	CargueRegistros(data, file)
 	#shutil.move(file, 'Procesados/' + file)
 
 cursor.close()
