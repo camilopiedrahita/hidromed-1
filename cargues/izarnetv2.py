@@ -48,8 +48,6 @@ def CargueRegistros(data, file_name):
 			estado = 'Cargue con errores'
 		else:	
 			medidor_id = medidor_id[0]
-			last_id = last_id_partial + (
-				'WHERE medidor_id = "{}"'.format(medidor_id))
 		for header in list(data.columns.values):
 			headers.append(header)
 
@@ -62,6 +60,9 @@ def CargueRegistros(data, file_name):
 				volumen = volumen_litros/1000
 				alarma = u'%s' % row[1][headers[4]]
 				alarma = alarma.encode('ascii', 'ignore')
+				last_id = last_id_partial + (
+					'WHERE medidor_id = "{}" AND fecha < "{}"'.format(
+						medidor_id, str(fecha)))
 				cursor.execute(last_id)
 				last_medidor_data = cursor.fetchone()
 				last_medidor_data = last_medidor_data[0]
