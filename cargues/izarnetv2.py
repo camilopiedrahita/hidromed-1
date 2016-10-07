@@ -56,7 +56,7 @@ def CargueRegistros(data, file_name):
 		for row in data.iterrows():
 			try:
 				fecha = row[1][headers[0]]
-				fecha = datetime.strptime(fecha, '%d-%m-%Y %H:%M:%S')
+				fecha = datetime.strptime(str(fecha), '%Y-%m-%d %H:%M:%S')
 				volumen_litros = float(str(row[1][headers[1]]).replace(',', '.'))
 				consumo = float(str(row[1][headers[2]]).replace(',', '.'))
 				volumen = volumen_litros/1000
@@ -117,7 +117,13 @@ file_names = glob.glob(path + 'IzarNet2*.xls')
 for file in file_names:
 	print file
 	data = CargueExcel(file)
-	CargueRegistros(data.fillna(0), file)
+	data = data.fillna(0)
+	data['event.timestamp'] = pd.to_datetime(data['event.timestamp'])
+	data = data.sort_values('event.timestamp')
+
+	print (data)
+
+	#CargueRegistros(data, file)
 	#shutil.move(file, 'Procesados/' + file)
 
 cursor.close()
