@@ -27,10 +27,11 @@ def CargueRegistros(data, file_name):
 	add_procesados_partial = ('INSERT INTO izarnet_izarnetprocesados '
 		'(nombre, fecha, estado) ')
 	add_partial = ('INSERT INTO izarnet_izarnet '
-		'(fecha, volumen, consumo, volumen_litros, caudal, alarma, medidor_id) ')
+		'(fecha, volumen, consumo, volumen_litros, caudal, alarma, medidor_id, consumo_acumulado) ')
 	get_medidor_partial = ('SELECT id FROM medidores_medidor ')
 	last_id_partial = ('SELECT MAX(id) FROM izarnet_izarnet ')
 	last_fecha_partial = ('SELECT fecha FROM izarnet_izarnet ')
+	last_consumo_acumulado_partial = ('SELECT consumo_acumulado FROM izarnet_izarnet ')
 
 	headers = []
 	cursor.execute(get_procesados)
@@ -66,6 +67,7 @@ def CargueRegistros(data, file_name):
 				last_medidor_data = last_medidor_data[0]
 				if last_medidor_data == None:
 					caudal = 0
+					consumo_acumulado = 0
 				else:
 					last_fecha = last_fecha_partial + (
 						'WHERE id = "{}"'.format(last_medidor_data))
@@ -77,10 +79,16 @@ def CargueRegistros(data, file_name):
 					else:
 						minutos = ((fecha - last_fecha_data).total_seconds())/60
 					caudal = consumo * 1000 / minutos * 60
+					last_consumo_acumulado = last_consumo_acumulado_partial + (
+						'WHERE id = "{}"'.format(last_medidor_data))
+					cursor.execute(last_consumo_acumulado)
+					last_consumo_acumulado_data = cursor.fetchone()
+					last_consumo_acumulado_data = last_consumo_acumulado_data[0]
+					consumo_acumulado = last_consumo_acumulado_data + consumo
 
-				add_row = add_partial + ('VALUES ("{}", {}, {}, {}, {}, "{}", {})'.
+				add_row = add_partial + ('VALUES ("{}", {}, {}, {}, {}, "{}", {}, {})'.
 					format(fecha, volumen, consumo, volumen_litros, 
-						caudal, alarma, medidor_id))
+						caudal, alarma, medidor_id, consumo_acumulado))
 				try:
 					cursor.execute(add_row)
 				except Exception, e:
@@ -110,7 +118,7 @@ for file in file_names:
 	print file
 	data = CargueExcel(file)
 	CargueRegistros(data.fillna(0), file)
-	shutil.move(file, 'Procesados/' + file)
+	#shutil.move(file, 'Procesados/' + file)
 
 cursor.close()
 conn.close()

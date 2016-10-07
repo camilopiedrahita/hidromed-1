@@ -75,7 +75,7 @@ def FreeChart(request):
 		form = FiltrosForm()
 		graficos = []
 		medidores = []
-		tipo_de_grafico = 'consumo'
+		tipo_de_grafico = 'consumo_acumulado'
 		periodo_datos = ''
 		desde = '1986-02-12'
 		hasta = '1986-02-12'
