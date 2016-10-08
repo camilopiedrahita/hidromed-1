@@ -32,6 +32,7 @@ def CargueRegistros(data, file_name):
 	last_id_partial = ('SELECT MAX(id) FROM izarnet_izarnet ')
 	last_fecha_partial = ('SELECT fecha FROM izarnet_izarnet ')
 	last_consumo_acumulado_partial = ('SELECT consumo_acumulado FROM izarnet_izarnet ')
+	id_match_partial = ('SELECT id FROM izarnet_izarnet ')
 
 	headers = []
 	cursor.execute(get_procesados)
@@ -66,6 +67,12 @@ def CargueRegistros(data, file_name):
 				cursor.execute(last_id)
 				last_medidor_data = cursor.fetchone()
 				last_medidor_data = last_medidor_data[0]
+				id_match = id_match_partial + (
+					'WHERE fecha = "{}"'.format(str(fecha)))
+				cursor.execute(id_match)
+				id_match_data = cursor.fetchone()
+				if not id_match_data == None:
+					id_match_data = id_match_data[0]
 				if last_medidor_data == None:
 					caudal = 0
 					consumo_acumulado = 0
@@ -86,10 +93,30 @@ def CargueRegistros(data, file_name):
 					last_consumo_acumulado_data = cursor.fetchone()
 					last_consumo_acumulado_data = last_consumo_acumulado_data[0]
 					consumo_acumulado = last_consumo_acumulado_data + consumo
-
-				add_row = add_partial + ('VALUES ("{}", {}, {}, {}, {}, "{}", {}, {})'.
-					format(fecha, volumen, consumo, volumen_litros, 
-						caudal, alarma, medidor_id, consumo_acumulado))
+				if id_match_data == None:
+					add_row = add_partial + ('VALUES ("{}", {}, {}, {}, {}, "{}", {}, {})'.
+						format(fecha, volumen, consumo, volumen_litros, 
+							caudal, alarma, medidor_id, consumo_acumulado))
+				else:
+					add_row = ('UPDATE izarnet_izarnet SET '
+						'fecha = "{}", ' 
+						'volumen = {}, '
+						'consumo = {}, '
+						'volumen_litros = {}, '
+						'caudal = {}, '
+						'alarma = "{}", '
+						'medidor_id = {}, '
+						'consumo_acumulado = {} '
+						'WHERE id = {};'.format(
+							fecha,
+							volumen,
+							consumo,
+							volumen_litros,
+							caudal,
+							alarma,
+							medidor_id,
+							consumo_acumulado,
+							id_match_data))
 				try:
 					cursor.execute(add_row)
 				except Exception, e:
