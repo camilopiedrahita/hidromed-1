@@ -61,7 +61,7 @@ def GetData(data_medidor, periodo_datos, modelo):
 			f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
 	return modelo.filter(id__in=data)
 
-def DownloadExcel(request, flag, medidor, desde, hasta, periodo_datos):
+def DownloadExcel(request, medidor, desde, hasta, periodo_datos):
 	medidor = Medidor.objects.get(serial=medidor)
 	data = GetData(
 		Izarnet.objects.filter(medidor=medidor,
@@ -83,7 +83,6 @@ def FreeChart(request):
 		usuario=usuario)
 	client_data = usuario
 	acueducto_data = ''
-	excel = '0'
 	medidor = '0'
 	desde = '0'
 	hasta = '0'
@@ -151,7 +150,6 @@ def FreeChart(request):
 					data_medidor_Izarnet,
 					poliza))
 				date_control = False
-				excel = '1'
 			else:
 				date_control = True
 		
@@ -165,7 +163,6 @@ def FreeChart(request):
 			'form': form,
 			'client_data': client_data,
 			'acueducto_data': acueducto_data,
-			'excel': excel,
 			'medidor': str(medidor),
 			'desde': desde,
 			'hasta': hasta,
