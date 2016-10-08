@@ -28,6 +28,16 @@ urlpatterns = [
     #graficos
     url(r'^gratis', views_graficas.FreeChart, name='grafica_gratis'),
 
+    #descargar excel
+    url(
+        r'^descargar-excel/(?P<flag>[\w-]+)/(?P<medidor>[\w-]+)/(?P<desde>[\w-]+)/(?P<hasta>[\w-]+)/(?P<periodo_datos>[\w-]+)/$',
+        views_graficas.DownloadExcel,
+        name='descargar_excel'),
+    #url(
+    #    r'^descargar-excel/(?P<flag>[\w-]+)/(?P<medidor>[\w-]+)/(?P<desde>[\w-]+)/(?P<hasta>[\w-]+)/(?P<periodo_datos>[\w-]+)/$',
+    #    views_graficas.DownloadExcel,
+    ##    name='descargar_excel'),    
+    
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

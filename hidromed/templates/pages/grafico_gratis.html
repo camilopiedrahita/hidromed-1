@@ -82,6 +82,12 @@
                             {{ data.acueducto_data.nit }}
                         </p>
                     </div>
+                    <div class="col-md-12">
+                        <p>
+                            <strong>Descargar Excel: </strong>
+                            <a href="{% url 'descargar_excel' data.excel data.medidor data.desde data.hasta data.periodo_datos %}">clic aquí</a>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

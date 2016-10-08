@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import datetime
+
+import django_excel as excel
+
 from django.shortcuts import render
 
 from django.contrib import messages
@@ -15,7 +18,6 @@ from hidromed.users.models import User, Poliza_Medidor_User
 from .forms import FiltrosForm
 
 def GetChartFree(medidor, tipo_de_grafico, filtro, poliza):
-
 	data = \
 		DataPool (
 			series = 
@@ -59,6 +61,21 @@ def GetData(data_medidor, periodo_datos, modelo):
 			f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
 	return modelo.filter(id__in=data)
 
+def DownloadExcel(request, flag, medidor, desde, hasta, periodo_datos):
+	medidor = Medidor.objects.get(serial=medidor)
+	data = GetData(
+		Izarnet.objects.filter(medidor=medidor,
+			fecha__range=[desde, hasta]).order_by('fecha'),
+		int(periodo_datos),
+		Izarnet.objects.all())
+	column_names = (['fecha', 'volumen_litros',
+		'caudal', 'consumo_acumulado', 'alarma'])
+	return excel.make_response_from_query_sets(
+    	data,
+    	column_names,
+    	"xlsx",
+    	file_name="Datos.xlsx")
+
 @login_required
 def FreeChart(request):
 	usuario = request.user
@@ -66,6 +83,11 @@ def FreeChart(request):
 		usuario=usuario)
 	client_data = usuario
 	acueducto_data = ''
+	excel = '0'
+	medidor = '0'
+	desde = '0'
+	hasta = '0'
+	periodo_datos = '0'
 	
 	if not usuario_medidores:
 		messages.error(request,
@@ -76,7 +98,7 @@ def FreeChart(request):
 		graficos = []
 		medidores = []
 		tipo_de_grafico = 'consumo_acumulado'
-		periodo_datos = ''
+		periodo_datos = '0'
 		desde = '1986-02-12'
 		hasta = '1986-02-12'
 		date_control = False
@@ -129,6 +151,7 @@ def FreeChart(request):
 					data_medidor_Izarnet,
 					poliza))
 				date_control = False
+				excel = '1'
 			else:
 				date_control = True
 		
@@ -142,6 +165,11 @@ def FreeChart(request):
 			'form': form,
 			'client_data': client_data,
 			'acueducto_data': acueducto_data,
+			'excel': excel,
+			'medidor': str(medidor),
+			'desde': desde,
+			'hasta': hasta,
+			'periodo_datos': periodo_datos,
 		}
 
 	return render(request, 'pages/grafico_gratis.html', {'data': data})
