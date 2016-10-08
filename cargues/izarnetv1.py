@@ -22,8 +22,6 @@ def Log(mensaje):
 
 def CargueRegistros(data, file_name):
 	#Queries partials
-	get_procesados = ('SELECT id FROM izarnet_izarnetprocesados '
-		'WHERE nombre = "{}"'.format(file_name))
 	add_procesados_partial = ('INSERT INTO izarnet_izarnetprocesados '
 		'(nombre, fecha, estado) ')
 	add_partial = ('INSERT INTO izarnet_izarnet '
@@ -35,111 +33,106 @@ def CargueRegistros(data, file_name):
 	id_match_partial = ('SELECT id FROM izarnet_izarnet ')
 
 	headers = []
-	cursor.execute(get_procesados)
-	procesado_id = cursor.fetchone()
-	if procesado_id == None:
-		estado = 'Cargue correcto'
-		parsed_file_name = file_name.split('_')[1]
-		get_medidor = get_medidor_partial + (
-			'WHERE serial = "{}"'.format(parsed_file_name))
-		cursor.execute(get_medidor)
-		medidor_id = cursor.fetchone()
-		if medidor_id == None:
-			Log('No existe el medidor {}'.format(parsed_file_name))
-			estado = 'Cargue con errores'
-		else:	
-			medidor_id = medidor_id[0]
-		for header in list(data.columns.values):
-			headers.append(header)
+	estado = 'Cargue correcto'
+	parsed_file_name = file_name.split('_')[1]
+	get_medidor = get_medidor_partial + (
+		'WHERE serial = "{}"'.format(parsed_file_name))
+	cursor.execute(get_medidor)
+	medidor_id = cursor.fetchone()
+	if medidor_id == None:
+		Log('No existe el medidor {}'.format(parsed_file_name))
+		estado = 'Cargue con errores'
+	else:	
+		medidor_id = medidor_id[0]
+	for header in list(data.columns.values):
+		headers.append(header)
 
-		for row in data.iterrows():
+	for row in data.iterrows():
+		try:
+			fecha = row[1][headers[0]]
+			fecha = datetime.strptime(str(fecha), '%Y-%m-%d %H:%M:%S')
+			volumen = float(str(row[1][headers[1]]).replace(',', '.'))
+			consumo = float(str(row[1][headers[2]]).replace(',', '.'))
+			volumen_litros = volumen*1000
+			alarma = u'%s' % row[1][headers[4]]
+			alarma = alarma.encode('ascii', 'ignore')
+			last_id = last_id_partial + (
+				'WHERE medidor_id = "{}" AND fecha < "{}"'.format(
+					medidor_id, str(fecha)))
+			cursor.execute(last_id)
+			last_medidor_data = cursor.fetchone()
+			last_medidor_data = last_medidor_data[0]
+			id_match = id_match_partial + (
+				'WHERE fecha = "{}"'.format(str(fecha)))
+			cursor.execute(id_match)
+			id_match_data = cursor.fetchone()
+			if not id_match_data == None:
+				id_match_data = id_match_data[0]
+			if last_medidor_data == None:
+				caudal = 0
+				consumo_acumulado = 0
+			else:
+				last_fecha = last_fecha_partial + (
+					'WHERE id = "{}"'.format(last_medidor_data))
+				cursor.execute(last_fecha)
+				last_fecha_data = cursor.fetchone()
+				last_fecha_data = last_fecha_data[0]
+				if (fecha - last_fecha_data).total_seconds() < 0:
+					minutos = (((fecha - last_fecha_data)*-1).total_seconds())/60
+				else:
+					minutos = ((fecha - last_fecha_data).total_seconds())/60
+				caudal = consumo * 1000 / minutos * 60
+				last_consumo_acumulado = last_consumo_acumulado_partial + (
+					'WHERE id = "{}"'.format(last_medidor_data))
+				cursor.execute(last_consumo_acumulado)
+				last_consumo_acumulado_data = cursor.fetchone()
+				last_consumo_acumulado_data = last_consumo_acumulado_data[0]
+				consumo_acumulado = last_consumo_acumulado_data + consumo
+			if id_match_data == None:
+				add_row = add_partial + ('VALUES ("{}", {}, {}, {}, {}, "{}", {}, {})'.
+					format(fecha, volumen, consumo, volumen_litros, 
+						caudal, alarma, medidor_id, consumo_acumulado))
+			else:
+				add_row = ('UPDATE izarnet_izarnet SET '
+					'fecha = "{}", ' 
+					'volumen = {}, '
+					'consumo = {}, '
+					'volumen_litros = {}, '
+					'caudal = {}, '
+					'alarma = "{}", '
+					'medidor_id = {}, '
+					'consumo_acumulado = {} '
+					'WHERE id = {};'.format(
+						fecha,
+						volumen,
+						consumo,
+						volumen_litros,
+						caudal,
+						alarma,
+						medidor_id,
+						consumo_acumulado,
+						id_match_data))
 			try:
-				fecha = row[1][headers[0]]
-				fecha = datetime.strptime(str(fecha), '%Y-%m-%d %H:%M:%S')
-				volumen = float(str(row[1][headers[1]]).replace(',', '.'))
-				consumo = float(str(row[1][headers[2]]).replace(',', '.'))
-				volumen_litros = volumen*1000
-				alarma = u'%s' % row[1][headers[4]]
-				alarma = alarma.encode('ascii', 'ignore')
-				last_id = last_id_partial + (
-					'WHERE medidor_id = "{}" AND fecha < "{}"'.format(
-						medidor_id, str(fecha)))
-				cursor.execute(last_id)
-				last_medidor_data = cursor.fetchone()
-				last_medidor_data = last_medidor_data[0]
-				id_match = id_match_partial + (
-					'WHERE fecha = "{}"'.format(str(fecha)))
-				cursor.execute(id_match)
-				id_match_data = cursor.fetchone()
-				if not id_match_data == None:
-					id_match_data = id_match_data[0]
-				if last_medidor_data == None:
-					caudal = 0
-					consumo_acumulado = 0
-				else:
-					last_fecha = last_fecha_partial + (
-						'WHERE id = "{}"'.format(last_medidor_data))
-					cursor.execute(last_fecha)
-					last_fecha_data = cursor.fetchone()
-					last_fecha_data = last_fecha_data[0]
-					if (fecha - last_fecha_data).total_seconds() < 0:
-						minutos = (((fecha - last_fecha_data)*-1).total_seconds())/60
-					else:
-						minutos = ((fecha - last_fecha_data).total_seconds())/60
-					caudal = consumo * 1000 / minutos * 60
-					last_consumo_acumulado = last_consumo_acumulado_partial + (
-						'WHERE id = "{}"'.format(last_medidor_data))
-					cursor.execute(last_consumo_acumulado)
-					last_consumo_acumulado_data = cursor.fetchone()
-					last_consumo_acumulado_data = last_consumo_acumulado_data[0]
-					consumo_acumulado = last_consumo_acumulado_data + consumo
-				if id_match_data == None:
-					add_row = add_partial + ('VALUES ("{}", {}, {}, {}, {}, "{}", {}, {})'.
-						format(fecha, volumen, consumo, volumen_litros, 
-							caudal, alarma, medidor_id, consumo_acumulado))
-				else:
-					add_row = ('UPDATE izarnet_izarnet SET '
-						'fecha = "{}", ' 
-						'volumen = {}, '
-						'consumo = {}, '
-						'volumen_litros = {}, '
-						'caudal = {}, '
-						'alarma = "{}", '
-						'medidor_id = {}, '
-						'consumo_acumulado = {} '
-						'WHERE id = {};'.format(
-							fecha,
-							volumen,
-							consumo,
-							volumen_litros,
-							caudal,
-							alarma,
-							medidor_id,
-							consumo_acumulado,
-							id_match_data))
-				try:
-					cursor.execute(add_row)
-				except Exception, e:
-					Log(str(e))
-					Log('Error en {}'.format(add_row))
-					Log('Error en archivo {}'.format(parsed_file_name))
-					estado = 'Cargue con errores'
+				cursor.execute(add_row)
 			except Exception, e:
 				Log(str(e))
-				Log('Error en Headers del archivo Excel')
+				Log('Error en {}'.format(add_row))
 				Log('Error en archivo {}'.format(parsed_file_name))
 				estado = 'Cargue con errores'
-		
-		add_procesados = add_procesados_partial + ('VALUES ("{}", "{}", "{}")'.
-			format(file_name, 
-				datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 
-				estado))
-		cursor.execute(add_procesados)
-		conn.commit()
-		print 'Se han cargado todos los datos'
-	else:
-		Log('El archivo {} ya ha sido procesado anteriormente'.format(file_name))
-
+		except Exception, e:
+			Log(str(e))
+			Log('Error en Headers del archivo Excel')
+			Log('Error en archivo {}'.format(parsed_file_name))
+			estado = 'Cargue con errores'
+	
+	add_procesados = add_procesados_partial + ('VALUES ("{}", "{}", "{}")'.
+		format(file_name, 
+			datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 
+			estado))
+	cursor.execute(add_procesados)
+	conn.commit()
+	print 'Se han cargado todos los datos'
+	
 path = ''
 file_names = glob.glob(path + 'IzarNet1*.xls')
 for file in file_names:
