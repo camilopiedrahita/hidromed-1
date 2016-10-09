@@ -22,8 +22,7 @@ def Log(mensaje):
 
 def RecalcData(id_desde, id_hasta, last):
 	data_partial = ('SELECT id, caudal, consumo, consumo_acumulado, fecha FROM izarnet_izarnet '
-		'WHERE id >= {} AND id < {};'.format(
-		id_desde, id_hasta))
+		'WHERE id >= {} AND id < {} ORDER BY fecha;'.format(id_desde, id_hasta))
 	initial_partial = ('SELECT id, caudal, consumo, consumo_acumulado, fecha FROM izarnet_izarnet '
 		'WHERE fecha = "{}";'.format(last))
 	cursor.execute(data_partial)
