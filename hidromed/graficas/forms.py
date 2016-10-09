@@ -8,7 +8,7 @@ from crispy_forms.layout import Submit
 
 TIPO_CHOICES = (
 		('volumen_litros', 'Volumen Acumulado'),
-		('consumo', 'Consumo'),
+		('consumo_acumulado', 'Consumo Acumulado'),
 	)
 
 PERIODO_CHOICES = (
