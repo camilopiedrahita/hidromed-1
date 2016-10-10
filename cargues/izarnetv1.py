@@ -72,6 +72,7 @@ def CargueRegistros(data, file_name):
 
 	headers = []
 	recalcular = False
+	id_found = None
 	estado = 'Cargue correcto'
 	parsed_file_name = file_name.split('_')[1]
 	get_medidor = get_medidor_partial + (
@@ -100,7 +101,9 @@ def CargueRegistros(data, file_name):
 					medidor_id, str(fecha)))
 			cursor.execute(min_id)
 			min_id_data = cursor.fetchone()
+			min_id_data = min_id_data[0]
 			if not min_id_data == None and recalcular == False:
+				id_desde = min_id_data
 				fecha_hasta = fecha
 				id_found = False
 				recalcular = True
@@ -186,6 +189,7 @@ def CargueRegistros(data, file_name):
 							consumo_acumulado))
 					cursor.execute(id_hasta)
 					id_hasta_data = cursor.fetchone()
+					id_hasta_data = id_hasta_data[0]
 			except Exception, e:
 				Log(str(e))
 				Log('Error en {}'.format(add_row))
@@ -203,9 +207,13 @@ def CargueRegistros(data, file_name):
 	cursor.execute(add_procesados)
 	conn.commit()
 	if recalcular == True:
-		min_id_data = min_id_data[0]
-		id_hasta_data = id_hasta_data[0]
-		RecalcData(min_id_data, id_hasta_data, last)
+
+		print ('id_desde')
+		print (id_desde)
+		print ('id_hasta_data')
+		print (id_hasta_data)
+
+		RecalcData(id_desde, id_hasta_data, last)
 	print 'Se han cargado todos los datos'
 	
 path = ''
