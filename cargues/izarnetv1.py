@@ -207,12 +207,6 @@ def CargueRegistros(data, file_name):
 	cursor.execute(add_procesados)
 	conn.commit()
 	if recalcular == True:
-
-		print ('id_desde')
-		print (id_desde)
-		print ('id_hasta_data')
-		print (id_hasta_data)
-
 		RecalcData(id_desde, id_hasta_data, last)
 	print 'Se han cargado todos los datos'
 	

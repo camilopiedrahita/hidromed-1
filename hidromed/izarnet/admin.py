@@ -10,9 +10,15 @@ class AdminIzarnetv1Template(AdminSite):
 
 @admin.register(Izarnet)
 class AdminIzarnetv1(admin.ModelAdmin):
+
+	def time(self, obj):
+		return obj.fecha.strftime('%Y-%m-%d %H:%M:%S')
+
+	time.short_description = 'Fecha'
+
 	list_filter = ('medidor',)
-	list_display = ('id', 'medidor', 'fecha', 'volumen', 'consumo',
-		'consumo_acumulado', 'volumen_litros', 'caudal', 'alarma',)
+	list_display = ('id', 'medidor', 'time', 'volumen', 'consumo',
+		'volumen_litros', 'caudal', 'alarma',)
 
 @admin.register(IzarnetProcesados)
 class AdminIzarnetv1Procesados(admin.ModelAdmin):
