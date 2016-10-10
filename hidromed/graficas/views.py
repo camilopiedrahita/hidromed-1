@@ -150,11 +150,6 @@ def FreeChart(request):
 					data_medidor_Izarnet,
 					poliza))
 				date_control = False
-
-
-				for data in data_medidor_Izarnet:
-					print (data.fecha)
-
 			else:
 				date_control = True
 
