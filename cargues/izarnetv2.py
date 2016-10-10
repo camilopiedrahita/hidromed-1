@@ -75,6 +75,7 @@ def CargueRegistros(data, file_name):
 	id_found = None
 	estado = 'Cargue correcto'
 	parsed_file_name = file_name.split('_')[1]
+	parsed_file_name = parsed_file_name.replace(".xls", "")
 	get_medidor = get_medidor_partial + (
 		'WHERE serial = "{}"'.format(parsed_file_name))
 	cursor.execute(get_medidor)
