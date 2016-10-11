@@ -96,7 +96,10 @@ def CargueRegistros(data, file_name):
 			fecha = datetime.strptime(str(fecha), '%Y-%m-%d %H:%M:%S')
 			volumen_litros = float(str(row[1][headers[1]]).replace(',', '.'))
 			consumo = float(str(row[1][headers[2]]).replace(',', '.'))
-			volumen = volumen_litros/1000
+			if not volumen_litros == 0:
+				volumen = volumen_litros/1000
+			else:
+				volumen = 0
 			alarma = u'%s' % row[1][headers[4]]
 			alarma = alarma.encode('ascii', 'ignore')
 			min_id = min_id_partial + (
