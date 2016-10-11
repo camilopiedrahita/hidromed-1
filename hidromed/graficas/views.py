@@ -18,9 +18,10 @@ from hidromed.users.models import User, Poliza_Medidor_User
 
 from .forms import FiltrosForm
 
-def GetChartFree(data):
+def GetChartFree(data, poliza, unidad):
 	data_source = SimpleDataSource(data=data)
-	return LineChart(data_source)
+	title = 'PÓLIZA: ' + str(poliza) + ' (' + str(unidad) + ')' 
+	return LineChart(data_source, options={'title': title})
 
 def GetData(data_medidor, periodo_datos, campo):
 	data = [['Fecha', campo]]
@@ -51,15 +52,24 @@ def GetData(data_medidor, periodo_datos, campo):
 
 def DownloadExcel(request, medidor, desde, hasta, periodo_datos, tipo_de_grafico):
 	medidor = Medidor.objects.get(serial=medidor)
+	if tipo_de_grafico == 'volumen_litros':
+		value_header = 'Volumen (Litros)'
+	else:
+		value_header = 'Consumo (Litros)'
 	data = GetData(
 		Izarnet.objects.filter(
-			medidor=medidor,fecha__range=[desde, hasta]).order_by('fecha'),
+			medidor=medidor,
+			fecha__range=[
+				datetime.datetime.strptime(str(desde) + ' 00:00:00', '%Y-%m-%d %H:%M:%S'),
+				datetime.datetime.strptime(str(hasta) + ' 23:59:00', '%Y-%m-%d %H:%M:%S')
+			]).order_by('fecha'),
 		int(periodo_datos),
 		tipo_de_grafico)
+	data[0][1] = value_header
 	return excel.make_response_from_array(
     	data,
     	"xlsx",
-    	file_name=str(medidor.serial)+".xlsx")
+    	file_name="Medidor_"+str(medidor.serial)+".xlsx")
 
 @login_required
 def FreeChart(request):
@@ -123,14 +133,22 @@ def FreeChart(request):
 			fecha__range=[desde, hasta]):
 			data_medidor_Izarnet = GetData(
 				Izarnet.objects.filter(
-					medidor=medidor,fecha__range=[desde, hasta]).order_by('fecha'),
+					medidor=medidor,
+					fecha__range=[
+						datetime.datetime.strptime(str(desde) + ' 00:00:00', '%Y-%m-%d %H:%M:%S'),
+						datetime.datetime.strptime(str(hasta) + ' 23:59:00', '%Y-%m-%d %H:%M:%S')
+					]).order_by('fecha'),
 				periodo_datos,
 				tipo_de_grafico)
 
 		if Izarnet.objects.filter(medidor=medidor).exists():
 			if Izarnet.objects.filter(medidor=medidor, 
 					fecha__range=[desde, hasta]):
-				graficos = GetChartFree(data_medidor_Izarnet)
+				graficos = GetChartFree(
+					data_medidor_Izarnet,
+					Poliza_Medidor_User.objects.get(medidor=medidor,
+						usuario=usuario).poliza,
+					'Litros')
 				date_control = False
 			else:
 				date_control = True
