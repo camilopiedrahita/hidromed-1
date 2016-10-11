@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 
-{% load chartit %}
 {% load crispy_forms_tags %}
 {% block title %}Gráfico gratuito{% endblock %}
 
 {% block content %}
     {% block javascript %}
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-        <script src="http://code.highcharts.com/highcharts.js"></script>
+        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+        <script type="text/javascript">
+            google.load("visualization", "1", {packages:["corechart"]});
+        </script>
     {% endblock %}
     <div class="container">
         <div class="row main-content">
@@ -41,12 +42,9 @@
                 </div>
                 <div class="col-md-12">
                     {% if data.graficos %}
-                        {{ data.graficos|load_charts:"chart1" }}
-                        {% for chart1 in data.graficos %}
-                            <div class="col-md-12">
-                                <div id="chart1"></div>
-                            </div>
-                        {% endfor %}
+                        <div  class="col-md-12">
+                            {{ data.graficos.as_html }}
+                        </div>
                     {% else %}
                         <div class="no-content">                
                             <h1>NO SE ENCONTRARON GRÁFICOS</h1>
@@ -87,7 +85,7 @@
                             <div class="col-md-12">
                                 <p>
                                     <strong>Descargar Excel: </strong>
-                                    <a href="{% url 'descargar_excel' data.medidor data.desde data.hasta data.periodo_datos %}">clic aquí</a>
+                                    <a href="{% url 'descargar_excel' data.medidor data.desde data.hasta data.periodo_datos data.tipo_de_grafico %}">clic aquí</a>
                                 </p>
                             </div>
                         {% endif %}

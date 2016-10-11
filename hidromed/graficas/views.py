@@ -9,7 +9,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
-from chartit import DataPool, Chart
+from graphos.sources.simple import SimpleDataSource
+from graphos.renderers.gchart import LineChart
 
 from hidromed.izarnet.models import Izarnet
 from hidromed.medidores.models import Medidor, Medidor_Acueducto
@@ -17,62 +18,46 @@ from hidromed.users.models import User, Poliza_Medidor_User
 
 from .forms import FiltrosForm
 
-def GetChartFree(medidor, tipo_de_grafico, filtro, poliza):
-	data = \
-		DataPool (
-			series = 
-			[{
-				'options': {'source': filtro},
-				'terms': [
-					'fecha',
-					tipo_de_grafico]}
-			])
+def GetChartFree(data):
+	data_source = SimpleDataSource(data=data)
+	return LineChart(data_source)
 
-	cht = Chart(
-			datasource = data,
-			series_options =
-				[{'options':{
-					'type': 'line',
-					'stacking': False},
-				'terms':{
-					'fecha': [
-					tipo_de_grafico]
-				}}],
-			chart_options =
-				{'title': {
-					'text': ('Medidor ' + medidor.serial + 
-						' - ' + u'Póliza ' + str(poliza))},
-				'xAxis': {
-					'title': {
-						'text': 'Datos'}}})
-	return cht
-
-def GetData(data_medidor, periodo_datos, modelo):
-	data = []
-	data.append(data_medidor[0].id)
+def GetData(data_medidor, periodo_datos, campo):
+	data = [['Fecha', campo]]
+	data.append([data_medidor[0].fecha, getattr(data_medidor[0], campo)])
 	f_inicial = data_medidor[0].fecha
 	f_next = f_inicial + datetime.timedelta(0, periodo_datos)
-	for data_m in data_medidor:
-		if data_m.fecha == f_next:
-			data.append(data_m.id)
-			f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
-		elif data_m.fecha > f_next:
-			data.append(data_m.id)
-			f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
-	return modelo.filter(id__in=data)
+	if campo == 'consumo':
+		sumatoria = 0
+		first = True
+		for data_m in data_medidor:
+			if not first == True:
+				if data_m.fecha <= f_next:
+					sumatoria += getattr(data_m, campo)
+				else:
+					data.append([data_m.fecha, sumatoria])
+					sumatoria = getattr(data_m, campo)
+					f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
+			first = False
+	else:
+		for data_m in data_medidor:
+			if data_m.fecha == f_next:
+				data.append([data_m.fecha, getattr(data_m, campo)])
+				f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
+			elif data_m.fecha > f_next:
+				data.append([data_m.fecha, getattr(data_m, campo)])
+				f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
+	return data
 
-def DownloadExcel(request, medidor, desde, hasta, periodo_datos):
+def DownloadExcel(request, medidor, desde, hasta, periodo_datos, tipo_de_grafico):
 	medidor = Medidor.objects.get(serial=medidor)
 	data = GetData(
-		Izarnet.objects.filter(medidor=medidor,
-			fecha__range=[desde, hasta]).order_by('fecha'),
+		Izarnet.objects.filter(
+			medidor=medidor,fecha__range=[desde, hasta]).order_by('fecha'),
 		int(periodo_datos),
-		Izarnet.objects.all())
-	column_names = (['fecha', 'volumen_litros',
-		'caudal', 'consumo_acumulado', 'alarma'])
-	return excel.make_response_from_query_sets(
+		tipo_de_grafico)
+	return excel.make_response_from_array(
     	data,
-    	column_names,
     	"xlsx",
     	file_name="Datos.xlsx")
 
@@ -87,6 +72,7 @@ def FreeChart(request):
 	desde = '0'
 	hasta = '0'
 	periodo_datos = '0'
+	tipo_de_grafico = 'volumen_litros'
 	
 	if not usuario_medidores:
 		messages.error(request,
@@ -96,7 +82,6 @@ def FreeChart(request):
 		form = FiltrosForm()
 		graficos = []
 		medidores = []
-		tipo_de_grafico = 'consumo_acumulado'
 		periodo_datos = '0'
 		desde = '1986-02-12'
 		hasta = '1986-02-12'
@@ -136,19 +121,15 @@ def FreeChart(request):
 		if Izarnet.objects.filter(medidor=medidor,
 			fecha__range=[desde, hasta]):
 			data_medidor_Izarnet = GetData(
-				Izarnet.objects.filter(medidor=medidor,
-					fecha__range=[desde, hasta]).order_by('fecha'),
+				Izarnet.objects.filter(
+					medidor=medidor,fecha__range=[desde, hasta]).order_by('fecha'),
 				periodo_datos,
-				Izarnet.objects.all())
+				tipo_de_grafico)
 
 		if Izarnet.objects.filter(medidor=medidor).exists():
 			if Izarnet.objects.filter(medidor=medidor, 
 					fecha__range=[desde, hasta]):
-				graficos.append(GetChartFree(
-					medidor,
-					tipo_de_grafico,
-					data_medidor_Izarnet,
-					poliza))
+				graficos = GetChartFree(data_medidor_Izarnet)
 				date_control = False
 			else:
 				date_control = True
@@ -166,6 +147,7 @@ def FreeChart(request):
 			'medidor': str(medidor),
 			'desde': desde,
 			'hasta': hasta,
+			'tipo_de_grafico': tipo_de_grafico,
 			'periodo_datos': periodo_datos,
 		}
 
