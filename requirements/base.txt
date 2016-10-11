@@ -54,3 +54,4 @@ xlrd==1.0.0
 django-chartit==0.2.6
 django-excel==0.0.5
 pyexcel-xlsx==0.2.2
+django-graphos==0.3.2
