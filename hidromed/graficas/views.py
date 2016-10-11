@@ -33,7 +33,7 @@ def GetData(data_medidor, periodo_datos, campo):
 		first = True
 		for data_m in data_medidor:
 			if not first == True:
-				if data_m.fecha <= f_next:
+				if data_m.fecha < f_next:
 					sumatoria += getattr(data_m, campo)
 				else:
 					data.append([data_m.fecha, sumatoria])
