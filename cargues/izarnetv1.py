@@ -109,13 +109,14 @@ def CargueRegistros(data, file_name):
 				id_found = False
 				recalcular = True
 			last_id = last_id_partial + (
-				'WHERE medidor_id = "{}" AND fecha < "{}"'.format(
+				'WHERE medidor_id = {} AND fecha < "{}"'.format(
 					medidor_id, str(fecha)))
 			cursor.execute(last_id)
 			last_medidor_data = cursor.fetchone()
 			last_medidor_data = last_medidor_data[0]
 			id_match = id_match_partial + (
-				'WHERE fecha = "{}"'.format(str(fecha)))
+				'WHERE fecha = "{}" AND medidor_id = {}'.format(
+					str(fecha), medidor_id))
 			cursor.execute(id_match)
 			id_match_data = cursor.fetchone()
 			if not id_match_data == None:
@@ -168,6 +169,9 @@ def CargueRegistros(data, file_name):
 				last = fecha
 			try:
 				cursor.execute(add_row)
+
+				print (add_row)
+
 				if id_found == False:
 					id_found = True
 					id_hasta = id_hasta_partial + (

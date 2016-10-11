@@ -115,7 +115,8 @@ def CargueRegistros(data, file_name):
 			last_medidor_data = cursor.fetchone()
 			last_medidor_data = last_medidor_data[0]
 			id_match = id_match_partial + (
-				'WHERE fecha = "{}"'.format(str(fecha)))
+				'WHERE fecha = "{}" AND medidor_id = {}'.format(
+					str(fecha), medidor_id))
 			cursor.execute(id_match)
 			id_match_data = cursor.fetchone()
 			if not id_match_data == None:
