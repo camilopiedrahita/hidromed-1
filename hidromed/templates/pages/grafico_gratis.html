@@ -85,7 +85,7 @@
                             <div class="col-md-12">
                                 <p>
                                     <strong>Descargar Excel: </strong>
-                                    <a href="{% url 'descargar_excel' data.medidor data.desde data.hasta data.periodo_datos %}">clic aquí</a>
+                                    <a href="{% url 'descargar_excel' data.medidor data.desde data.hasta data.periodo_datos data.tipo_de_grafico %}">clic aquí</a>
                                 </p>
                             </div>
                         {% endif %}

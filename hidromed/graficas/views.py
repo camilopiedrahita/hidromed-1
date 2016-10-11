@@ -49,19 +49,15 @@ def GetData(data_medidor, periodo_datos, campo):
 				f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
 	return data
 
-#corregir
-def DownloadExcel(request, medidor, desde, hasta, periodo_datos):
+def DownloadExcel(request, medidor, desde, hasta, periodo_datos, tipo_de_grafico):
 	medidor = Medidor.objects.get(serial=medidor)
 	data = GetData(
-		Izarnet.objects.filter(medidor=medidor,
-			fecha__range=[desde, hasta]).order_by('fecha'),
+		Izarnet.objects.filter(
+			medidor=medidor,fecha__range=[desde, hasta]).order_by('fecha'),
 		int(periodo_datos),
-		Izarnet.objects.all())
-	column_names = (['fecha', 'volumen_litros',
-		'caudal', 'consumo_acumulado', 'alarma'])
-	return excel.make_response_from_query_sets(
+		tipo_de_grafico)
+	return excel.make_response_from_array(
     	data,
-    	column_names,
     	"xlsx",
     	file_name="Datos.xlsx")
 
@@ -76,6 +72,7 @@ def FreeChart(request):
 	desde = '0'
 	hasta = '0'
 	periodo_datos = '0'
+	tipo_de_grafico = 'volumen_litros'
 	
 	if not usuario_medidores:
 		messages.error(request,
@@ -85,7 +82,6 @@ def FreeChart(request):
 		form = FiltrosForm()
 		graficos = []
 		medidores = []
-		tipo_de_grafico = 'volumen_litros'
 		periodo_datos = '0'
 		desde = '1986-02-12'
 		hasta = '1986-02-12'
@@ -151,6 +147,7 @@ def FreeChart(request):
 			'medidor': str(medidor),
 			'desde': desde,
 			'hasta': hasta,
+			'tipo_de_grafico': tipo_de_grafico,
 			'periodo_datos': periodo_datos,
 		}
 
