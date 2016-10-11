@@ -169,9 +169,6 @@ def CargueRegistros(data, file_name):
 				last = fecha
 			try:
 				cursor.execute(add_row)
-
-				print (add_row)
-
 				if id_found == False:
 					id_found = True
 					id_hasta = id_hasta_partial + (
