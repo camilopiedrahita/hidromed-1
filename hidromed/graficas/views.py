@@ -24,16 +24,29 @@ def GetChartFree(data):
 
 def GetData(data_medidor, periodo_datos, campo):
 	data = [['Fecha', campo]]
-	data.append([data_medidor[0].fecha, getattr(data_medidor[0], campo)])	
+	data.append([data_medidor[0].fecha, getattr(data_medidor[0], campo)])
 	f_inicial = data_medidor[0].fecha
 	f_next = f_inicial + datetime.timedelta(0, periodo_datos)
-	for data_m in data_medidor:
-		if data_m.fecha == f_next:
-			data.append([data_m.fecha, getattr(data_m, campo)])
-			f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
-		elif data_m.fecha > f_next:
-			data.append([data_m.fecha, getattr(data_m, campo)])
-			f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
+	if campo == 'consumo':
+		sumatoria = 0
+		first = True
+		for data_m in data_medidor:
+			if not first == True:
+				if data_m.fecha <= f_next:
+					sumatoria += getattr(data_m, campo)
+				else:
+					data.append([data_m.fecha, sumatoria])
+					sumatoria = getattr(data_m, campo)
+					f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
+			first = False
+	else:
+		for data_m in data_medidor:
+			if data_m.fecha == f_next:
+				data.append([data_m.fecha, getattr(data_m, campo)])
+				f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
+			elif data_m.fecha > f_next:
+				data.append([data_m.fecha, getattr(data_m, campo)])
+				f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
 	return data
 
 #corregir
