@@ -42,6 +42,8 @@ def RecalcData(id_desde, id_hasta, last):
 			minutos = (((new_fecha - last_fecha)*-1).total_seconds())/60
 		else:
 			minutos = ((new_fecha - last_fecha).total_seconds())/60
+		if minutos == 0:
+			minutos = 1
 		caudal = new_consumo / minutos * 60
 		consumo_acumulado = last_consumo_acumulado + new_consumo
 		udpate = ('UPDATE izarnet_izarnet SET '
