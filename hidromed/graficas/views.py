@@ -59,7 +59,7 @@ def DownloadExcel(request, medidor, desde, hasta, periodo_datos, tipo_de_grafico
 	return excel.make_response_from_array(
     	data,
     	"xlsx",
-    	file_name="Datos.xlsx")
+    	file_name=str(medidor.serial)+".xlsx")
 
 @login_required
 def FreeChart(request):
@@ -115,8 +115,9 @@ def FreeChart(request):
 		medidor = Medidor.objects.get(serial=medidor_request)
 		poliza = Poliza_Medidor_User.objects.get(
 			medidor=medidor, usuario=request.user).poliza
-		acueducto_data = Medidor_Acueducto.objects.get(
-			medidor=medidor).acueducto
+		if Medidor_Acueducto.objects.filter(medidor=medidor):
+			acueducto_data = Medidor_Acueducto.objects.get(
+				medidor=medidor).acueducto
 
 		if Izarnet.objects.filter(medidor=medidor,
 			fecha__range=[desde, hasta]):
