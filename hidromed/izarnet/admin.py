@@ -18,7 +18,7 @@ class AdminIzarnetv1(admin.ModelAdmin):
 
 	list_filter = ('medidor',)
 	list_display = ('id', 'medidor', 'time', 'volumen', 'consumo',
-		'volumen_litros', 'caudal', 'alarma',)
+		'volumen_litros', 'alarma',)
 
 @admin.register(IzarnetProcesados)
 class AdminIzarnetv1Procesados(admin.ModelAdmin):
