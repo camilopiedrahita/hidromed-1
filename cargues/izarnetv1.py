@@ -55,6 +55,7 @@ def CargueRegistros(data, file_name):
 				fecha = datetime.strptime(str(fecha), '%Y-%m-%d %H:%M:%S')
 				volumen = float(str(row[1][headers[1]]).replace(',', '.'))
 				consumo = float(str(row[1][headers[2]]).replace(',', '.'))
+				consumo = consumo * 1000
 				volumen_litros = volumen*1000
 				alarma = u'%s' % row[1][headers[4]]
 				alarma = alarma.encode('ascii', 'ignore')
