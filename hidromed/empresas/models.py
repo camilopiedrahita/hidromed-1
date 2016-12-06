@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
+#Modelos correspondiente a empresas
 @python_2_unicode_compatible
 class Acueducto(models.Model):
 	nombre = models.CharField(max_length=255)

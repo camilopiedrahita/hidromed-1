@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from .models import *
 
+#registro de modelos en el admin del sitio
 @admin.register(Medidor)
 class AdminMedidor(admin.ModelAdmin):
 	list_display = ('id', 'serial',)

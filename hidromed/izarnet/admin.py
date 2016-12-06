@@ -4,10 +4,12 @@ from django.contrib.admin import AdminSite
 
 from .models import *
 
+#Configuracion del admin del sitio
 class AdminIzarnetv1Template(AdminSite):
 	AdminSite.site_header = 'Hidromed S.A.'
 	AdminSite.site_title = 'Hidromed S.A.'
 
+#Registro de modelos en el admin del sitio
 @admin.register(Izarnet)
 class AdminIzarnetv1(admin.ModelAdmin):
 

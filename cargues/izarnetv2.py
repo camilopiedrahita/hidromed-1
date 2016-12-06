@@ -47,7 +47,7 @@ def CargueRegistros(data, file_name):
 	for header in list(data.columns.values):
 		headers.append(header)
 
-	#Isert Data
+	#Insert Data
 	if not medidor_id == None:
 		for row in data.iterrows():
 			try:
