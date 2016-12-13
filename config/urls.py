@@ -10,6 +10,7 @@ from django.views import defaults as default_views
 
 from hidromed.users import views as views_users
 from hidromed.graficas import views as views_graficas
+from hidromed.tablero import views as views_tablero
 
 from allauth.account import views as views_allauth
 
@@ -36,6 +37,9 @@ urlpatterns = [
         r'^descargar-excel/(?P<medidor>[\w-]+)/(?P<desde>[\w-]+)/(?P<hasta>[\w-]+)/(?P<periodo_datos>[\w-]+)/(?P<tipo_de_grafico>[\w-]+)/$',
         views_graficas.DownloadExcel,
         name='descargar_excel'),
+
+    #tablero rapido
+    url(r'^tablero_rapido', views_tablero.TablerRapido, name='tablero_rapido'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
