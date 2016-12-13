@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 from graphos.sources.simple import SimpleDataSource
-from graphos.renderers.gchart import LineChart
+from graphos.renderers.gchart import LineChart, ColumnChart
 
 from hidromed.izarnet.models import Izarnet
 from hidromed.medidores.models import Medidor, Medidor_Acueducto
@@ -19,10 +19,14 @@ from hidromed.users.models import User, Poliza_Medidor_User
 from .forms import FiltrosForm
 
 #Generar grafico de lineas
-def GetChartFree(data, poliza, unidad):
+def GetChartFree(data, poliza, unidad, tipo):
 	data_source = SimpleDataSource(data=data)
 	title = 'PÓLIZA: ' + str(poliza) + ' (' + str(unidad) + ')' 
-	return LineChart(data_source, options={'title': title})
+
+	if tipo == 'liena':
+		return LineChart(data_source, options={'title': title})
+	elif tipo == 'barras':
+		return ColumnChart(data_source, options={'title': title})
 
 #Pool de datos para generar los graficos
 def GetData(data_medidor, periodo_datos, campo):
@@ -116,6 +120,7 @@ def FreeChart(request):
 				periodo_datos = form.cleaned_data['periodo_datos']
 				desde = form.cleaned_data['desde']
 				hasta = form.cleaned_data['hasta']
+				grafico = form.cleaned_data['grafico']
 
 		if periodo_datos == '1':
 			periodo_datos = 60
@@ -152,7 +157,8 @@ def FreeChart(request):
 					data_medidor_Izarnet,
 					Poliza_Medidor_User.objects.get(medidor=medidor,
 						usuario=usuario).poliza,
-					'Litros')
+					'Litros',
+					grafico)
 				date_control = False
 			else:
 				date_control = True

@@ -19,6 +19,11 @@ PERIODO_CHOICES = (
 		('4', 'Cada día'),
 	)
 
+GRAFICO_CHOICES = (
+		('liena', 'Líena'),
+		('barras', 'Barras'),
+	)
+
 #Formulario de filtros
 class FiltrosForm(forms.Form):
 	tipo_de_grafico = forms.ChoiceField(choices=TIPO_CHOICES)
@@ -27,6 +32,7 @@ class FiltrosForm(forms.Form):
 		widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date'}))
 	hasta = forms.DateField(
 		widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date'}))
+	grafico = forms.ChoiceField(choices=GRAFICO_CHOICES)
 	helper = FormHelper()
 	helper.add_input(Submit('filtro', 'Filtrar', css_class='btn-primary'))
 
