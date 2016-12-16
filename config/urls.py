@@ -30,7 +30,7 @@ urlpatterns = [
     url(r'^crear-usuarios', views_users.CrearUsuariosView, name='crear_usuarios'),
 
     #graficos
-    url(r'^gratis', views_graficas.FreeChart, name='grafica_gratis'),
+    url(r'^gratis', views_graficas.FreeChartView, name='grafica_gratis'),
 
     #descargar excel
     url(
