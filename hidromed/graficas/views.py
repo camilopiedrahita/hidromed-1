@@ -5,7 +5,6 @@ from django.shortcuts import render
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 
 from hidromed.izarnet.models import Izarnet
 from hidromed.medidores.models import Medidor, Medidor_Acueducto
@@ -18,22 +17,20 @@ from .utils import *
 #Vista de graficos
 @login_required
 def FreeChartView(request):
+
+	#Inicializacion de variables
 	usuario = request.user
-	usuario_medidores = Poliza_Medidor_User.objects.filter(
-		usuario=usuario)
-	client_data = usuario
+	usuario_medidores = GetMedidor(request, usuario)
 	acueducto_data = ''
 	medidor = '0'
 	desde = '0'
 	hasta = '0'
 	periodo_datos = '0'
 	tipo_de_grafico = 'volumen_litros'
-	
-	if not usuario_medidores:
-		messages.error(request,
-			'Su usuario no tiene medidores o pólizas asociados')
-		data = ''
-	else:
+	data = {}
+
+	#construccion del la interfaz
+	if usuario_medidores:
 		form = FiltrosForm()
 		graficos = []
 		medidores = []
@@ -108,7 +105,7 @@ def FreeChartView(request):
 			'graficos': graficos,
 			'medidores': medidores,
 			'form': form,
-			'client_data': client_data,
+			'client_data': usuario,
 			'acueducto_data': acueducto_data,
 			'medidor': str(medidor),
 			'desde': desde,

@@ -3,18 +3,28 @@ import datetime
 
 import django_excel as excel
 
+from django.contrib import messages
+
 from graphos.sources.simple import SimpleDataSource
 from graphos.renderers.gchart import LineChart, ColumnChart
 
 from hidromed.izarnet.models import Izarnet
-
 from hidromed.medidores.models import Medidor
+from hidromed.users.models import Poliza_Medidor_User
+
+#Get medidores
+def GetMedidor(request, usuario):
+	usuario_medidores = Poliza_Medidor_User.objects.filter(
+		usuario=usuario)
+	if not usuario_medidores:
+		messages.error(request,
+			'Su usuario no tiene medidores o pólizas asociados')
+	return usuario_medidores
 
 #Generar grafico de lineas
 def GetChartFree(data, poliza, unidad, tipo):
 	data_source = SimpleDataSource(data=data)
 	title = 'PÓLIZA: ' + str(poliza) + ' (' + str(unidad) + ')' 
-
 	if tipo == 'liena':
 		return LineChart(data_source, options={'title': title})
 	elif tipo == 'barras':
