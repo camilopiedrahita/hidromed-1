@@ -23,30 +23,32 @@ def FreeChartView(request):
 	usuario_medidores = GetMedidor(request, usuario)
 	acueducto_data = ''
 	medidor = '0'
-	desde = '0'
-	hasta = '0'
+	desde = '1986-02-12'
+	hasta = '1986-02-12'
 	periodo_datos = '0'
 	tipo_de_grafico = 'volumen_litros'
+	date_control = False
+	form = FiltrosForm()
+	graficos = []
+	medidores = []
 	data = {}
 
 	#construccion del la interfaz
 	if usuario_medidores:
-		form = FiltrosForm()
-		graficos = []
-		medidores = []
-		periodo_datos = '0'
-		desde = '1986-02-12'
-		hasta = '1986-02-12'
-		date_control = False
-		for registro in usuario_medidores:
-			medidor = Medidor.objects.get(serial=registro.medidor)
-			medidores.append(medidor)
 
-		medidor_request = medidores[0]
+		#Generar datos de medidoreds, y polizas
+		for registro in usuario_medidores:
+			medidores.append(Medidor.objects.get(serial=registro.medidor))
 
 		if 'medidor' in request.GET.keys():
-			medidor_request = request.GET.get('medidor')
+			medidor = Medidor.objects.get(serial=request.GET.get('medidor'))
+		else:
+			medidor = Medidor.objects.get(serial=medidores[0])
 
+		poliza = Poliza_Medidor_User.objects.get(
+			medidor=medidor, usuario=usuario).poliza
+
+		#Datos del formulario
 		if request.method == 'POST':
 			form = FiltrosForm(request.POST)
 			if form.is_valid():
@@ -56,22 +58,12 @@ def FreeChartView(request):
 				hasta = form.cleaned_data['hasta']
 				grafico = form.cleaned_data['grafico']
 
-		if periodo_datos == '1':
-			periodo_datos = 60
-		elif periodo_datos == '2':
-			periodo_datos = 900
-		elif periodo_datos == '3':
-			periodo_datos = 3600
-		elif periodo_datos == '4':
-			periodo_datos = 86400
-
-		medidor = Medidor.objects.get(serial=medidor_request)
-		poliza = Poliza_Medidor_User.objects.get(
-			medidor=medidor, usuario=request.user).poliza
+		#datos del acueducto
 		if Medidor_Acueducto.objects.filter(medidor=medidor):
 			acueducto_data = Medidor_Acueducto.objects.get(
 				medidor=medidor).acueducto
 
+		#datos del medidor en Izarnet
 		if Izarnet.objects.filter(medidor=medidor,
 			fecha__range=[desde, hasta]):
 			data_medidor_Izarnet = GetData(
@@ -84,6 +76,7 @@ def FreeChartView(request):
 				periodo_datos,
 				tipo_de_grafico)
 
+		#generar graficos
 		if Izarnet.objects.filter(medidor=medidor).exists():
 			if Izarnet.objects.filter(medidor=medidor, 
 					fecha__range=[desde, hasta]):
@@ -97,10 +90,12 @@ def FreeChartView(request):
 			else:
 				date_control = True
 
+		#control de fechas
 		if date_control == True:
 			messages.warning(request,
 				'Por favor seleccione un rango de fechas')
 
+		#diccionario de datos
 		data = {
 			'graficos': graficos,
 			'medidores': medidores,

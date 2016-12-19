@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
-
+import pandas as pd
 import django_excel as excel
 
 from django.contrib import messages
@@ -24,18 +24,42 @@ def GetMedidor(request, usuario):
 #Generar grafico de lineas
 def GetChartFree(data, poliza, unidad, tipo):
 	data_source = SimpleDataSource(data=data)
-	title = 'PÓLIZA: ' + str(poliza) + ' (' + str(unidad) + ')' 
+	title = 'PÓLIZA: ' + str(poliza) + ' (' + str(unidad) + ')'
 	if tipo == 'liena':
-		return LineChart(data_source, options={'title': title})
+		graph = LineChart(data_source, options={'title': title})
 	elif tipo == 'barras':
-		return ColumnChart(data_source, options={'title': title})
+		graph = ColumnChart(data_source, options={'title': title})
+	return graph
 
 #Pool de datos para generar los graficos
 def GetData(data_medidor, periodo_datos, campo):
-	data = [['Fecha', campo]]
-	data.append([data_medidor[0].fecha, getattr(data_medidor[0], campo)])
+	
+	#Inicializacion de variables
 	f_inicial = data_medidor[0].fecha
-	f_next = f_inicial + datetime.timedelta(0, periodo_datos)
+	f_next = f_inicial + datetime.timedelta(0, int(periodo_datos))
+
+	#Convertir queryset en python pandas dataframe
+	df = pd.DataFrame(list(data_medidor.values('fecha', campo)))
+	
+	#obtener datos en periodo de datos
+	print (df)
+
+	#Agregar encabezado de columnas al dataframe 
+	data = df.values.tolist()
+	data.insert(0,['Fecha', campo])
+
+	#return data
+
+	print ('------------------------------')
+
+
+	#Inicializacion de variables
+	data = [['Fecha', campo]]
+	f_inicial = data_medidor[0].fecha
+	f_next = f_inicial + datetime.timedelta(0, int(periodo_datos))
+	data.append([data_medidor[0].fecha, getattr(data_medidor[0], campo)])
+	
+	#Generar datos a partir de fecha
 	if campo == 'consumo':
 		sumatoria = 0
 		first = True
@@ -46,16 +70,19 @@ def GetData(data_medidor, periodo_datos, campo):
 				else:
 					data.append([data_m.fecha, sumatoria])
 					sumatoria = getattr(data_m, campo)
-					f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
+					f_next = (data_m.fecha + datetime.timedelta(0, int(periodo_datos)))
 			first = False
 	else:
 		for data_m in data_medidor:
 			if data_m.fecha == f_next:
 				data.append([data_m.fecha, getattr(data_m, campo)])
-				f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
+				f_next = (data_m.fecha + datetime.timedelta(0, int(periodo_datos)))
 			elif data_m.fecha > f_next:
 				data.append([data_m.fecha, getattr(data_m, campo)])
-				f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
+				f_next = (data_m.fecha + datetime.timedelta(0, int(periodo_datos)))
+	
+	print (data)
+
 	return data
 
 #Exportar pool de datos en excel

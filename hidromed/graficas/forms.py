@@ -13,10 +13,10 @@ TIPO_CHOICES = (
 	)
 
 PERIODO_CHOICES = (
-		('1', 'Cada minuto'),
-		('2', 'Cada 15 minutos'),
-		('3', 'Cada hora'),
-		('4', 'Cada día'),
+		('60', 'Cada minuto'),
+		('900', 'Cada 15 minutos'),
+		('3600', 'Cada hora'),
+		('86400', 'Cada día'),
 	)
 
 GRAFICO_CHOICES = (
