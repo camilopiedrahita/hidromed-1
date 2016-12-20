@@ -10,9 +10,13 @@ from django.views import defaults as default_views
 
 from hidromed.users import views as views_users
 from hidromed.graficas import views as views_graficas
+from hidromed.tablero import views as views_tablero
+
+from allauth.account import views as views_allauth
 
 urlpatterns = [
-    url(r'^$', TemplateView.as_view(template_name='pages/home.html'), name='home'),
+    url(r'^$', views_allauth.login),
+    url(r'^home/$', TemplateView.as_view(template_name='pages/home.html'), name='home'),
     url(r'^about/$', TemplateView.as_view(template_name='pages/about.html'), name='about'),
 
     # Django Admin, use {% url 'admin:index' %}
@@ -26,13 +30,16 @@ urlpatterns = [
     url(r'^crear-usuarios', views_users.CrearUsuariosView, name='crear_usuarios'),
 
     #graficos
-    url(r'^gratis', views_graficas.FreeChart, name='grafica_gratis'),
+    url(r'^gratis', views_graficas.FreeChartView, name='grafica_gratis'),
 
     #descargar excel
     url(
         r'^descargar-excel/(?P<medidor>[\w-]+)/(?P<desde>[\w-]+)/(?P<hasta>[\w-]+)/(?P<periodo_datos>[\w-]+)/(?P<tipo_de_grafico>[\w-]+)/$',
         views_graficas.DownloadExcel,
         name='descargar_excel'),
+
+    #tablero rapido
+    url(r'^tablero_rapido', views_tablero.TablerRapido, name='tablero_rapido'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

@@ -2,7 +2,7 @@
 <div class="m-b">
       <nav class="navbar navbar-dark navbar-static-top bg-inverse">
         <div class="container">
-          <a class="navbar-brand" href="/">HidroMed S.A.</a>
+          <a class="navbar-brand" href="{% url 'home' %}">HidroMed S.A.</a>
           <button type="button" class="navbar-toggler hidden-sm-up pull-xs-right" data-toggle="collapse" data-target="#bs-navbar-collapse-1">
             &#9776;
           </button>
@@ -27,6 +27,9 @@
                 {% endif %}
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'account_change_password' %}">Cambiar contraseña</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'tablero_rapido' %}">Tablero Rápido</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'grafica_gratis' %}">Mis gráficos</a>
