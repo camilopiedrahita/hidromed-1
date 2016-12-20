@@ -62,6 +62,20 @@ def FuncSumatoria(row):
 
 	return sumatoria
 
+#Funcion caudal promedio
+def FuncCaudal(row):
+
+	#Declararcion de variables
+	global f_next
+
+	#Caluclar caudal
+	minutos = ((row['fecha'] - f_next).total_seconds()) / 60
+	if minutos == 0: minutos = 1
+	caudal = row['consumo'] / minutos * 60
+	f_next = row['fecha']
+
+	return caudal
+
 #Pool de datos para generar los graficos
 def GetData(data_medidor, periodo_datos, campo):
 
@@ -70,7 +84,7 @@ def GetData(data_medidor, periodo_datos, campo):
 	global sumatoria
 
 	#Convertir queryset en python pandas dataframe
-	df = pd.DataFrame(list(data_medidor.values('fecha', campo)))
+	df = pd.DataFrame(list(data_medidor.values()))
 	
 	#obtener datos en periodo de datos
 	f_next = df['fecha'][0] + datetime.timedelta(0, int(periodo_datos))
@@ -79,9 +93,16 @@ def GetData(data_medidor, periodo_datos, campo):
 
 	#condicionale para los diferentes tipos de graficos
 	if campo == 'consumo':
+		#obtener consumo acumulado
 		df['consumo_acumulado'] = df.apply(FuncSumatoria, axis=1)
 		df['consumo_acumulado'] = df['consumo_acumulado'].shift(1)
 		campo = 'consumo_acumulado'
+	
+	elif campo == 'caudal':
+		#obtener caudal promedio
+		f_next = df['fecha'][0]
+		df['caudal_promedio'] = df.apply(FuncCaudal, axis=1)
+		campo = 'caudal_promedio'
 
 	#filtro campos del dataframe
 	df = df[df['flag'] == 1]
