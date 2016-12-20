@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+import numpy as np
 import pandas as pd
 import django_excel as excel
 
@@ -11,6 +12,9 @@ from graphos.renderers.gchart import LineChart, ColumnChart
 from hidromed.izarnet.models import Izarnet
 from hidromed.medidores.models import Medidor
 from hidromed.users.models import Poliza_Medidor_User
+
+#variables Globales
+f_next = '1986-02-12'
 
 #Get medidores
 def GetMedidor(request, usuario):
@@ -31,18 +35,37 @@ def GetChartFree(data, poliza, unidad, tipo):
 		graph = ColumnChart(data_source, options={'title': title})
 	return graph
 
+#Funcion comparar fechas
+def FucnFechas(row, periodo_datos):
+
+	#Declaracion de variables
+	global f_next
+
+	#Comparar - obtener nueva fecha
+	if row['fecha'] >= f_next:
+		f_next = row['fecha'] + datetime.timedelta(0, int(periodo_datos))
+
+	return f_next
+
 #Pool de datos para generar los graficos
 def GetData(data_medidor, periodo_datos, campo):
-	
-	#Inicializacion de variables
-	f_inicial = data_medidor[0].fecha
-	f_next = f_inicial + datetime.timedelta(0, int(periodo_datos))
+
+	#Declararcion de variables
+	global f_next
 
 	#Convertir queryset en python pandas dataframe
 	df = pd.DataFrame(list(data_medidor.values('fecha', campo)))
 	
 	#obtener datos en periodo de datos
+	f_next = df['fecha'][0] + datetime.timedelta(0, int(periodo_datos))
+	df['fecha_flag'] = df.apply(FucnFechas, axis=1, args={periodo_datos})
+	df['flag'] = np.where(df['fecha_flag'] != df['fecha_flag'].shift(1), 1, 0)
+	df = df[df['flag'] == 1]
+	
 	print (df)
+
+
+
 
 	#Agregar encabezado de columnas al dataframe 
 	data = df.values.tolist()
