@@ -15,6 +15,7 @@ from hidromed.users.models import Poliza_Medidor_User
 
 #variables Globales
 f_next = '1986-02-12'
+sumatoria = 0
 
 #Get medidores
 def GetMedidor(request, usuario):
@@ -47,11 +48,26 @@ def FucnFechas(row, periodo_datos):
 
 	return f_next
 
+#Funcion sumatoria
+def FuncSumatoria(row):
+
+	#Declaracion de variables
+	global sumatoria
+
+	#Realizar sumatoria
+	if row['flag'] == 1:
+		sumatoria = row['consumo']
+	else:
+		sumatoria = sumatoria + row['consumo']
+
+	return sumatoria
+
 #Pool de datos para generar los graficos
 def GetData(data_medidor, periodo_datos, campo):
 
 	#Declararcion de variables
 	global f_next
+	global sumatoria
 
 	#Convertir queryset en python pandas dataframe
 	df = pd.DataFrame(list(data_medidor.values('fecha', campo)))
@@ -60,6 +76,14 @@ def GetData(data_medidor, periodo_datos, campo):
 	f_next = df['fecha'][0] + datetime.timedelta(0, int(periodo_datos))
 	df['fecha_flag'] = df.apply(FucnFechas, axis=1, args={periodo_datos})
 	df['flag'] = np.where(df['fecha_flag'] != df['fecha_flag'].shift(1), 1, 0)
+
+	#condicionale para los diferentes tipos de graficos
+	if campo == 'consumo':
+		df['consumo_acumulado'] = df.apply(FuncSumatoria, axis=1)
+		df['consumo_acumulado'] = df['consumo_acumulado'].shift(1)
+		campo = 'consumo_acumulado'
+
+	#filtro campos del dataframe
 	df = df[df['flag'] == 1]
 	df = df[['fecha', campo]]
 
