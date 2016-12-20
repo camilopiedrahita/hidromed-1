@@ -61,50 +61,11 @@ def GetData(data_medidor, periodo_datos, campo):
 	df['fecha_flag'] = df.apply(FucnFechas, axis=1, args={periodo_datos})
 	df['flag'] = np.where(df['fecha_flag'] != df['fecha_flag'].shift(1), 1, 0)
 	df = df[df['flag'] == 1]
-	
-	print (df)
-
-
-
+	df = df[['fecha', campo]]
 
 	#Agregar encabezado de columnas al dataframe 
 	data = df.values.tolist()
 	data.insert(0,['Fecha', campo])
-
-	#return data
-
-	print ('------------------------------')
-
-
-	#Inicializacion de variables
-	data = [['Fecha', campo]]
-	f_inicial = data_medidor[0].fecha
-	f_next = f_inicial + datetime.timedelta(0, int(periodo_datos))
-	data.append([data_medidor[0].fecha, getattr(data_medidor[0], campo)])
-	
-	#Generar datos a partir de fecha
-	if campo == 'consumo':
-		sumatoria = 0
-		first = True
-		for data_m in data_medidor:
-			if not first == True:
-				if data_m.fecha < f_next:
-					sumatoria += getattr(data_m, campo)
-				else:
-					data.append([data_m.fecha, sumatoria])
-					sumatoria = getattr(data_m, campo)
-					f_next = (data_m.fecha + datetime.timedelta(0, int(periodo_datos)))
-			first = False
-	else:
-		for data_m in data_medidor:
-			if data_m.fecha == f_next:
-				data.append([data_m.fecha, getattr(data_m, campo)])
-				f_next = (data_m.fecha + datetime.timedelta(0, int(periodo_datos)))
-			elif data_m.fecha > f_next:
-				data.append([data_m.fecha, getattr(data_m, campo)])
-				f_next = (data_m.fecha + datetime.timedelta(0, int(periodo_datos)))
-	
-	print (data)
 
 	return data
 
