@@ -5,6 +5,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 from hidromed.medidores.models import Medidor
 
+#modelos correspondientes a la app de Izarnet
 @python_2_unicode_compatible
 class Izarnet(models.Model):
 	medidor = models.ForeignKey(Medidor, default=None)

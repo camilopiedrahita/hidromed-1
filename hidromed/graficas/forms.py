@@ -6,6 +6,7 @@ import datetime
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
+#Opciones para los select del formulario
 TIPO_CHOICES = (
 		('volumen_litros', 'Volumen Acumulado'),
 		('consumo', 'Consumo Acumulado'),
@@ -18,6 +19,7 @@ PERIODO_CHOICES = (
 		('4', 'Cada día'),
 	)
 
+#Formulario de filtros
 class FiltrosForm(forms.Form):
 	tipo_de_grafico = forms.ChoiceField(choices=TIPO_CHOICES)
 	periodo_datos = forms.ChoiceField(choices=PERIODO_CHOICES)

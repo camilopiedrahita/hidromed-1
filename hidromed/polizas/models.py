@@ -6,6 +6,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 from hidromed.empresas.models import Cliente, Acueducto
 
+#modelos correspondientes a las polizas
 @python_2_unicode_compatible
 class Poliza(models.Model):
 	numero = models.CharField(max_length=255)

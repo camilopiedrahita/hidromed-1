@@ -18,11 +18,13 @@ from hidromed.users.models import User, Poliza_Medidor_User
 
 from .forms import FiltrosForm
 
+#Generar grafico de lineas
 def GetChartFree(data, poliza, unidad):
 	data_source = SimpleDataSource(data=data)
 	title = 'PÓLIZA: ' + str(poliza) + ' (' + str(unidad) + ')' 
 	return LineChart(data_source, options={'title': title})
 
+#Pool de datos para generar los graficos
 def GetData(data_medidor, periodo_datos, campo):
 	data = [['Fecha', campo]]
 	data.append([data_medidor[0].fecha, getattr(data_medidor[0], campo)])
@@ -50,6 +52,7 @@ def GetData(data_medidor, periodo_datos, campo):
 				f_next = (data_m.fecha + datetime.timedelta(0, periodo_datos))
 	return data
 
+#Exportar pool de datos en excel
 def DownloadExcel(request, medidor, desde, hasta, periodo_datos, tipo_de_grafico):
 	medidor = Medidor.objects.get(serial=medidor)
 	if tipo_de_grafico == 'volumen_litros':
@@ -71,6 +74,7 @@ def DownloadExcel(request, medidor, desde, hasta, periodo_datos, tipo_de_grafico
     	"xlsx",
     	file_name="Medidor_"+str(medidor.serial)+".xlsx")
 
+#Vista de graficos
 @login_required
 def FreeChart(request):
 	usuario = request.user

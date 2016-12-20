@@ -6,6 +6,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 from hidromed.empresas.models import Cliente, Acueducto
 
+#modelos correspondientes a los medidores
 @python_2_unicode_compatible
 class Medidor(models.Model):
 	serial = models.CharField(max_length=255)
