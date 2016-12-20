@@ -17,6 +17,8 @@ PERIODO_CHOICES = (
 		('900', 'Cada 15 minutos'),
 		('3600', 'Cada hora'),
 		('86400', 'Cada día'),
+		('604800', 'Cada semana'),
+		('2592000', 'Cada mes'),
 	)
 
 GRAFICO_CHOICES = (
