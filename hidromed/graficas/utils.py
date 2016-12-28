@@ -18,7 +18,6 @@ from hidromed.users.models import Poliza_Medidor_User
 
 #variables Globales
 f_next = '1986-02-12'
-sumatoria = 0
 
 #Get periodo de datos
 def GetPeriodoData(data_medidor, periodo_datos):
@@ -92,18 +91,16 @@ def GetChartFree(data, poliza, medidor, unidad, tipo):
 	return graph
 
 #Funcion sumatoria
-def FuncSumatoria(row):
+def FuncSumatoria(data_medidor):
 
-	#Declaracion de variables
-	global sumatoria
+	#realizar sumatoria por periodo de datos
+	data_medidor['reset'] = data_medidor['flag'].cumsum()
+	data_medidor['consumo_acumulado'] = (
+		data_medidor.groupby(['reset'])['consumo'].cumsum())
+	data_medidor['consumo_acumulado'] = (
+		data_medidor['consumo_acumulado'].shift(1))
 
-	#Realizar sumatoria
-	if row['flag'] == 1:
-		sumatoria = row['consumo']
-	else:
-		sumatoria = sumatoria + row['consumo']
-
-	return sumatoria
+	return data_medidor
 
 #Funcion caudal promedio
 def FuncCaudal(row):
@@ -124,9 +121,6 @@ def GetData(data_medidor, periodo_datos, campo):
 
 	start = time.time()
 
-	#Declararcion de variables
-	global sumatoria
-
 	#Convertir queryset en python pandas dataframe
 	df = pd.DataFrame(list(data_medidor.values('fecha', 'consumo', 'volumen_litros')))
 
@@ -135,15 +129,10 @@ def GetData(data_medidor, periodo_datos, campo):
 
 	#condicionale para los diferentes tipos de graficos
 	if campo == 'consumo':
-		
-		#obtener consumo acumulado
-		new_data_medidor['consumo_acumulado'] = (
-			new_data_medidor.apply(FuncSumatoria, axis=1))
-		new_data_medidor['consumo_acumulado'] = (
-			new_data_medidor['consumo_acumulado'].shift(1))
-		campo = 'consumo_acumulado'
 
-		print (new_data_medidor)
+		#obtener consumo acumulado
+		new_data_medidor = FuncSumatoria(new_data_medidor)
+		campo = 'consumo_acumulado'
 	
 	elif campo == 'caudal':
 
