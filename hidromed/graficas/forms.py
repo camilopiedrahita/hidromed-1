@@ -10,6 +10,7 @@ from crispy_forms.layout import Submit
 TIPO_CHOICES = (
 		('volumen_litros', 'Volumen Acumulado'),
 		('consumo', 'Consumo Acumulado'),
+		('caudal', 'Caudal Promedio'),
 	)
 
 PERIODO_CHOICES = (
@@ -17,6 +18,8 @@ PERIODO_CHOICES = (
 		('2', 'Cada 15 minutos'),
 		('3', 'Cada hora'),
 		('4', 'Cada día'),
+		('5', 'Cada semana'),
+		('6', 'Cada mes'),
 	)
 
 GRAFICO_CHOICES = (
@@ -26,12 +29,12 @@ GRAFICO_CHOICES = (
 
 #Formulario de filtros
 class FiltrosForm(forms.Form):
-	tipo_de_grafico = forms.ChoiceField(choices=TIPO_CHOICES)
-	periodo_datos = forms.ChoiceField(choices=PERIODO_CHOICES)
 	desde = forms.DateField(
 		widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date'}))
 	hasta = forms.DateField(
 		widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date'}))
+	tipo_de_grafico = forms.ChoiceField(choices=TIPO_CHOICES)
+	periodo_datos = forms.ChoiceField(choices=PERIODO_CHOICES)
 	grafico = forms.ChoiceField(choices=GRAFICO_CHOICES)
 	helper = FormHelper()
 	helper.add_input(Submit('filtro', 'Filtrar', css_class='btn-primary'))
