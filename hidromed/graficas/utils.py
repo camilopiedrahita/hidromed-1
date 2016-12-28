@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-
-import time
-
 import datetime
 import numpy as np
 import pandas as pd
@@ -15,9 +12,6 @@ from graphos.renderers.gchart import LineChart, ColumnChart
 from hidromed.izarnet.models import Izarnet
 from hidromed.medidores.models import Medidor
 from hidromed.users.models import Poliza_Medidor_User
-
-#variables Globales
-f_next = '1986-02-12'
 
 #Get periodo de datos
 def GetPeriodoData(data_medidor, periodo_datos):
@@ -103,26 +97,25 @@ def FuncSumatoria(data_medidor):
 	return data_medidor
 
 #Funcion caudal promedio
-def FuncCaudal(row):
+def FuncCaudal(data_medidor):
 
-	#Declararcion de variables
-	global f_next
+	#calcular caudal promedio
+	data_medidor['diferencia_minutos'] = (
+		data_medidor['minutos'] - data_medidor['minutos'].shift(1))
+	data_medidor['diferencia_minutos'] = np.where(
+		data_medidor['diferencia_minutos'] == 0, 1, 
+		data_medidor['diferencia_minutos'])
+	data_medidor['caudal_promedio'] = (
+		data_medidor['consumo'] / data_medidor['diferencia_minutos'] * 60)
 
-	#Caluclar caudal
-	minutos = ((row['fecha'] - f_next).total_seconds()) / 60
-	if minutos == 0: minutos = 1
-	caudal = row['consumo'] / minutos * 60
-	f_next = row['fecha']
-
-	return caudal
+	return data_medidor
 
 #Pool de datos para generar los graficos
 def GetData(data_medidor, periodo_datos, campo):
 
-	start = time.time()
-
 	#Convertir queryset en python pandas dataframe
-	df = pd.DataFrame(list(data_medidor.values('fecha', 'consumo', 'volumen_litros')))
+	df = pd.DataFrame(list(data_medidor.values(
+		'fecha', 'consumo', 'volumen_litros')))
 
 	#obtener datos en periodo de datos
 	new_data_medidor = GetPeriodoData(df, periodo_datos)
@@ -136,13 +129,8 @@ def GetData(data_medidor, periodo_datos, campo):
 	
 	elif campo == 'caudal':
 
-		#para eliminar
-		global f_next
-
 		#obtener caudal promedio
-		f_next = new_data_medidor['fecha'][0]
-		new_data_medidor['caudal_promedio'] = (
-			new_data_medidor.apply(FuncCaudal, axis=1))
+		new_data_medidor = FuncCaudal(new_data_medidor)
 		campo = 'caudal_promedio'
 
 	#filtro campos del dataframe
@@ -152,10 +140,6 @@ def GetData(data_medidor, periodo_datos, campo):
 	#Agregar encabezado de columnas al dataframe 
 	data = new_data_medidor.values.tolist()
 	data.insert(0,['Fecha', campo])
-
-	print ('Funcion GetData:')
-	end = time.time() - start
-	print (end)
 
 	return data
 
