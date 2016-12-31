@@ -14,7 +14,7 @@
         <li><a href="{% url 'account_change_password' %}">Cambiar contraseña</a></li>
         <li><a href="{% url 'tablero_rapido' %}">Tablero Rápido</a></li>
         <li><a href="{% url 'grafica_gratis' %}">Mis gráficos</a></li>
-        <li><a href="{% url 'users:detail' request.user.username  %}">Mi perfil</a></li>
+        <li><a href="{% url 'detalle_usuario' %}">Mi perfil</a></li>
         <li><a href="{% url 'account_logout' %}">Salir</a></li>
         {% else %}
           <li><a href="{% url 'account_login' %}">Ingresar</a></li>

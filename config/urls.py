@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^accounts/', include('allauth.urls')),
 
     # Your stuff: custom urls includes go here
+    url(r'^detalle_usuario/', views_users.DetalleUsuarioView, name='detalle_usuario'),
     url(r'^crear-usuarios', views_users.CrearUsuariosView, name='crear_usuarios'),
 
     #graficos

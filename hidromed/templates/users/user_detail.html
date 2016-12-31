@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}User: {{ object.username }}{% endblock %}
+{% block title %}Usuario: {{ data.usuario.username }}{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -16,14 +16,16 @@
                     <th>Empresa Cliente</th>
                     <th>NIT Empresa Cliente</th>
                     <th>Dirección</th>
+                    <th>Perfil</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>{{ object.username }}</td>
-                    <td>{{ object.cliente }}</td>
-                    <td>{{ object.cliente.nit }}</td>
-                    <td>{{ object.cliente.direccion }}</td>
+                    <td>{{ data.usuario.username }}</td>
+                    <td>{{ data.usuario.cliente }}</td>
+                    <td>{{ data.usuario.cliente.nit }}</td>
+                    <td>{{ data.usuario.cliente.direccion }}</td>
+                    <td>{{ data.usuario.get_perfil_display }}</td>
                 </tr>
             </tbody>
         </table>
@@ -37,9 +39,10 @@
                 </tr>
             </thead>
             <tbody>
-              {% for registro in object.Poliza_Medidor_User %}
+              {% for registro in data.poliza_medidores %}
                 <tr>
-                    <td>{{ object.username }}</td>
+                    <td>{{ registro.poliza }}</td>
+                    <td>{{ registro.medidor }}</td>
                 </tr>
               {% endfor %}
             </tbody>
