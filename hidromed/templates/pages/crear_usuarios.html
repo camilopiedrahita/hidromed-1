@@ -26,39 +26,47 @@
 				<div>
 					<h1>Usuarios creados</h1>
 					<table>
-						<tr>
-							<th>NIT</th>
-							<th>Empresa cliente</th>
-							<th>Usuario creado</th>
-							<th>Perfil</th>
-						</tr>
-						{% for usuario in data.users %}
+						<thead>
 							<tr>
-								<td>{{ usuario.cliente.nit }}</td>
-								<td>{{ usuario.cliente.nombre }}</td>
-								<td>{{ usuario.username }}</td>
-								<td>{{ usuario.get_perfil_display }}</td>
+								<th>NIT</th>
+								<th>Empresa cliente</th>
+								<th>Usuario creado</th>
+								<th>Perfil</th>
 							</tr>
-						{% endfor %}
+						</thead>
+						<tbody>
+							{% for usuario in data.users %}
+								<tr>
+									<td>{{ usuario.cliente.nit }}</td>
+									<td>{{ usuario.cliente.nombre }}</td>
+									<td>{{ usuario.username }}</td>
+									<td>{{ usuario.get_perfil_display }}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
 					</table>	
 				</div>
 				<div>
 					<h1>Polizas y medidores por usuario</h1>
 					<table>
-						<tr>
-							<th>Póliza</th>
-							<th>Medidor</th>
-							<th>usuario</th>
-						</tr>
-						{% for poliza_medidor in data.polizas_medidores %}
-							{% for pm in poliza_medidor %}
-								<tr>
-									<td>{{ pm.poliza }}</td>
-									<td>{{ pm.medidor }}</td>
-									<td>{{ pm.usuario }}</td>
-								</tr>
+						<thead>
+							<tr>
+								<th>Póliza</th>
+								<th>Medidor</th>
+								<th>usuario</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for poliza_medidor in data.polizas_medidores %}
+								{% for pm in poliza_medidor %}
+									<tr>
+										<td>{{ pm.poliza }}</td>
+										<td>{{ pm.medidor }}</td>
+										<td>{{ pm.usuario }}</td>
+									</tr>
+								{% endfor %}
 							{% endfor %}
-						{% endfor %}
+						</tbody>
 					</table>	
 				</div>
 			{% endif %}
@@ -66,14 +74,18 @@
 				<div>
 					<h1>Errores en creación de usuarios</h1>
 					<table>
-						<tr>
-							<th>Error</th>
-						</tr>
-						{% for error in data.log %}
+						<thead>
 							<tr>
-								<td>{{ error }}</td>
+								<th>Error</th>
 							</tr>
-						{% endfor %}
+						</thead>
+						<tbody>
+							{% for error in data.log %}
+								<tr>
+									<td>{{ error }}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
 					</table>
 				</div>
 			{% endif %}
