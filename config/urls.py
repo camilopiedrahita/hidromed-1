@@ -34,7 +34,7 @@ urlpatterns = [
 
     #descargar excel
     url(
-        r'^descargar-excel/(?P<medidor>[\w-]+)/(?P<desde>[\w-]+)/(?P<hasta>[\w-]+)/(?P<periodo_datos>[\w-]+)/(?P<tipo_de_grafico>[\w-]+)/$',
+        r'^descargar-excel/(?P<medidor>[\w-]+)/(?P<desde>\d+-\d+-\d+\ \d+:\d+:\d+)/(?P<hasta>\d+-\d+-\d+\ \d+:\d+:\d+)/(?P<periodo_datos>[-\w]+)/(?P<tipo_de_grafico>[\w-]+)/$',
         views_graficas.DownloadExcel,
         name='descargar_excel'),
 

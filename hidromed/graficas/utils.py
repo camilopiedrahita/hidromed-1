@@ -7,15 +7,62 @@ import django_excel as excel
 from django.contrib import messages
 
 from graphos.sources.simple import SimpleDataSource
-from graphos.renderers.gchart import LineChart, ColumnChart
+from graphos.renderers.gchart import AreaChart, ColumnChart
+from dateutil.relativedelta import relativedelta
 
 from hidromed.izarnet.models import Izarnet
 from hidromed.medidores.models import Medidor
 from hidromed.users.models import Poliza_Medidor_User
 
-#variables Globales
-f_next = '1986-02-12'
-sumatoria = 0
+#Get periodo de datos
+def GetPeriodoData(data_medidor, periodo_datos):
+
+	#dividir tiempo en columnas
+	data_medidor['anho'] = data_medidor['fecha'].dt.year
+	data_medidor['mes'] = data_medidor['fecha'].dt.month
+	data_medidor['dia'] = data_medidor['fecha'].dt.day
+	data_medidor['hora'] = data_medidor['fecha'].dt.hour
+	data_medidor['minutos'] = data_medidor['fecha'].dt.minute
+	data_medidor['semana'] = data_medidor['fecha'].dt.week
+
+	#flags segun periodo de tiempo
+	data_medidor['flag_anho'] = np.where(
+		data_medidor['anho'] == data_medidor['anho'].shift(-1), 0, 1)
+	data_medidor['flag_mes'] = np.where(
+		data_medidor['mes'] == data_medidor['mes'].shift(-1), 0, 1)
+	data_medidor['flag_dia'] = np.where(
+		data_medidor['dia'] == data_medidor['dia'].shift(-1), 0, 1)
+	data_medidor['flag_hora'] = np.where(
+		data_medidor['hora'] == data_medidor['hora'].shift(-1), 0, 1)
+	data_medidor['flag_semana'] = np.where(
+		data_medidor['semana'] == data_medidor['semana'].shift(-1), 0, 1)
+	data_medidor['flag_minuto'] = 1
+	data_medidor['mod_15'] = data_medidor['minutos'] % 15
+	
+	#nuevo data frame con mod 15 invertido
+	df = data_medidor['mod_15'][::-1]
+
+	#flag para perido de 15 minutos
+	data_medidor['flag_15'] = np.where(
+		data_medidor['flag_hora'] == 1, 1,
+		np.where(df == 14, 1,
+			np.where(df > df.shift(1), 1, 0)))
+
+	#asignando periodo de datos al dataframe
+	if periodo_datos == '1':
+		data_medidor['flag'] = data_medidor['flag_minuto']
+	elif periodo_datos == '2':
+		data_medidor['flag'] = data_medidor['flag_15']
+	elif periodo_datos == '3':
+		data_medidor['flag'] = data_medidor['flag_hora']
+	elif periodo_datos == '4':
+		data_medidor['flag'] = data_medidor['flag_dia']
+	elif periodo_datos == '5':
+		data_medidor['flag'] = data_medidor['flag_semana']
+	elif periodo_datos == '6':
+		data_medidor['flag'] = data_medidor['flag_mes']
+
+	return data_medidor
 
 #Get medidores
 def GetMedidor(request, usuario):
@@ -27,89 +74,74 @@ def GetMedidor(request, usuario):
 	return usuario_medidores
 
 #Generar grafico de lineas
-def GetChartFree(data, poliza, unidad, tipo):
+def GetChartFree(data, poliza, medidor, unidad, tipo):
 	data_source = SimpleDataSource(data=data)
-	title = 'PÓLIZA: ' + str(poliza) + ' (' + str(unidad) + ')'
+	title = (
+		'PÓLIZA: ' + str(poliza) + ' (' + str(unidad) + ')' + 
+		' - MEDIDOR: ' + str(medidor) + ' (' + str(unidad) + ')')
 	if tipo == 'liena':
-		graph = LineChart(data_source, options={'title': title})
+		graph = AreaChart(
+			data_source, height=500, width=1100, options={'title': title})
 	elif tipo == 'barras':
-		graph = ColumnChart(data_source, options={'title': title})
+		graph = ColumnChart(
+			data_source, height=500, width=1100, options={'title': title})
 	return graph
 
-#Funcion comparar fechas
-def FucnFechas(row, periodo_datos):
-
-	#Declaracion de variables
-	global f_next
-
-	#Comparar - obtener nueva fecha
-	if row['fecha'] >= f_next:
-		f_next = row['fecha'] + datetime.timedelta(0, int(periodo_datos))
-
-	return f_next
-
 #Funcion sumatoria
-def FuncSumatoria(row):
+def FuncSumatoria(data_medidor):
 
-	#Declaracion de variables
-	global sumatoria
+	#realizar sumatoria por periodo de datos
+	data_medidor['reset'] = data_medidor['flag'].cumsum()
+	data_medidor['consumo_acumulado'] = (
+		data_medidor.groupby(['reset'])['consumo'].cumsum())
+	data_medidor['consumo_acumulado'] = (
+		data_medidor['consumo_acumulado'].shift(1))
 
-	#Realizar sumatoria
-	if row['flag'] == 1:
-		sumatoria = row['consumo']
-	else:
-		sumatoria = sumatoria + row['consumo']
-
-	return sumatoria
+	return data_medidor
 
 #Funcion caudal promedio
-def FuncCaudal(row):
+def FuncCaudal(data_medidor):
 
-	#Declararcion de variables
-	global f_next
+	#calcular caudal promedio
+	data_medidor['diferencia_minutos'] = (
+		data_medidor['minutos'] - data_medidor['minutos'].shift(1))
+	data_medidor['diferencia_minutos'] = np.where(
+		data_medidor['diferencia_minutos'] == 0, 1, 
+		data_medidor['diferencia_minutos'])
+	data_medidor['caudal_promedio'] = (
+		data_medidor['consumo'] / data_medidor['diferencia_minutos'] * 60)
 
-	#Caluclar caudal
-	minutos = ((row['fecha'] - f_next).total_seconds()) / 60
-	if minutos == 0: minutos = 1
-	caudal = row['consumo'] / minutos * 60
-	f_next = row['fecha']
-
-	return caudal
+	return data_medidor
 
 #Pool de datos para generar los graficos
 def GetData(data_medidor, periodo_datos, campo):
 
-	#Declararcion de variables
-	global f_next
-	global sumatoria
-
 	#Convertir queryset en python pandas dataframe
-	df = pd.DataFrame(list(data_medidor.values()))
-	
+	df = pd.DataFrame(list(data_medidor.values(
+		'fecha', 'consumo', 'volumen_litros')))
+
 	#obtener datos en periodo de datos
-	f_next = df['fecha'][0] + datetime.timedelta(0, int(periodo_datos))
-	df['fecha_flag'] = df.apply(FucnFechas, axis=1, args={periodo_datos})
-	df['flag'] = np.where(df['fecha_flag'] != df['fecha_flag'].shift(1), 1, 0)
+	new_data_medidor = GetPeriodoData(df, periodo_datos)
 
 	#condicionale para los diferentes tipos de graficos
 	if campo == 'consumo':
+
 		#obtener consumo acumulado
-		df['consumo_acumulado'] = df.apply(FuncSumatoria, axis=1)
-		df['consumo_acumulado'] = df['consumo_acumulado'].shift(1)
+		new_data_medidor = FuncSumatoria(new_data_medidor)
 		campo = 'consumo_acumulado'
 	
 	elif campo == 'caudal':
+
 		#obtener caudal promedio
-		f_next = df['fecha'][0]
-		df['caudal_promedio'] = df.apply(FuncCaudal, axis=1)
+		new_data_medidor = FuncCaudal(new_data_medidor)
 		campo = 'caudal_promedio'
 
 	#filtro campos del dataframe
-	df = df[df['flag'] == 1]
-	df = df[['fecha', campo]]
+	new_data_medidor = new_data_medidor[new_data_medidor['flag'] == 1]
+	new_data_medidor = new_data_medidor[['fecha', campo]]
 
 	#Agregar encabezado de columnas al dataframe 
-	data = df.values.tolist()
+	data = new_data_medidor.values.tolist()
 	data.insert(0,['Fecha', campo])
 
 	return data
@@ -121,17 +153,43 @@ def DownloadExcel(request, medidor, desde, hasta, periodo_datos, tipo_de_grafico
 		value_header = 'Volumen (Litros)'
 	else:
 		value_header = 'Consumo (Litros)'
+
 	data = GetData(
 		Izarnet.objects.filter(
 			medidor=medidor,
-			fecha__range=[
-				datetime.datetime.strptime(str(desde) + ' 00:00:00', '%Y-%m-%d %H:%M:%S'),
-				datetime.datetime.strptime(str(hasta) + ' 23:59:00', '%Y-%m-%d %H:%M:%S')
-			]).order_by('fecha'),
-		int(periodo_datos),
+			fecha__range=[desde, hasta]).order_by('fecha'),
+		periodo_datos,
 		tipo_de_grafico)
 	data[0][1] = value_header
 	return excel.make_response_from_array(
     	data,
     	"xlsx",
     	file_name="Medidor_"+str(medidor.serial)+".xlsx")
+
+#fechas segun filtro rapido
+def FiltroRapido(tipo_de_filtro, medidor):
+
+	#declaracion de variables
+	desde = '1986-02-12'
+	hasta = '1986-02-12'
+	
+	if Izarnet.objects.filter(medidor=medidor):
+		#obtener fecha del ultimo registro
+		hasta = Izarnet.objects.filter(medidor=medidor).order_by('-fecha')[0].fecha
+
+		#rango de timpo segun tipo de filtro
+		if tipo_de_filtro == '1':
+			desde = hasta - relativedelta(hours=1)
+		elif tipo_de_filtro == '2':
+			desde = hasta - relativedelta(days=1)
+		elif tipo_de_filtro == '3':
+			desde = hasta - relativedelta(weeks=1)
+		elif tipo_de_filtro == '4':
+			desde = hasta - relativedelta(months=1)
+		elif tipo_de_filtro == '5':
+			desde = hasta - relativedelta(months=2)
+		elif tipo_de_filtro == '6':
+			desde = hasta - relativedelta(years=1)
+
+	return {'desde': desde, 'hasta': hasta}
+

@@ -3,9 +3,6 @@ from django import forms
 
 import datetime
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
-
 #Opciones para los select del formulario
 TIPO_CHOICES = (
 		('volumen_litros', 'Volumen Acumulado'),
@@ -13,31 +10,53 @@ TIPO_CHOICES = (
 		('caudal', 'Caudal Promedio'),
 	)
 
-PERIODO_CHOICES = (
-		('60', 'Cada minuto'),
-		('900', 'Cada 15 minutos'),
-		('3600', 'Cada hora'),
-		('86400', 'Cada día'),
-		('604800', 'Cada semana'),
-		('2592000', 'Cada mes'),
-	)
-
 GRAFICO_CHOICES = (
 		('liena', 'Líena'),
 		('barras', 'Barras'),
 	)
 
+FILTRO_CHOICES = (
+		('1', 'Última hora'),
+		('2', 'Último día'),
+		('3', 'Última semana'),
+		('4', 'Último mes'),
+		('5', 'Últimos tres meses'),
+		('6', 'Último año'),
+		('7', 'Personalizado'),
+	)
+
+PERIODO_CHOICES = (
+		('1', 'Cada minuto'),
+		('2', 'Cada 15 minutos'),
+		('3', 'Cada hora'),
+		('4', 'Cada día'),
+		('5', 'Cada semana'),
+		('6', 'Cada mes'),
+	)
+
+INPUT_DATE_FORMATS = (
+	'%d/%m/%Y',
+	'%m/%d/%Y',
+	'%Y-%m-%d'
+	)
+
 #Formulario de filtros
 class FiltrosForm(forms.Form):
-	tipo_de_grafico = forms.ChoiceField(choices=TIPO_CHOICES)
-	periodo_datos = forms.ChoiceField(choices=PERIODO_CHOICES)
 	desde = forms.DateField(
-		widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date'}))
+		required=False,
+		input_formats=INPUT_DATE_FORMATS,
+		widget=forms.TextInput(attrs={
+			'class': 'form-control', 
+			'type': 'date',
+			'placeholder': 'mm/dd/yyyy'}))
 	hasta = forms.DateField(
-		widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date'}))
+		required=False,
+		input_formats=INPUT_DATE_FORMATS,
+		widget=forms.TextInput(attrs={
+			'class': 'form-control', 
+			'type': 'date',
+			'placeholder': 'mm/dd/yyyy'}))
+	tipo_de_grafico = forms.ChoiceField(choices=TIPO_CHOICES)
 	grafico = forms.ChoiceField(choices=GRAFICO_CHOICES)
-	helper = FormHelper()
-	helper.add_input(Submit('filtro', 'Filtrar', css_class='btn-primary'))
-
-	def __init__(self, *args, **kwargs):
-		super(FiltrosForm, self).__init__(*args, **kwargs)
+	tipo_de_filtro = forms.ChoiceField(choices=FILTRO_CHOICES)
+	periodo_datos = forms.ChoiceField(choices=PERIODO_CHOICES)
