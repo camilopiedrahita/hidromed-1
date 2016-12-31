@@ -7,7 +7,8 @@ import django_excel as excel
 from django.contrib import messages
 
 from graphos.sources.simple import SimpleDataSource
-from graphos.renderers.gchart import LineChart, ColumnChart
+from graphos.renderers.gchart import AreaChart, ColumnChart
+from dateutil.relativedelta import relativedelta
 
 from hidromed.izarnet.models import Izarnet
 from hidromed.medidores.models import Medidor
@@ -26,15 +27,15 @@ def GetPeriodoData(data_medidor, periodo_datos):
 
 	#flags segun periodo de tiempo
 	data_medidor['flag_anho'] = np.where(
-		data_medidor['anho'] == data_medidor['anho'].shift(1), 0, 1)
+		data_medidor['anho'] == data_medidor['anho'].shift(-1), 0, 1)
 	data_medidor['flag_mes'] = np.where(
-		data_medidor['mes'] == data_medidor['mes'].shift(1), 0, 1)
+		data_medidor['mes'] == data_medidor['mes'].shift(-1), 0, 1)
 	data_medidor['flag_dia'] = np.where(
-		data_medidor['dia'] == data_medidor['dia'].shift(1), 0, 1)
+		data_medidor['dia'] == data_medidor['dia'].shift(-1), 0, 1)
 	data_medidor['flag_hora'] = np.where(
-		data_medidor['hora'] == data_medidor['hora'].shift(1), 0, 1)
+		data_medidor['hora'] == data_medidor['hora'].shift(-1), 0, 1)
 	data_medidor['flag_semana'] = np.where(
-		data_medidor['semana'] == data_medidor['semana'].shift(1), 0, 1)
+		data_medidor['semana'] == data_medidor['semana'].shift(-1), 0, 1)
 	data_medidor['flag_minuto'] = 1
 	data_medidor['mod_15'] = data_medidor['minutos'] % 15
 	
@@ -79,9 +80,11 @@ def GetChartFree(data, poliza, medidor, unidad, tipo):
 		'PÓLIZA: ' + str(poliza) + ' (' + str(unidad) + ')' + 
 		' - MEDIDOR: ' + str(medidor) + ' (' + str(unidad) + ')')
 	if tipo == 'liena':
-		graph = LineChart(data_source, options={'title': title})
+		graph = AreaChart(
+			data_source, height=500, width=1100, options={'title': title})
 	elif tipo == 'barras':
-		graph = ColumnChart(data_source, options={'title': title})
+		graph = ColumnChart(
+			data_source, height=500, width=1100, options={'title': title})
 	return graph
 
 #Funcion sumatoria
@@ -150,14 +153,11 @@ def DownloadExcel(request, medidor, desde, hasta, periodo_datos, tipo_de_grafico
 		value_header = 'Volumen (Litros)'
 	else:
 		value_header = 'Consumo (Litros)'
-	f_desde = (datetime.datetime.strptime(
-		str(desde) + ' 00:00:00', '%Y-%m-%d %H:%M:%S'))
-	f_hasta = (datetime.datetime.strptime(
-		str(hasta) + ' 23:59:00', '%Y-%m-%d %H:%M:%S'))
+
 	data = GetData(
 		Izarnet.objects.filter(
 			medidor=medidor,
-			fecha__range=[f_desde, f_hasta]).order_by('fecha'),
+			fecha__range=[desde, hasta]).order_by('fecha'),
 		periodo_datos,
 		tipo_de_grafico)
 	data[0][1] = value_header
@@ -165,3 +165,30 @@ def DownloadExcel(request, medidor, desde, hasta, periodo_datos, tipo_de_grafico
     	data,
     	"xlsx",
     	file_name="Medidor_"+str(medidor.serial)+".xlsx")
+
+#fechas segun filtro rapido
+def FiltroRapido(tipo_de_filtro, medidor):
+
+	#declaracion de variables
+	desde = '1986-02-12'
+	hasta = '1986-02-12'
+	
+	if Izarnet.objects.filter(medidor=medidor):
+		#obtener fecha del ultimo registro
+		hasta = Izarnet.objects.filter(medidor=medidor).order_by('-fecha')[0].fecha
+
+		#rango de timpo segun tipo de filtro
+		if tipo_de_filtro == '1':
+			desde = hasta - relativedelta(hours=1)
+		elif tipo_de_filtro == '2':
+			desde = hasta - relativedelta(days=1)
+		elif tipo_de_filtro == '3':
+			desde = hasta - relativedelta(weeks=1)
+		elif tipo_de_filtro == '4':
+			desde = hasta - relativedelta(months=1)
+		elif tipo_de_filtro == '5':
+			desde = hasta - relativedelta(months=2)
+		elif tipo_de_filtro == '6':
+			desde = hasta - relativedelta(years=1)
+
+	return {'desde': desde, 'hasta': hasta}

@@ -3,14 +3,26 @@ from django import forms
 
 import datetime
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
-
 #Opciones para los select del formulario
 TIPO_CHOICES = (
 		('volumen_litros', 'Volumen Acumulado'),
 		('consumo', 'Consumo Acumulado'),
 		('caudal', 'Caudal Promedio'),
+	)
+
+GRAFICO_CHOICES = (
+		('liena', 'Líena'),
+		('barras', 'Barras'),
+	)
+
+FILTRO_CHOICES = (
+		('1', 'Última hora'),
+		('2', 'Último día'),
+		('3', 'Última semana'),
+		('4', 'Último mes'),
+		('5', 'Últimos tres meses'),
+		('6', 'Último año'),
+		('7', 'Personalizado'),
 	)
 
 PERIODO_CHOICES = (
@@ -22,22 +34,29 @@ PERIODO_CHOICES = (
 		('6', 'Cada mes'),
 	)
 
-GRAFICO_CHOICES = (
-		('liena', 'Líena'),
-		('barras', 'Barras'),
+INPUT_DATE_FORMATS = (
+	'%d/%m/%Y',
+	'%m/%d/%Y',
+	'%Y-%m-%d'
 	)
 
 #Formulario de filtros
 class FiltrosForm(forms.Form):
 	desde = forms.DateField(
-		widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date'}))
+		required=False,
+		input_formats=INPUT_DATE_FORMATS,
+		widget=forms.TextInput(attrs={
+			'class': 'form-control', 
+			'type': 'date',
+			'placeholder': 'mm/dd/yyyy'}))
 	hasta = forms.DateField(
-		widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date'}))
+		required=False,
+		input_formats=INPUT_DATE_FORMATS,
+		widget=forms.TextInput(attrs={
+			'class': 'form-control', 
+			'type': 'date',
+			'placeholder': 'mm/dd/yyyy'}))
 	tipo_de_grafico = forms.ChoiceField(choices=TIPO_CHOICES)
-	periodo_datos = forms.ChoiceField(choices=PERIODO_CHOICES)
 	grafico = forms.ChoiceField(choices=GRAFICO_CHOICES)
-	helper = FormHelper()
-	helper.add_input(Submit('filtro', 'Filtrar', css_class='btn-primary'))
-
-	def __init__(self, *args, **kwargs):
-		super(FiltrosForm, self).__init__(*args, **kwargs)
+	tipo_de_filtro = forms.ChoiceField(choices=FILTRO_CHOICES)
+	periodo_datos = forms.ChoiceField(choices=PERIODO_CHOICES)

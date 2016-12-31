@@ -6,6 +6,15 @@
 {% block title %}Creación de usuarios{% endblock %}
 {% block content %}
 	<div class="container">
+
+		<div class="row">
+			{% if messages %}
+			    {% for message in messages %}
+			        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+			    {% endfor %}
+			{% endif %}
+		</div>
+
 		<div class="row form-container">
 			<h1>Creación de usuarios</h1>
 			<p>Descargue <a href="static/archivos/Usuarios.xlsx">aquí</a> el formato para la creación de usuarios</p>
