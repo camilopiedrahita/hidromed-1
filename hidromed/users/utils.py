@@ -126,7 +126,7 @@ def CrearUsuarios(request, data):
 					log.append(
 						'No se ha completado la asignación de medidores y ' +
 						'pólizas al usuario ' + str(username) + 
-						'Por favor valide el log de errores')
+						' Por favor valide el log de errores')
 			if not correcto == False:
 				correcto = True
 	if correcto == True:
