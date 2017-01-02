@@ -14,15 +14,26 @@
 		
 		<form method="POST" id="medidores-form">
 			{% csrf_token %}
-			<div class="col-lg-12">
-                {{ data.form.medidor|as_crispy_field }}
-            </div>
-            <div class="col-lg-12">
-                {{ data.form.padre|as_crispy_field }}
-            </div>
-            <div class="col-lg-12">
-                {{ data.form.hijos|as_crispy_field }}
-            </div>
+			<div class="col-lg-12 formulario">
+				<div class="seccion row">
+					<div class="col-lg-12">
+	                {{ data.form.medidor|as_crispy_field }}
+		            </div>	
+				</div>
+				<div class="seccion row">
+					<div class="col-lg-12">
+		                {{ data.form.padre|as_crispy_field }}
+		            </div>	
+				</div>
+	           <div class="seccion row">
+	           		<div class="col-lg-12">
+		                {{ data.form.hijos|as_crispy_field }}
+		            </div>
+	           </div>
+	           <div class="submit row">
+                    <input type="submit" value="Modificar" class="btn btn-primary btn-lg">
+                </div>
+			</div>
 		</form>
 
 	</div>

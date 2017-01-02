@@ -11,7 +11,32 @@ def MedidoresView(request):
 	
 	#administracion de medidores padres, hijos
 	form = MedidoresForm()
+
+	if request.method == 'POST':
+		form = MedidoresForm(request.POST)
+
+		if form.is_valid():
+			#obtener datos del formulario
+			medidor = form.cleaned_data['medidor']
+			padre = form.cleaned_data['padre']
+			hijos = form.cleaned_data['hijos']
+
+			#asignar id de medidores padres
+			medidor.padreId = padre
+			medidor.save()
+
+			for hijo in hijos:
+				hijo.padreId = medidor
+				hijo.save()
+
+			messages.success(request,
+			'Los cambios se realizaron correctamente')
+		else:
+			messages.error(request,
+			'No ha diligenciado todos los campos del formulario')
+
 	data = { 'form': form, }
+
 	return render(request, 'pages/medidores.html', {'data': data})
 
 def LoadMedidorView(request):
