@@ -125,8 +125,9 @@ $(function(){
 //cambiar select formulario medidores
 function medidores(){
 
-	//vaciar select multiple
+	//vaciar campos
 	$('#id_hijos').empty();
+	$('#id_padre').empty();
 
 	//asignacion de variables
 	padre_field = $('#id_padre');
@@ -139,12 +140,18 @@ function medidores(){
 			if (changed_item.is('#id_medidor')) {
 				if ($('#id_medidor').val() != '') {
 
-					//vaciar select multiple
+					//vaciar campos
 					$('#id_hijos').empty();
 
 					//poblar datos del campo padre
 					medidor_id = $('#id_medidor').val();
 					padre_field.load('/ajax/load_medidores/?medidor=' + medidor_id);
+				}
+				else { 
+
+					//vaciar campos
+					$('#id_padre').empty();
+					$('#id_hijos').empty();
 				}
 			}
 			else if (changed_item.is('#id_padre')) {
@@ -155,6 +162,11 @@ function medidores(){
 					padre_id = $('#id_padre').val();
 					hijos_field.load('/ajax/load_medidores/?medidor=' + medidor_id + '&padre=' + padre_id);
 				}	
+				else { 
+
+					//vaciar campos
+					$('#id_hijos').empty(); 
+				}
 			}
 		});
 	});

@@ -10,6 +10,7 @@ from .models import *
 def MedidoresView(request):
 	
 	#administracion de medidores padres, hijos
+	error = False
 	form = MedidoresForm()
 
 	if request.method == 'POST':
@@ -22,18 +23,28 @@ def MedidoresView(request):
 			hijos = form.cleaned_data['hijos']
 
 			#asignar id de medidores padres
-			medidor.padreId = padre
-			medidor.save()
+			if not padre == None:
+				medidor.padreId = padre
+				medidor.save()
+			else:
+				error = True
 
 			for hijo in hijos:
 				hijo.padreId = medidor
 				hijo.save()
 
-			messages.success(request,
-			'Los cambios se realizaron correctamente')
+			#control de errores
+			if error == True:
+				messages.error(request, 
+					'No seleccionó un medidor padre, por favor vuelva a intentarlo')
+			else:
+				messages.success(request, 'Los cambios se realizaron correctamente')
+
+			#reiniciar formulario
+			form = MedidoresForm()
+
 		else:
-			messages.error(request,
-			'No ha diligenciado todos los campos del formulario')
+			messages.error(request, 'No ha diligenciado todos los campos del formulario')
 
 	data = { 'form': form, }
 
@@ -41,7 +52,10 @@ def MedidoresView(request):
 
 def LoadMedidorView(request):
 	#vista ajax para modificar los select del formulario de medidores
+	
+	#variables
 	medidores = []
+	padre = ''
 
 	#filtrar medidores dependiendo de las selecciones
 	if 'medidor' in request.GET.keys() and 'padre' in request.GET.keys():
@@ -53,6 +67,9 @@ def LoadMedidorView(request):
 		medidor = request.GET['medidor']
 		medidores = Medidor.objects.exclude(id=medidor)
 
-	data = { 'medidores': medidores, }
+	data = { 
+		'medidores': medidores,
+		'padre': padre,
+	}
 
 	return render(request, 'ajax/fill_medidores.html', {'data': data})
