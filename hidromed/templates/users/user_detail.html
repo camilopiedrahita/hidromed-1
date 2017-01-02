@@ -1,38 +1,54 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}User: {{ object.username }}{% endblock %}
+{% block title %}Usuario: {{ data.usuario.username }}{% endblock %}
 
 {% block content %}
 <div class="container">
 
   <div class="row">
     <div class="col-sm-12">
-
-      <h2>{{ object.username }}</h2>
-      {% if object.name %}
-        <p>{{ object.name }}</p>
-      {% endif %}
+      <div class="col-lg-12">
+        <table>
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Empresa Cliente</th>
+                    <th>NIT Empresa Cliente</th>
+                    <th>Dirección</th>
+                    <th>Perfil</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ data.usuario.username }}</td>
+                    <td>{{ data.usuario.cliente }}</td>
+                    <td>{{ data.usuario.cliente.nit }}</td>
+                    <td>{{ data.usuario.cliente.direccion }}</td>
+                    <td>{{ data.usuario.get_perfil_display }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-lg-12">
+        <table>
+            <thead>
+                <tr>
+                    <th>Póliza</th>
+                    <th>Medidor</th>
+                </tr>
+            </thead>
+            <tbody>
+              {% for registro in data.poliza_medidores %}
+                <tr>
+                    <td>{{ registro.poliza }}</td>
+                    <td>{{ registro.medidor }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+        </table>
     </div>
   </div>
-
-{% if object == request.user %}
-<!-- Action buttons -->
-<div class="row">
-
-  <div class="col-sm-12 ">
-    <a class="btn btn-primary" href="{% url 'users:update' %}">My Info</a>
-    {% comment %}
-    <a class="btn btn-primary" href="{% url 'account_email' %}">E-Mail</a>
-    {% endcomment %}
-    <!-- Your Stuff: Custom user template urls -->
-  </div>
-
-</div>
-<!-- End Action buttons -->
-{% endif %}
-
-
 </div>
 {% endblock content %}
 

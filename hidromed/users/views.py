@@ -39,6 +39,19 @@ def CrearUsuariosView(request):
         form = CargueUsuarios()
     return render(request, 'pages/crear_usuarios.html', {'form': form,  'data': data})
 
+@login_required
+def DetalleUsuarioView(request):
+
+    usuario = request.user
+    poliza_medidores = Poliza_Medidor_User.objects.filter(usuario=usuario)
+
+    data = {
+        'usuario': usuario,
+        'poliza_medidores': poliza_medidores,
+    }
+
+    return render(request, 'users/user_detail.html', {'data': data})
+
 class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
     # These next two lines tell the view to index lookups by username
