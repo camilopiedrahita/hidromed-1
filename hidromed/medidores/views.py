@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
 
+from django.core import urlresolvers
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
