@@ -5,7 +5,7 @@ from .models import *
 #registro de modelos en el admin del sitio
 @admin.register(Medidor)
 class AdminMedidor(admin.ModelAdmin):
-	list_display = ('id', 'serial',)
+	list_display = ('id', 'serial', 'padreId',)
 
 @admin.register(Medidor_Cliente)
 class AdminMedidor(admin.ModelAdmin):

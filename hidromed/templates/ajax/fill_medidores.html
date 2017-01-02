@@ -1,0 +1,10 @@
+<select class="select form-control" id="id_padre" name="padre">
+	{% if data.medidores %}
+		<option value="">---------</option>
+		{% for medidor in data.medidores %}
+			<option value="{{ medidor.id }}">{{ medidor.serial }}</option>
+		{% endfor %}
+	{% else %}
+		 <option value="">---------</option>
+	{% endif %}
+</select>

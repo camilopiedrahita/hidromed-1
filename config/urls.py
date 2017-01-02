@@ -11,6 +11,7 @@ from django.views import defaults as default_views
 from hidromed.users import views as views_users
 from hidromed.graficas import views as views_graficas
 from hidromed.tablero import views as views_tablero
+from hidromed.medidores import views as views_medidores
 
 from allauth.account import views as views_allauth
 
@@ -41,6 +42,10 @@ urlpatterns = [
 
     #tablero rapido
     url(r'^tablero_rapido', views_tablero.TablerRapido, name='tablero_rapido'),
+
+    #admin_medidores
+    url(r'^medidores', views_medidores.MedidoresView, name='medidores'),
+    url(r'^ajax/load_medidores/$', views_medidores.LoadMedidorView, name='load_medidores'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

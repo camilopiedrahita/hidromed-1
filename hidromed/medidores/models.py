@@ -10,6 +10,7 @@ from hidromed.empresas.models import Cliente, Acueducto
 @python_2_unicode_compatible
 class Medidor(models.Model):
 	serial = models.CharField(max_length=255)
+	padreId = models.ForeignKey('self', default=None, null=True, blank=True)
 
 	def __str__(self):
 		return self.serial
