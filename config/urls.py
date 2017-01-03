@@ -41,7 +41,7 @@ urlpatterns = [
         name='descargar_excel'),
 
     #tablero rapido
-    url(r'^tablero_rapido', views_tablero.TablerRapido, name='tablero_rapido'),
+    url(r'^tablero_rapido/$', views_tablero.TablerRapido, name='tablero_rapido'),
 
     #admin_medidores
     url(r'^medidores', views_medidores.MedidoresView, name='medidores'),

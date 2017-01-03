@@ -1,11 +1,61 @@
 {% extends "base.html" %}
 
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}Tablero rápido{% endblock %}
+
 {% block content %}
-	<div class="container">
-		{% if messages %}
-		    {% for message in messages %}
-		        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
-		    {% endfor %}
-		{% endif %}
-	</div>
+    {% block javascript %}
+    	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="{% static 'js/project.js' %}"></script>
+        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+        <script type="text/javascript">
+            google.load("visualization", "1", {packages:["corechart"]});
+        </script>
+    {% endblock %}
+
+    <div id="wrapper">
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand">
+                    <p>Total medidores: {{ data.usuario_medidores|length }}</p>
+                </li>
+                {% if data.medidor %}
+                	<li>
+                		<p>Medidor Padre: {{ data.medidor }}</p>
+                	</li>
+                	<li>
+						<p>Medidores Relacionados: </p>
+						<hr>
+					</li>
+				{% else %}
+					<li>
+						<p>Medidores Padres</p>
+						<hr>
+					</li>
+                {% endif %}
+				{% for medidor in data.medidores_filtered %}
+					<li>
+						<a href="/tablero_rapido/?medidor={{ medidor }}">{{ medidor }}</a>
+	                </li>
+	            {% endfor %}
+                
+            </ul>
+        </div>
+
+        <div id="page-content-wrapper" class="show_data">
+            <div class="container-fluid">
+                <div class="row">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

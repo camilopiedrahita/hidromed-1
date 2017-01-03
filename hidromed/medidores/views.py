@@ -63,11 +63,11 @@ def LoadMedidorView(request):
 	if 'medidor' in request.GET.keys() and 'padre' in request.GET.keys():
 		medidor = request.GET['medidor']
 		padre = request.GET['padre']
-		medidores = Medidor.objects.exclude(id__in=[medidor, padre])
+		medidores = Medidor.objects.filter(padreId=None).exclude(id__in=[medidor, padre])
 		
 	elif 'medidor' in request.GET.keys():
 		medidor = request.GET['medidor']
-		medidores = Medidor.objects.exclude(id=medidor)
+		medidores = Medidor.objects.filter(padreId=None).exclude(id=medidor)
 
 	data = { 
 		'medidores': medidores,

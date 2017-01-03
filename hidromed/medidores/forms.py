@@ -5,10 +5,10 @@ from .models import *
 
 #formulario administracion medidores
 class MedidoresForm(forms.Form):
-	medidor = forms.ModelChoiceField(queryset=Medidor.objects.all())
+	medidor = forms.ModelChoiceField(queryset=Medidor.objects.filter(padreId=None))
 	padre = forms.ModelChoiceField(
 		required=False,
-		queryset=Medidor.objects.all())
+		queryset=Medidor.objects.filter(padreId=None))
 	hijos = forms.ModelMultipleChoiceField(
 		required=False,
-		queryset=Medidor.objects.all())
+		queryset=Medidor.objects.filter(padreId=None))
