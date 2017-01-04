@@ -43,12 +43,14 @@ def TablerRapido(request):
 
 		#generar graficos
 		data_todos_medidores = GetChart(data_medidores['df_todos'], 'todos los medidores')
+		data_por_medidor = GetChart(data_medidores['df_por_medidor'], 'por cada medidor')
 
 		#diccionario de datos
 		data = {
 			'data_todos_medidores': data_todos_medidores,
 			'medidores_filtered': medidores_filtered,
 			'usuario_medidores': usuario_medidores,
+			'data_por_medidor': data_por_medidor,
 			'medidor': medidor,
 		}
 
