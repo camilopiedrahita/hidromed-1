@@ -16,6 +16,9 @@ def TablerRapido(request):
 
 	#declaracion de variables
 	data = {}
+	data_cirular = []
+	data_por_medidor = []
+	data_todos_medidores = []
 	usuario = request.user
 	usuario_medidores = GetMedidor(request, usuario)
 
@@ -41,10 +44,12 @@ def TablerRapido(request):
 		#obtener data medidores
 		data_medidores = GetData(medidores_filtered)
 
-		#generar graficos
-		data_todos_medidores = GetChart(data_medidores['df_todos'], 'todos los medidores')
-		data_por_medidor = GetChart(data_medidores['df_por_medidor'], 'por cada medidor')
-		data_cirular = GetChart(data_medidores['df_por_medidor'], 'Porcentaje de cosumo')
+		if data_medidores != None:
+
+			#generar graficos
+			data_todos_medidores = GetChart(data_medidores['df_todos'], 'todos los medidores')
+			data_por_medidor = GetChart(data_medidores['df_por_medidor'], 'por cada medidor')
+			data_cirular = GetChart(data_medidores['df_por_medidor'], 'Porcentaje de cosumo')
 
 		#diccionario de datos
 		data = {
