@@ -288,3 +288,91 @@ tbody:hover > tr:hover td {
   filter: progid:DXImageTransform.Microsoft.Alpha(enabled=false);
   opacity: 1;
 }
+
+/* line 1, ../sass/_tablero.scss */
+h1 {
+  text-align: left;
+}
+
+/* Panels */
+/* line 7, ../sass/_tablero.scss */
+.huge {
+  font-size: 40px;
+}
+
+/* line 11, ../sass/_tablero.scss */
+.panel-principal {
+  color: #337ab7;
+}
+
+/* line 15, ../sass/_tablero.scss */
+.panel-green {
+  color: #5cb85c;
+  border-color: #5cb85c;
+}
+/* line 19, ../sass/_tablero.scss */
+.panel-green > .panel-heading {
+  border-color: #5cb85c;
+  color: #fff;
+  background-color: #5cb85c;
+}
+/* line 25, ../sass/_tablero.scss */
+.panel-green > a:hover {
+  color: #3d8b3d;
+}
+
+/* line 32, ../sass/_tablero.scss */
+.panel-red {
+  border-color: #d9534f;
+}
+/* line 33, ../sass/_tablero.scss */
+.panel-red img {
+  width: 50px;
+  height: 50px;
+}
+/* line 40, ../sass/_tablero.scss */
+.panel-red > .panel-heading {
+  border-color: #d9534f;
+  color: #fff;
+  background-color: #d9534f;
+}
+/* line 45, ../sass/_tablero.scss */
+.panel-red > a {
+  color: #d9534f;
+}
+/* line 47, ../sass/_tablero.scss */
+.panel-red > a:hover {
+  color: #b52b27;
+}
+
+/* line 54, ../sass/_tablero.scss */
+.panel-yellow {
+  color: #f0ad4e;
+  border-color: #f0ad4e;
+}
+/* line 58, ../sass/_tablero.scss */
+.panel-yellow > .panel-heading {
+  border-color: #f0ad4e;
+  color: #fff;
+  background-color: #f0ad4e;
+}
+/* line 64, ../sass/_tablero.scss */
+.panel-yellow > a:hover {
+  color: #df8a13;
+}
+
+/* line 71, ../sass/_tablero.scss */
+.panel-ciel {
+  color: #41D1EB;
+  border-color: #41D1EB;
+}
+/* line 75, ../sass/_tablero.scss */
+.panel-ciel > .panel-heading {
+  border-color: #41D1EB;
+  color: #fff;
+  background-color: #41D1EB;
+}
+/* line 81, ../sass/_tablero.scss */
+.panel-ciel > a:hover {
+  color: #df8a13;
+}

@@ -46,53 +46,154 @@
 
         <div id="page-content-wrapper" class="show_data">
             <div class="container-fluid">
+
                 <div class="row">
                     {% if messages %}
                         {% for message in messages %}
                             <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
                         {% endfor %}
                     {% endif %}
-                    
-                    <div class="col-lg-12">
-                        {% if data.data_todos_medidores %}
-                            <div  class="row">
-                                {{ data.data_todos_medidores.as_html }}
-                            </div>
-                        {% else %}
-                            <div class="col-lg-12 no_data">
-                                <img src="{% static 'images/advertencia.svg' %}" alt="Advertencia">
-                                <h2>NO SE ENCONTRARON GRÁFICOS</h2>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-lg-12">
-                        {% if data.data_por_medidor %}
-                            <div  class="row">
-                                {{ data.data_por_medidor.as_html }}
-                            </div>
-                        {% else %}
-                            <div class="col-lg-12 no_data">
-                                <img src="{% static 'images/advertencia.svg' %}" alt="Advertencia">
-                                <h2>NO SE ENCONTRARON GRÁFICOS</h2>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-lg-12">
-                        {% if data.data_cirular %}
-                            <div  class="row">
-                                {{ data.data_cirular.as_html }}
-                            </div>
-                        {% else %}
-                            <div class="col-lg-12 no_data">
-                                <img src="{% static 'images/advertencia.svg' %}" alt="Advertencia">
-                                <h2>NO SE ENCONTRARON GRÁFICOS</h2>
-                            </div>
-                        {% endif %}
-                    </div>
-                    
                 </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            Hidromed S.A. <small>Tablero rápido</small>
+                        </h1>
+                    </div>
+                </div>
+				
+				{% if data.data_todos_medidores %}
+	                <div class="row">
+
+	                	<div class="col-lg-3 col-md-6">
+	                        <div class="panel panel-primary panel-principal">
+
+	                            <div class="panel-heading">
+	                                <div class="row">
+	                                    <div class="col-xs-12 text-right">
+	                                        <div class="huge">26</div>
+	                                        <div>Consumo</div>
+	                                    </div>
+	                                </div>
+	                            </div>
+
+                                <div class="panel-footer">
+                                    <span class="pull-left">Últimos 6 meses</span>
+                                    <div class="clearfix"></div>
+                                </div>
+
+	                        </div>
+	                    </div>
+
+	                    <div class="col-lg-3 col-md-6">
+	                        <div class="panel panel-green">
+
+	                            <div class="panel-heading">
+	                                <div class="row">
+	                                    <div class="col-xs-12 text-right">
+	                                        <div class="huge">12</div>
+	                                        <div>Promedio consumo mensual</div>
+	                                    </div>
+	                                </div>
+	                            </div>
+
+                                <div class="panel-footer">
+                                    <span class="pull-left">Útimos 6 meses</span>
+                                    <div class="clearfix"></div>
+                                </div>
+
+	                        </div>
+	                    </div>
+
+	                    <div class="col-lg-3 col-md-6">
+	                        <div class="panel panel-yellow">
+
+	                            <div class="panel-heading">
+	                                <div class="row">
+	                                    <div class="col-xs-12 text-right">
+	                                        <div class="huge">124</div>
+	                                        <div>Consumo</div>
+	                                    </div>
+	                                </div>
+	                            </div>
+
+	                            
+                                <div class="panel-footer">
+                                    <span class="pull-left">Mes actual</span>
+                                    <div class="clearfix"></div>
+                                </div>
+	                            
+	                        </div>
+	                    </div>
+
+	                    <div class="col-lg-3 col-md-6">
+	                        <div class="panel panel-ciel">
+
+	                            <div class="panel-heading">
+	                                <div class="row">
+	                                    <div class="col-xs-12 text-right">
+	                                        <div class="huge">124</div>
+	                                        <div>Promedio consumo diario</div>
+	                                    </div>
+	                                </div>
+	                            </div>
+
+	                            
+                                <div class="panel-footer">
+                                    <span class="pull-left">Mes actual</span>
+                                    <div class="clearfix"></div>
+                                </div>
+	                            
+	                        </div>
+	                    </div>
+
+	                    <div class="col-lg-3 col-md-6">
+	                        <div class="panel panel-red">
+
+	                            <div class="panel-heading">
+	                                <div class="row">
+	                                    <div class="col-xs-12 text-right">
+	                                        <div>
+	                                        	<img src="{% static 'images/zumbido.svg' %}" alt="Zumbido">
+	                                        </div>
+	                                        <div>Alarmas!</div>
+	                                    </div>
+	                                </div>
+	                            </div>
+
+	                            <a href="#">
+	                                <div class="panel-footer">
+	                                    <span class="pull-left">Ver detalle de alarmas</span>
+	                                    <div class="clearfix"></div>
+	                                </div>
+	                            </a>
+	                        </div>
+	                    </div>
+
+	                </div>
+	                    
+	                <div class="row">
+	                    <div class="col-lg-12">
+	                        <div  class="row">
+	                            {{ data.data_todos_medidores.as_html }}
+	                        </div>
+	                        <div  class="row">
+	                            {{ data.data_por_medidor.as_html }}
+	                        </div>
+	                        <div  class="row">
+	                            {{ data.data_cirular.as_html }}
+	                        </div>
+	                    </div>    
+	                </div>
+
+                {% else %}
+                    <div class="col-lg-12 no_data">
+                        <img src="{% static 'images/advertencia.svg' %}" alt="Advertencia">
+                        <h2>NO SE ENCONTRARON GRÁFICOS</h2>
+                    </div>
+                {% endif %}
+
             </div>
         </div>
     </div>
