@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from graphos.sources.simple import SimpleDataSource
-from graphos.renderers.gchart import AreaChart, ColumnChart
+from graphos.renderers.gchart import AreaChart, ColumnChart, PieChart
 from dateutil.relativedelta import relativedelta
 
 from hidromed.izarnet.models import Izarnet
@@ -27,6 +27,11 @@ def GetChart(data, medidor):
 	#por cada medidor
 	elif medidor == 'por cada medidor':
 		graph = ColumnChart(
+			data_source, height=500, width=1050, options={'title': title})
+
+	#grafico circular
+	elif medidor == 'Porcentaje de cosumo':
+		graph = PieChart(
 			data_source, height=500, width=1050, options={'title': title})
 
 	return graph

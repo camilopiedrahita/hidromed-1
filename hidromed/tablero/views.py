@@ -44,6 +44,7 @@ def TablerRapido(request):
 		#generar graficos
 		data_todos_medidores = GetChart(data_medidores['df_todos'], 'todos los medidores')
 		data_por_medidor = GetChart(data_medidores['df_por_medidor'], 'por cada medidor')
+		data_cirular = GetChart(data_medidores['df_por_medidor'], 'Porcentaje de cosumo')
 
 		#diccionario de datos
 		data = {
@@ -51,6 +52,7 @@ def TablerRapido(request):
 			'medidores_filtered': medidores_filtered,
 			'usuario_medidores': usuario_medidores,
 			'data_por_medidor': data_por_medidor,
+			'data_cirular': data_cirular,
 			'medidor': medidor,
 		}
 
