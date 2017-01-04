@@ -53,6 +53,18 @@
                         {% endfor %}
                     {% endif %}
                     
+                    <div class="col-lg-12">
+                        {% if data.data_todos_medidores %}
+                            <div  class="row">
+                                {{ data.data_todos_medidores.as_html }}
+                            </div>
+                        {% else %}
+                            <div class="col-lg-12 no_data">
+                                <img src="{% static 'images/advertencia.svg' %}" alt="Advertencia">
+                                <h2>NO SE ENCONTRARON GRÁFICOS</h2>
+                            </div>
+                        {% endif %}
+                    </div>
                     
                 </div>
             </div>

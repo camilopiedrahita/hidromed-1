@@ -73,7 +73,7 @@ def GetMedidor(request, usuario):
 			'Su usuario no tiene medidores o pólizas asociados')
 	return usuario_medidores
 
-#Generar grafico de lineas
+#Generar grafico
 def GetChartFree(data, poliza, medidor, unidad, tipo):
 	data_source = SimpleDataSource(data=data)
 	title = (
@@ -96,6 +96,10 @@ def FuncSumatoria(data_medidor):
 		data_medidor.groupby(['reset'])['consumo'].cumsum())
 	data_medidor['consumo_acumulado'] = (
 		data_medidor['consumo_acumulado'].shift(1))
+
+	#reemplazar nan
+	data_medidor['consumo_acumulado'].fillna(
+		data_medidor['consumo'], inplace=True)
 
 	return data_medidor
 
