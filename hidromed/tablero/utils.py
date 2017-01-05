@@ -17,20 +17,22 @@ def GetChart(data, medidor):
 
 	#definir data source y titulo
 	data_source = SimpleDataSource(data=data)
-	title = ('Consumo acumulado - ' + str(medidor))
 
 	#todos los medidores
 	if medidor == 'todos los medidores':
+		title = ('Consumo acumulado mensual - ' + str(medidor))
 		graph = AreaChart(
 			data_source, height=500, width=1050, options={'title': title})
 
 	#por cada medidor
 	elif medidor == 'por cada medidor':
+		title = ('Consumo acumulado total - ' + str(medidor))
 		graph = ColumnChart(
 			data_source, height=500, width=1050, options={'title': title})
 
 	#grafico circular
 	elif medidor == 'Porcentaje de cosumo':
+		title = (str(medidor) + ' - por medidor')
 		graph = PieChart(
 			data_source, height=500, width=1050, options={'title': title})
 
@@ -41,12 +43,15 @@ def GetMedidoresLoc(data):
 
 	#dividir tiempo en columnas
 	data['mes'] = data['fecha'].dt.month
+	data['dia'] = data['fecha'].dt.day
 
 	#marcar localicacion de cada medidor en el dataframe
 	data['flag_medidor'] = np.where(
 		data['medidor'] == data['medidor'].shift(-1), 0, 1)
 	data['flag_mes'] = np.where(
 		data['mes'] == data['mes'].shift(-1), 0, 1)
+	data['flag_dia'] = np.where(
+		data['dia'] == data['dia'].shift(-1), 0, 1)
 
 	return data
 
@@ -62,7 +67,53 @@ def GetMedidorname(data):
 		id_medidores.append(str(medidor.medidor.id))
 		serial_medidores.append(str(medidor.medidor.serial))
 
-	return {'id_medidores': id_medidores, 'serial_medidores': serial_medidores}
+	#diccionario de datos
+	data = {
+		'id_medidores': id_medidores, 
+		'serial_medidores': serial_medidores
+	}
+
+	return data
+
+#get datos de interes
+def GetInteresData(data):
+
+	#consumo total
+	consumo_total_seis_meses =  data['consumo'].sum()
+
+	#consumo promedio mensual
+	consumo_por_mes = data[data['flag'] == 1]
+	promedio_consumo_mensual = consumo_por_mes['consumo_acumulado'].mean()
+	if np.isnan(promedio_consumo_mensual): promedio_consumo_mensual = 0
+
+	#obtener mes actual
+	mes = str(datetime.datetime.now().month)
+
+	#consumo mes actual
+	consumo_por_mes['mes'] = consumo_por_mes['mes'].map(str)
+	consumo_mes_actual = (
+		consumo_por_mes[consumo_por_mes['mes'] == mes]['consumo_acumulado'].sum())
+
+	#obtener consumo sumatoria por medidor
+	data['flag'] = data['flag_dia']
+	data = FuncSumatoria(data)
+
+	#promedio consumo diario mes actual
+	consumo_diario = data[data['flag'] == 1]
+	consumo_diario['mes'] = consumo_diario['mes'].map(str)
+	promedio_consumo_diario = (
+		consumo_diario[consumo_diario['mes'] == mes]['consumo_acumulado'].mean())
+	if np.isnan(promedio_consumo_diario): promedio_consumo_diario = 0
+
+	#diccionario de datos
+	data = {
+		'consumo_mes_actual': consumo_mes_actual,
+		'promedio_consumo_diario': promedio_consumo_diario,
+		'consumo_total_seis_meses': consumo_total_seis_meses,
+		'promedio_consumo_mensual': promedio_consumo_mensual,
+	}
+
+	return data
 
 #obtenere datos de izarnet
 def GetData(medidores):
@@ -99,6 +150,9 @@ def GetData(medidores):
 		df_todos = df_todos.values.tolist()
 		df_todos.insert(0,['Fecha', 'consumo_acumulado'])
 
+		#obtener datos de interes
+		datos_interes = GetInteresData(df)
+
 		#obtener consumo sumatoria por medidor
 		df['flag'] = df['flag_medidor']
 		df = FuncSumatoria(df)
@@ -117,7 +171,14 @@ def GetData(medidores):
 		df_por_medidor = df_por_medidor.values.tolist()
 		df_por_medidor.insert(0,['Medidor', 'consumo_acumulado'])
 
-		return {'df_todos': df_todos, 'df_por_medidor': df_por_medidor}
+		#diccionario de datos
+		data = {
+			'df_por_medidor': df_por_medidor,
+			'datos_interes': datos_interes,
+			'df_todos': df_todos,
+		}
+
+		return data
 
 	
 	

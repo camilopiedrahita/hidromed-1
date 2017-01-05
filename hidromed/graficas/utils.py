@@ -94,12 +94,24 @@ def FuncSumatoria(data_medidor):
 	data_medidor['reset'] = data_medidor['flag'].cumsum()
 	data_medidor['consumo_acumulado'] = (
 		data_medidor.groupby(['reset'])['consumo'].cumsum())
+	
 	data_medidor['consumo_acumulado'] = (
 		data_medidor['consumo_acumulado'].shift(1))
 
 	#reemplazar nan
 	data_medidor['consumo_acumulado'].fillna(
 		data_medidor['consumo'], inplace=True)
+
+	#ajuste sumatoria por flag
+	data_medidor['consumo_acumulado'] = np.where(
+		data_medidor['flag'] == 1,
+		data_medidor['consumo_acumulado'] + data_medidor['consumo'],
+		data_medidor['consumo_acumulado'])
+
+	if data_medidor[data_medidor['flag'] == 1].count()['flag'] > 1:
+		data_medidor.iloc[-1, data_medidor.columns.get_loc('consumo_acumulado')] = (
+			data_medidor.iloc[-1, data_medidor.columns.get_loc('consumo_acumulado')] - 
+			data_medidor.iloc[-1, data_medidor.columns.get_loc('consumo')])
 
 	return data_medidor
 

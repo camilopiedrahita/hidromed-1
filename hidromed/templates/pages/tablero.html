@@ -63,7 +63,7 @@
                     </div>
                 </div>
 				
-				{% if data.data_todos_medidores %}
+				{% if data.graficos.data_todos_medidores %}
 	                <div class="row">
 
 	                	<div class="col-lg-3 col-md-6">
@@ -72,7 +72,7 @@
 	                            <div class="panel-heading">
 	                                <div class="row">
 	                                    <div class="col-xs-12 text-right">
-	                                        <div class="huge">26</div>
+	                                        <div class="huge">{{ data.data_interes.consumo_total_seis_meses }}</div>
 	                                        <div>Consumo</div>
 	                                    </div>
 	                                </div>
@@ -92,7 +92,7 @@
 	                            <div class="panel-heading">
 	                                <div class="row">
 	                                    <div class="col-xs-12 text-right">
-	                                        <div class="huge">12</div>
+	                                        <div class="huge">{{ data.data_interes.promedio_consumo_mensual }}</div>
 	                                        <div>Promedio consumo mensual</div>
 	                                    </div>
 	                                </div>
@@ -112,13 +112,12 @@
 	                            <div class="panel-heading">
 	                                <div class="row">
 	                                    <div class="col-xs-12 text-right">
-	                                        <div class="huge">124</div>
+	                                        <div class="huge">{{ data.data_interes.consumo_mes_actual }}</div>
 	                                        <div>Consumo</div>
 	                                    </div>
 	                                </div>
 	                            </div>
 
-	                            
                                 <div class="panel-footer">
                                     <span class="pull-left">Mes actual</span>
                                     <div class="clearfix"></div>
@@ -133,12 +132,11 @@
 	                            <div class="panel-heading">
 	                                <div class="row">
 	                                    <div class="col-xs-12 text-right">
-	                                        <div class="huge">124</div>
+	                                        <div class="huge">{{ data.data_interes.promedio_consumo_diario }}</div>
 	                                        <div>Promedio consumo diario</div>
 	                                    </div>
 	                                </div>
 	                            </div>
-
 	                            
                                 <div class="panel-footer">
                                     <span class="pull-left">Mes actual</span>
@@ -176,13 +174,13 @@
 	                <div class="row">
 	                    <div class="col-lg-12">
 	                        <div  class="row">
-	                            {{ data.data_todos_medidores.as_html }}
+	                            {{ data.graficos.data_todos_medidores.as_html }}
 	                        </div>
 	                        <div  class="row">
-	                            {{ data.data_por_medidor.as_html }}
+	                            {{ data.graficos.data_por_medidor.as_html }}
 	                        </div>
 	                        <div  class="row">
-	                            {{ data.data_cirular.as_html }}
+	                            {{ data.graficos.data_cirular.as_html }}
 	                        </div>
 	                    </div>    
 	                </div>
