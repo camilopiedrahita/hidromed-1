@@ -381,3 +381,8 @@ h1 {
 .panel-ciel > a:hover {
   color: #df8a13;
 }
+
+/* line 1, ../sass/_alarmas.scss */
+.paginador {
+  text-align: right;
+}

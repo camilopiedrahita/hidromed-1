@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Alarmas último mes{% endblock %}
+
+{% block content %}
+	<div class="container-fluid">
+		{% if messages %}
+		    {% for message in messages %}
+		        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+		    {% endfor %}
+		{% endif %}
+		
+		<div class="row">
+			
+			<div class="col-lg-12 paginador">
+				<nav aria-label="Page navigation">
+					<ul class="pagination">
+
+						{% if data.data_paginada.has_previous %}
+							<li class="page-item">
+				            	<a href="?page={{ data.data_paginada.previous_page_number }}">Angerior</a>
+				            </li>
+				        {% endif %}
+						
+						<li class="page-item">
+							<span class="current">
+					            Página {{ data.data_paginada.number }} de {{ data.data_paginada.paginator.num_pages }}
+					        </span>
+						</li>
+						
+						{% if data.data_paginada.has_next %}
+				            
+				            <li class="page-item">
+				            	<a href="?page={{ data.data_paginada.next_page_number }}">Siguiente</a>	
+				            </li>
+				        {% endif %}
+
+					</ul>
+				</nav>
+			</div>
+
+			<div class="col-lg-12">
+				<table>
+					<thead>
+						<tr>
+							<th>Medidor</th>
+							<th>Fecha</th>
+							<th>alarma</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for data in data.data_paginada %}
+							<tr>
+								<td>{{ data.medidor }}</td>
+								<td>{{ data.fecha }}</td>
+								<td>{{ data.alarma }}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+
+		</div>
+
+	</div>
+{% endblock %}

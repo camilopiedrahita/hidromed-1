@@ -12,7 +12,7 @@ from .utils import *
 
 #Vista de tablero rapido
 @login_required
-def TablerRapido(request):
+def TablerRapidoView(request):
 
 	#declaracion de variables
 	data = {}

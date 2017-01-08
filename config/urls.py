@@ -12,6 +12,7 @@ from hidromed.users import views as views_users
 from hidromed.graficas import views as views_graficas
 from hidromed.tablero import views as views_tablero
 from hidromed.medidores import views as views_medidores
+from hidromed.alarmas import views as views_alarmas
 
 from allauth.account import views as views_allauth
 
@@ -41,7 +42,10 @@ urlpatterns = [
         name='descargar_excel'),
 
     #tablero rapido
-    url(r'^tablero_rapido/$', views_tablero.TablerRapido, name='tablero_rapido'),
+    url(r'^tablero_rapido/$', views_tablero.TablerRapidoView, name='tablero_rapido'),
+
+    #alarmas
+    url(r'^alarmas/$', views_alarmas.UltimoMesView, name='alarmas'),    
 
     #admin_medidores
     url(r'^medidores', views_medidores.MedidoresView, name='medidores'),

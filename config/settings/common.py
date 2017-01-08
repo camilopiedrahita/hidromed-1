@@ -53,6 +53,7 @@ LOCAL_APPS = (
     'hidromed.graficas',
     'hidromed.polizas',
     'hidromed.tablero',
+    'hidromed.alarmas',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
