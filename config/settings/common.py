@@ -29,7 +29,7 @@ DJANGO_APPS = (
     'django.contrib.staticfiles',
 
     # Useful template tags:
-    # 'django.contrib.humanize',
+    'django.contrib.humanize',
 
     # Admin
     'django.contrib.admin',
@@ -53,6 +53,7 @@ LOCAL_APPS = (
     'hidromed.graficas',
     'hidromed.polizas',
     'hidromed.tablero',
+    'hidromed.alarmas',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

@@ -40,6 +40,7 @@ function PeriodoDatosFecha(){
 		var hasta = FormatFecha($('#id_hasta').val());
 		var diferencia = daydiff(desde, hasta);
 
+		//asignar valores segun seleccion
 		if (diferencia == 0 ){ peridos('2') }
 		else if (diferencia >= 1 && diferencia < 30 ){ peridos('3') }
 		else if (diferencia >= 30 && diferencia < 90 ){ peridos('4') }
@@ -78,22 +79,14 @@ function peridos(value){
 		else if (value == '6') { newOptions = anho; }
 
 		//asignar nuevos valores
-		$.each(newOptions, function(key,value) {
-		  $('#id_periodo_datos').append($("<option></option>")
-		     .attr("value", key).text(value));
-		});
+		if (typeof newOptions !== 'undefined') {
+			$.each(newOptions, function(key,value) {
+			  $('#id_periodo_datos').append($("<option></option>")
+			     .attr("value", key).text(value));
+			});
+		}
 	}
 }
-
-$(document).ready(function(){
-	var form = $('.form-container form');
-	form.on('submit',function(){
-		$('.btn-primary').attr('disabled','disabled');
-	})
-	ocultar($('#id_tipo_de_filtro').val());
-	peridos($('#id_tipo_de_filtro').val());
-	PeriodoDatosFecha();
-});
 
 //funciones del select tipo de filtro
 $(function() {
@@ -127,4 +120,68 @@ $(function(){
 	$('#id_desde').change(function(){
 		PeriodoDatosFecha();
 	});
+});
+
+//cambiar select formulario medidores
+function medidores(){
+
+	//vaciar campos
+	$('#id_hijos').empty();
+	$('#id_padre').empty();
+
+	//asignacion de variables
+	padre_field = $('#id_padre');
+	hijos_field = $('#id_hijos');
+
+	//validacion cambios en el documento
+	$('#medidores-form').each(function(index, el) {
+		$('select', this).change(function() {
+			changed_item = $(this);
+			if (changed_item.is('#id_medidor')) {
+				if ($('#id_medidor').val() != '') {
+
+					//vaciar campos
+					$('#id_hijos').empty();
+
+					//poblar datos del campo padre
+					medidor_id = $('#id_medidor').val();
+					padre_field.load('/ajax/load_medidores/?medidor=' + medidor_id);
+				}
+				else { 
+
+					//vaciar campos
+					$('#id_padre').empty();
+					$('#id_hijos').empty();
+				}
+			}
+			else if (changed_item.is('#id_padre')) {
+				if ($('#id_padre').val() != '') {
+
+					//poblar datos del campo hijos
+					medidor_id = $('#id_medidor').val();
+					padre_id = $('#id_padre').val();
+					hijos_field.load('/ajax/load_medidores/?medidor=' + medidor_id + '&padre=' + padre_id);
+				}	
+				else { 
+
+					//vaciar campos
+					$('#id_hijos').empty(); 
+				}
+			}
+		});
+	});
+}
+
+//main
+$(document).ready(function(){
+	var form = $('.form-container form');
+	form.on('submit',function(){
+		$('.btn-primary').attr('disabled','disabled');
+	})
+
+	//call funciones del documento
+	ocultar($('#id_tipo_de_filtro').val());
+	peridos($('#id_tipo_de_filtro').val());
+	PeriodoDatosFecha();
+	medidores();
 });

@@ -6,10 +6,10 @@
     </div>
     <ul class="nav navbar-nav">
       <li><a href="{% url 'home' %}">Inicio</a></li>
-      <li><a href="{% url 'about' %}">Sobre nosotros</a></li>
       {% if request.user.is_authenticated %}
         {% if request.user.is_staff %}
           <li><a href="{% url 'crear_usuarios' %}">Crear usuarios</a></li>
+          <li><a href="{% url 'medidores' %}">Medidores</a></li>
         {% endif %}
         <li><a href="{% url 'account_change_password' %}">Cambiar contraseña</a></li>
         <li><a href="{% url 'tablero_rapido' %}">Tablero Rápido</a></li>
