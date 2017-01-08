@@ -151,62 +151,68 @@
 	                </div>
 
 	                <div class="row">
+						
+						<a href="{% url 'grafica_gratis' %}">
+		                    <div class="col-lg-12">
+		                        <div class="panel panel-default">
 
-	                    <div class="col-lg-12">
-	                        <div class="panel panel-default">
+		                            <div class="panel-heading">
+		                                <h3 class="panel-title"><i class="fa fa-bar-chart-o fa-fw"></i> Consumo acumulado mensual </h3>
+		                            </div>
 
-	                            <div class="panel-heading">
-	                                <h3 class="panel-title"><i class="fa fa-bar-chart-o fa-fw"></i> Consumo acumulado mensual </h3>
-	                            </div>
+		                            <div class="panel-body">
+		                                <div  class="row">
+				                            {{ data.graficos.data_todos_medidores.as_html }}
+				                        </div>
+		                            </div>
 
-	                            <div class="panel-body">
-	                                <div  class="row">
-			                            {{ data.graficos.data_todos_medidores.as_html }}
-			                        </div>
-	                            </div>
-
-	                        </div>
-	                    </div>
-
-	                </div>
-
-	                <div class="row">
-
-	                    <div class="col-lg-12">
-	                        <div class="panel panel-default">
-
-	                            <div class="panel-heading">
-	                                <h3 class="panel-title"><i class="fa fa-bar-chart-o fa-fw"></i> Consumo acumulado total </h3>
-	                            </div>
-
-	                            <div class="panel-body">
-	                                <div  class="row">
-			                            {{ data.graficos.data_por_medidor.as_html }}
-			                        </div>
-	                            </div>
-	                            
-	                        </div>
-	                    </div>
+		                        </div>
+		                    </div>
+	                    </a>
 
 	                </div>
 
 	                <div class="row">
 
-	                    <div class="col-lg-6">
-	                        <div class="panel panel-default">
+						<a href="{% url 'grafica_gratis' %}">
+		                    <div class="col-lg-12">
+		                        <div class="panel panel-default">
 
-	                            <div class="panel-heading">
-	                                <h3 class="panel-title"><i class="fa fa-long-arrow-right fa-fw"></i> Porcentaje de cosumo </h3>
-	                            </div>
+		                            <div class="panel-heading">
+		                                <h3 class="panel-title"><i class="fa fa-bar-chart-o fa-fw"></i> Consumo acumulado total </h3>
+		                            </div>
 
-	                            <div class="panel-body">
-	                                <div  class="row">
-			                            {{ data.graficos.data_cirular.as_html }}
-			                        </div>
-	                            </div>
+		                            <div class="panel-body">
+		                                <div  class="row">
+				                            {{ data.graficos.data_por_medidor.as_html }}
+				                        </div>
+		                            </div>
+		                            
+		                        </div>
+		                    </div>
+	                    </a>
 
-	                        </div>
-	                    </div>
+	                </div>
+
+	                <div class="row">
+
+	                	<a href="{% url 'grafica_gratis' %}">
+		                    <div class="col-lg-6">
+		                        <div class="panel panel-default">
+
+		                            <div class="panel-heading">
+		                                <h3 class="panel-title"><i class="fa fa-long-arrow-right fa-fw"></i> Porcentaje de cosumo </h3>
+		                            </div>
+
+		                            <div class="panel-body">
+		                                <div  class="row">
+				                            {{ data.graficos.data_cirular.as_html }}
+				                        </div>
+		                            </div>
+
+		                        </div>
+		                    </div>
+	                    </a>
 						
 						<div class="col-lg-6">
 	                        <div class="panel panel-default">
