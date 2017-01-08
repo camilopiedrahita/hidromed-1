@@ -142,23 +142,29 @@ def GetData(medidores):
 		data_izarnet = Izarnet.objects.filter(
 			medidor__in=medidores.values('medidor'),
 			fecha__range=[desde, hasta]
-			).order_by('fecha').values('fecha', 'medidor', 'consumo', 'alarma')
+			).order_by('medidor', 'fecha').values(
+				'fecha', 'medidor', 'consumo', 'alarma')
 
 		#convertir queryset en python pandas dataframe
 		df = pd.DataFrame(list(data_izarnet))
 
 		#marcar medidores
 		df = GetMedidoresLoc(df)
+		df_sum_total = GetMedidoresLoc(df.sort('fecha'))
 
 		#obtener consumo sumatoria de todos los medidores
-		df['flag'] = df['flag_mes']
-		df = FuncSumatoria(df)
+		df_sum_total['flag'] = df_sum_total['flag_mes']
+		df_sum_total = FuncSumatoria(df_sum_total)
 
 		#lista de datos sumatoria consumo todos medidores
-		df_todos = df[df['flag'] == 1]
+		df_todos = df_sum_total[df_sum_total['flag'] == 1]
 		df_todos = df_todos[['fecha', 'consumo_acumulado']]
 		df_todos = df_todos.values.tolist()
 		df_todos.insert(0,['Fecha', 'consumo_acumulado'])
+
+		#obtener sumatoria consumo para datos de interes
+		df['flag'] = df['flag_mes']
+		df = FuncSumatoria(df)
 
 		#obtener datos de interes
 		datos_interes = GetInteresData(df)
