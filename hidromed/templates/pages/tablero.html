@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load static %}
+{% load humanize %}
 {% load crispy_forms_tags %}
 {% block title %}Tablero rápido{% endblock %}
 
@@ -72,7 +73,7 @@
 	                            <div class="panel-heading">
 	                                <div class="row">
 	                                    <div class="col-xs-12 text-right">
-	                                        <div class="huge">{{ data.data_interes.consumo_total_seis_meses }}</div>
+	                                        <div class="huge">{{ data.data_interes.consumo_total_seis_meses|floatformat:"0"|intcomma }}</div>
 	                                        <div>Consumo</div>
 	                                    </div>
 	                                </div>
@@ -92,7 +93,7 @@
 	                            <div class="panel-heading">
 	                                <div class="row">
 	                                    <div class="col-xs-12 text-right">
-	                                        <div class="huge">{{ data.data_interes.promedio_consumo_mensual }}</div>
+	                                        <div class="huge">{{ data.data_interes.promedio_consumo_mensual|floatformat:"0"|intcomma }}</div>
 	                                        <div>Promedio consumo mensual</div>
 	                                    </div>
 	                                </div>
@@ -112,7 +113,7 @@
 	                            <div class="panel-heading">
 	                                <div class="row">
 	                                    <div class="col-xs-12 text-right">
-	                                        <div class="huge">{{ data.data_interes.consumo_mes_actual }}</div>
+	                                        <div class="huge">{{ data.data_interes.consumo_mes_actual|floatformat:"0"|intcomma }}</div>
 	                                        <div>Consumo</div>
 	                                    </div>
 	                                </div>
@@ -124,6 +125,7 @@
                                 </div>
 	                            
 	                        </div>
+
 	                    </div>
 
 	                    <div class="col-lg-3 col-md-6">
@@ -132,7 +134,7 @@
 	                            <div class="panel-heading">
 	                                <div class="row">
 	                                    <div class="col-xs-12 text-right">
-	                                        <div class="huge">{{ data.data_interes.promedio_consumo_diario }}</div>
+	                                        <div class="huge">{{ data.data_interes.promedio_consumo_diario|floatformat:"0"|intcomma }}</div>
 	                                        <div>Promedio consumo diario</div>
 	                                    </div>
 	                                </div>
@@ -146,43 +148,105 @@
 	                        </div>
 	                    </div>
 
-	                    <div class="col-lg-3 col-md-6">
-	                        <div class="panel panel-red">
+	                </div>
+
+	                <div class="row">
+
+	                    <div class="col-lg-12">
+	                        <div class="panel panel-default">
 
 	                            <div class="panel-heading">
-	                                <div class="row">
-	                                    <div class="col-xs-12 text-right">
-	                                        <div>
-	                                        	<img src="{% static 'images/zumbido.svg' %}" alt="Zumbido">
-	                                        </div>
-	                                        <div>Alarmas!</div>
-	                                    </div>
-	                                </div>
+	                                <h3 class="panel-title"><i class="fa fa-bar-chart-o fa-fw"></i> Consumo acumulado mensual </h3>
 	                            </div>
 
-	                            <a href="#">
-	                                <div class="panel-footer">
-	                                    <span class="pull-left">Ver detalle de alarmas</span>
-	                                    <div class="clearfix"></div>
-	                                </div>
-	                            </a>
+	                            <div class="panel-body">
+	                                <div  class="row">
+			                            {{ data.graficos.data_todos_medidores.as_html }}
+			                        </div>
+	                            </div>
+
 	                        </div>
 	                    </div>
 
 	                </div>
-	                    
+
 	                <div class="row">
+
 	                    <div class="col-lg-12">
-	                        <div  class="row">
-	                            {{ data.graficos.data_todos_medidores.as_html }}
+	                        <div class="panel panel-default">
+
+	                            <div class="panel-heading">
+	                                <h3 class="panel-title"><i class="fa fa-bar-chart-o fa-fw"></i> Consumo acumulado total </h3>
+	                            </div>
+
+	                            <div class="panel-body">
+	                                <div  class="row">
+			                            {{ data.graficos.data_por_medidor.as_html }}
+			                        </div>
+	                            </div>
+	                            
 	                        </div>
-	                        <div  class="row">
-	                            {{ data.graficos.data_por_medidor.as_html }}
+	                    </div>
+
+	                </div>
+
+	                <div class="row">
+
+	                    <div class="col-lg-6">
+	                        <div class="panel panel-default">
+
+	                            <div class="panel-heading">
+	                                <h3 class="panel-title"><i class="fa fa-long-arrow-right fa-fw"></i> Porcentaje de cosumo </h3>
+	                            </div>
+
+	                            <div class="panel-body">
+	                                <div  class="row">
+			                            {{ data.graficos.data_cirular.as_html }}
+			                        </div>
+	                            </div>
+
 	                        </div>
-	                        <div  class="row">
-	                            {{ data.graficos.data_cirular.as_html }}
+	                    </div>
+						
+						<div class="col-lg-6">
+	                        <div class="panel panel-default">
+
+	                            <div class="panel-heading">
+	                                <h3 class="panel-title"><i class="fa fa-long-arrow-right fa-fw"></i> Alarmas </h3>
+	                            </div>
+
+	                            <div class="panel-body">
+	                                <div class="row">
+	                	
+					                	<div class="col-lg-12 col-md-12">
+					                        <div class="panel panel-red">
+
+					                            <div class="panel-heading">
+					                                <div class="row">
+					                                    <div class="col-xs-12 text-right">
+					                                        <div>
+					                                        	<img src="{% static 'images/zumbido.svg' %}" alt="Zumbido">
+					                                        </div>
+					                                        <div>Alarmas!</div>
+					                                    </div>
+					                                </div>
+					                            </div>
+
+					                            <a href="#">
+					                                <div class="panel-footer">
+					                                    <span class="pull-left">Ver detalle de alarmas</span>
+					                                    <div class="clearfix"></div>
+					                                </div>
+					                            </a>
+					                        </div>
+					                    </div>
+
+					                </div>
+	                            </div>
+	                            
 	                        </div>
-	                    </div>    
+	                    </div>
+
 	                </div>
 
                 {% else %}
