@@ -34,7 +34,7 @@ def GetChart(data, medidor):
 	elif medidor == 'Porcentaje de cosumo':
 		title = (str(medidor) + ' - por medidor')
 		graph = PieChart(
-			data_source, height=300, width=497, options={'title': title})
+			data_source, height=300, width=499, options={'title': title})
 
 	return graph
 
@@ -105,8 +105,18 @@ def GetInteresData(data):
 		consumo_diario[consumo_diario['mes'] == mes]['consumo_acumulado'].mean())
 	if np.isnan(promedio_consumo_diario): promedio_consumo_diario = 0
 
+	#alarmas mes actual
+	df_alarmas = data[data['mes'].map(str) == mes]
+	df_alarmas['alarmas_flag'] = np.where(
+		((df_alarmas['alarma'] != '0') | 
+			(df_alarmas['alarma'] != '') | 
+			(df_alarmas['alarma'].isnull())),
+		1, 0)
+	cant_alarmas = df_alarmas['alarmas_flag'].sum()
+
 	#diccionario de datos
 	data = {
+		'cant_alarmas': cant_alarmas,
 		'consumo_mes_actual': consumo_mes_actual,
 		'promedio_consumo_diario': promedio_consumo_diario,
 		'consumo_total_seis_meses': consumo_total_seis_meses,
@@ -179,6 +189,4 @@ def GetData(medidores):
 		}
 
 		return data
-
-	
 	

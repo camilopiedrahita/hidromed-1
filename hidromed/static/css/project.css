@@ -310,69 +310,74 @@ h1 {
   color: #5cb85c;
   border-color: #5cb85c;
 }
-/* line 19, ../sass/_tablero.scss */
+/* line 16, ../sass/_tablero.scss */
+.panel-green img {
+  width: 50px;
+  height: 50px;
+}
+/* line 24, ../sass/_tablero.scss */
 .panel-green > .panel-heading {
   border-color: #5cb85c;
   color: #fff;
   background-color: #5cb85c;
 }
-/* line 25, ../sass/_tablero.scss */
+/* line 30, ../sass/_tablero.scss */
 .panel-green > a:hover {
   color: #3d8b3d;
 }
 
-/* line 32, ../sass/_tablero.scss */
+/* line 37, ../sass/_tablero.scss */
 .panel-red {
   border-color: #d9534f;
 }
-/* line 33, ../sass/_tablero.scss */
+/* line 38, ../sass/_tablero.scss */
 .panel-red img {
   width: 50px;
   height: 50px;
 }
-/* line 40, ../sass/_tablero.scss */
+/* line 45, ../sass/_tablero.scss */
 .panel-red > .panel-heading {
   border-color: #d9534f;
   color: #fff;
   background-color: #d9534f;
 }
-/* line 45, ../sass/_tablero.scss */
+/* line 50, ../sass/_tablero.scss */
 .panel-red > a {
   color: #d9534f;
 }
-/* line 47, ../sass/_tablero.scss */
+/* line 52, ../sass/_tablero.scss */
 .panel-red > a:hover {
   color: #b52b27;
 }
 
-/* line 54, ../sass/_tablero.scss */
+/* line 59, ../sass/_tablero.scss */
 .panel-yellow {
   color: #f0ad4e;
   border-color: #f0ad4e;
 }
-/* line 58, ../sass/_tablero.scss */
+/* line 63, ../sass/_tablero.scss */
 .panel-yellow > .panel-heading {
   border-color: #f0ad4e;
   color: #fff;
   background-color: #f0ad4e;
 }
-/* line 64, ../sass/_tablero.scss */
+/* line 69, ../sass/_tablero.scss */
 .panel-yellow > a:hover {
   color: #df8a13;
 }
 
-/* line 71, ../sass/_tablero.scss */
+/* line 76, ../sass/_tablero.scss */
 .panel-ciel {
   color: #41D1EB;
   border-color: #41D1EB;
 }
-/* line 75, ../sass/_tablero.scss */
+/* line 80, ../sass/_tablero.scss */
 .panel-ciel > .panel-heading {
   border-color: #41D1EB;
   color: #fff;
   background-color: #41D1EB;
 }
-/* line 81, ../sass/_tablero.scss */
+/* line 86, ../sass/_tablero.scss */
 .panel-ciel > a:hover {
   color: #df8a13;
 }
