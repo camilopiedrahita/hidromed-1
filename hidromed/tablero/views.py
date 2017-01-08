@@ -16,6 +16,8 @@ def TablerRapidoView(request):
 
 	#declaracion de variables
 	data = {}
+	graficos = []
+	data_interes = []
 	data_cirular = []
 	data_por_medidor = []
 	data_todos_medidores = []
