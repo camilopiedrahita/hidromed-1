@@ -16,6 +16,8 @@ def TablerRapidoView(request):
 
 	#declaracion de variables
 	data = {}
+	graficos = []
+	data_interes = []
 	data_cirular = []
 	data_por_medidor = []
 	data_todos_medidores = []
@@ -47,15 +49,17 @@ def TablerRapidoView(request):
 		if data_medidores != None:
 
 			#generar graficos
+			data_cirular_seis_meses = GetChart(data_medidores['df_por_medidor'], 'Porcentaje de cosumo')
+			data_cirular_mes_actual = GetChart(data_medidores['df_mes_actual'], 'Porcentaje de cosumo')
 			data_todos_medidores = GetChart(data_medidores['df_todos'], 'todos los medidores')
 			data_por_medidor = GetChart(data_medidores['df_por_medidor'], 'por cada medidor')
-			data_cirular = GetChart(data_medidores['df_por_medidor'], 'Porcentaje de cosumo')
 
 			#diccionario de graficos
 			graficos = {
+				'data_cirular_seis_meses': data_cirular_seis_meses,
+				'data_cirular_mes_actual': data_cirular_mes_actual,
 				'data_todos_medidores': data_todos_medidores,
 				'data_por_medidor': data_por_medidor,
-				'data_cirular': data_cirular,
 			}
 
 			#datos de interes

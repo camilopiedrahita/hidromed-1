@@ -25,20 +25,22 @@ def UltimoMesView(request):
 
 		#obtener alarmas asociadas al usuario mes actual
 		alarmas_mes_actual = AlarmasMesActual(usuario_medidores)
-		alarmas_mes_actual = Paginator(alarmas_mes_actual, 25)
 
-		page = request.GET.get('page')
+		if not alarmas_mes_actual == None:
+			alarmas_mes_actual = Paginator(alarmas_mes_actual, 25)
 
-		try:
-			data_paginada = alarmas_mes_actual.page(page)
-		except PageNotAnInteger:
-			data_paginada = alarmas_mes_actual.page(1)
-		except EmptyPage:
-			data_paginada = alarmas_mes_actual.page(alarmas_mes_actual.num_pages)
+			page = request.GET.get('page')
 
-		#diccionario de datos
-		data = {
-			'data_paginada': data_paginada,
-		}
+			try:
+				data_paginada = alarmas_mes_actual.page(page)
+			except PageNotAnInteger:
+				data_paginada = alarmas_mes_actual.page(1)
+			except EmptyPage:
+				data_paginada = alarmas_mes_actual.page(alarmas_mes_actual.num_pages)
+
+			#diccionario de datos
+			data = {
+				'data_paginada': data_paginada,
+			}
 
 	return render(request, 'pages/alarmas_ultimomes.html', {'data': data})

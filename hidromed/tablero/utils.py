@@ -34,7 +34,7 @@ def GetChart(data, medidor):
 	elif medidor == 'Porcentaje de cosumo':
 		title = (str(medidor) + ' - por medidor')
 		graph = PieChart(
-			data_source, height=300, width=499, options={'title': title})
+			data_source, height=300, width=495, options={'title': title})
 
 	return graph
 
@@ -44,6 +44,7 @@ def GetMedidoresLoc(data):
 	#dividir tiempo en columnas
 	data['mes'] = data['fecha'].dt.month
 	data['dia'] = data['fecha'].dt.day
+	data['anho'] = data['fecha'].dt.year
 
 	#marcar localicacion de cada medidor en el dataframe
 	data['flag_medidor'] = np.where(
@@ -75,6 +76,42 @@ def GetMedidorname(data):
 
 	return data
 
+#obtener sumatoria consumo local
+def FuncSumatoriaLocal(data_medidor):
+
+	#realizar sumatoria por periodo de datos
+	data_medidor['reset'] = data_medidor['flag'].cumsum()
+	data_medidor['consumo_acumulado'] = (
+		data_medidor.groupby(['reset'])['consumo'].cumsum())
+	
+	#ajuste sumatoria por flag
+	data_medidor['consumo_acumulado'] = (
+		data_medidor['consumo_acumulado'].shift(1))
+
+	#reemplazar nan
+	data_medidor['consumo_acumulado'].fillna(
+		data_medidor['consumo'], inplace=True)
+
+	return data_medidor
+
+#get data mes actual
+def GetMesActual(data):
+
+	#declaracion de variables
+	mes = str(datetime.datetime.now().month)
+	anho = str(datetime.datetime.now().year)
+
+	#filtrar mes actual
+	data['mes'] = data['mes'].map(str)
+	data['anho'] = data['anho'].map(str)
+	data = (data[((data['mes'] == mes) & (data['anho'] == anho))])
+
+	#obtener sumatoria consumo para datos de interes
+	data['flag'] = data['flag_mes']
+	data = FuncSumatoriaLocal(data)
+
+	return data
+
 #get datos de interes
 def GetInteresData(data):
 
@@ -82,37 +119,24 @@ def GetInteresData(data):
 	consumo_total_seis_meses =  data['consumo'].sum()
 
 	#consumo promedio mensual
-	consumo_por_mes = data[data['flag'] == 1]
-	promedio_consumo_mensual = consumo_por_mes['consumo_acumulado'].mean()
-	if np.isnan(promedio_consumo_mensual): promedio_consumo_mensual = 0
-
-	#obtener mes actual
-	mes = str(datetime.datetime.now().month)
+	cant_meses = data['mes'].value_counts().count()
+	promedio_consumo_mensual = consumo_total_seis_meses / cant_meses
 
 	#consumo mes actual
-	consumo_por_mes['mes'] = consumo_por_mes['mes'].map(str)
-	consumo_mes_actual = (
-		consumo_por_mes[consumo_por_mes['mes'] == mes]['consumo_acumulado'].sum())
+	mes_actual = GetMesActual(data)
+	consumo_mes_actual = mes_actual['consumo'].sum()
 
-	#obtener consumo sumatoria por medidor
-	data['flag'] = data['flag_dia']
-	data = FuncSumatoria(data)
-
-	#promedio consumo diario mes actual
-	consumo_diario = data[data['flag'] == 1]
-	consumo_diario['mes'] = consumo_diario['mes'].map(str)
-	promedio_consumo_diario = (
-		consumo_diario[consumo_diario['mes'] == mes]['consumo_acumulado'].mean())
-	if np.isnan(promedio_consumo_diario): promedio_consumo_diario = 0
+	#obtener consumo mes actual sumatoria por medidor
+	cant_dias = mes_actual['dia'].value_counts().count()
+	promedio_consumo_diario = consumo_mes_actual / cant_dias
 
 	#alarmas mes actual
-	df_alarmas = data[data['mes'].map(str) == mes]
-	df_alarmas['alarmas_flag'] = np.where(
-		((df_alarmas['alarma'] != '0') | 
-			(df_alarmas['alarma'] != '') | 
-			(df_alarmas['alarma'].isnull())),
+	mes_actual['alarmas_flag'] = np.where(
+		((mes_actual['alarma'] != '0') | 
+			(mes_actual['alarma'] != '') | 
+			(mes_actual['alarma'].isnull())),
 		1, 0)
-	cant_alarmas = df_alarmas['alarmas_flag'].sum()
+	cant_alarmas = mes_actual['alarmas_flag'].sum()
 
 	#diccionario de datos
 	data = {
@@ -124,6 +148,30 @@ def GetInteresData(data):
 	}
 
 	return data
+
+#obtener sumatoria consumo todos los medidores
+def FuncSumatoriaAll(data_medidor):
+
+	#realizar sumatoria por periodo de datos
+	data_medidor['reset'] = data_medidor['flag']
+	data_medidor['consumo_acumulado'] = (
+		data_medidor.groupby(['reset'])['consumo'].cumsum())
+	data_medidor['reset'] = (
+		data_medidor.groupby(['reset'])['reset'].cumsum())
+
+	data_medidor['consumo_acumulado'] = np.where(
+		data_medidor['reset'] > 1,
+		data_medidor['consumo_acumulado'].shift(1) - data_medidor['consumo_acumulado'],
+		data_medidor['consumo_acumulado'])
+	
+	last_id_reset = data_medidor.iloc[-1, data_medidor.columns.get_loc('reset')]
+
+	data_medidor['consumo_acumulado'] = np.where(
+		data_medidor['reset'] < last_id_reset,
+		data_medidor['consumo_acumulado'].shift(1) + data_medidor['consumo'],
+		data_medidor['consumo_acumulado'])
+
+	return data_medidor
 
 #obtenere datos de izarnet
 def GetData(medidores):
@@ -142,30 +190,36 @@ def GetData(medidores):
 		data_izarnet = Izarnet.objects.filter(
 			medidor__in=medidores.values('medidor'),
 			fecha__range=[desde, hasta]
-			).order_by('fecha').values('fecha', 'medidor', 'consumo', 'alarma')
+			).order_by('medidor', 'fecha').values(
+				'fecha', 'medidor', 'consumo', 'alarma')
 
 		#convertir queryset en python pandas dataframe
 		df = pd.DataFrame(list(data_izarnet))
 
 		#marcar medidores
 		df = GetMedidoresLoc(df)
+		df_sum_total = GetMedidoresLoc(df.sort_values('fecha'))
 
 		#obtener consumo sumatoria de todos los medidores
-		df['flag'] = df['flag_mes']
-		df = FuncSumatoria(df)
+		df_sum_total['flag'] = df_sum_total['flag_mes']
+		df_sum_total = FuncSumatoriaAll(df_sum_total)
 
 		#lista de datos sumatoria consumo todos medidores
-		df_todos = df[df['flag'] == 1]
+		df_todos = df_sum_total[df_sum_total['flag'] == 1]
 		df_todos = df_todos[['fecha', 'consumo_acumulado']]
 		df_todos = df_todos.values.tolist()
 		df_todos.insert(0,['Fecha', 'consumo_acumulado'])
+
+		#obtener sumatoria consumo para datos de interes
+		df['flag'] = df['flag_mes']
+		df = FuncSumatoriaLocal(df)
 
 		#obtener datos de interes
 		datos_interes = GetInteresData(df)
 
 		#obtener consumo sumatoria por medidor
 		df['flag'] = df['flag_medidor']
-		df = FuncSumatoria(df)
+		df = FuncSumatoriaLocal(df)
 
 		#serial de los medidores
 		medidores_serial = GetMedidorname(medidores)
@@ -181,12 +235,22 @@ def GetData(medidores):
 		df_por_medidor = df_por_medidor.values.tolist()
 		df_por_medidor.insert(0,['Medidor', 'consumo_acumulado'])
 
+		#obtener mes actual
+		df_mes_actual = GetMesActual(df)
+
+		#lista de datos mes actual
+		df_mes_actual = df_mes_actual[df_mes_actual['flag'] == 1]
+		df_mes_actual = df_mes_actual[['medidor', 'consumo_acumulado']]
+		df_mes_actual = df_mes_actual.values.tolist()
+		df_mes_actual.insert(0,['Medidor', 'consumo_acumulado'])
+
 		#diccionario de datos
 		data = {
 			'df_por_medidor': df_por_medidor,
+			'df_mes_actual': df_mes_actual,
 			'datos_interes': datos_interes,
 			'df_todos': df_todos,
 		}
 
 		return data
-	
+
