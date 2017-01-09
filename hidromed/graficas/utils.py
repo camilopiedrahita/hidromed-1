@@ -95,6 +95,7 @@ def FuncSumatoria(data_medidor):
 	data_medidor['consumo_acumulado'] = (
 		data_medidor.groupby(['reset'])['consumo'].cumsum())
 	
+	#ajuste sumatoria por flag
 	data_medidor['consumo_acumulado'] = (
 		data_medidor['consumo_acumulado'].shift(1))
 
@@ -102,7 +103,6 @@ def FuncSumatoria(data_medidor):
 	data_medidor['consumo_acumulado'].fillna(
 		data_medidor['consumo'], inplace=True)
 
-	#ajuste sumatoria por flag
 	data_medidor['consumo_acumulado'] = np.where(
 		data_medidor['flag'] == 1,
 		data_medidor['consumo_acumulado'] + data_medidor['consumo'],
