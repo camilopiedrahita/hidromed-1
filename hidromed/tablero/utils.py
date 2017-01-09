@@ -104,7 +104,7 @@ def GetMesActual(data):
 	#filtrar mes actual
 	data['mes'] = data['mes'].map(str)
 	data['anho'] = data['anho'].map(str)
-	data = (data[((data['mes'] == '10') & (data['anho'] == '2016'))])
+	data = (data[((data['mes'] == mes) & (data['anho'] == anho))])
 
 	#obtener sumatoria consumo para datos de interes
 	data['flag'] = data['flag_mes']
