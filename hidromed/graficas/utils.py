@@ -81,10 +81,10 @@ def GetChartFree(data, poliza, medidor, unidad, tipo):
 		' - MEDIDOR: ' + str(medidor) + ' (' + str(unidad) + ')')
 	if tipo == 'liena':
 		graph = AreaChart(
-			data_source, height=500, width=1050, options={'title': title})
+			data_source, height=350, width='100%', options={'title': title})
 	elif tipo == 'barras':
 		graph = ColumnChart(
-			data_source, height=500, width=1050, options={'title': title})
+			data_source, height=350, width='100%', options={'title': title})
 	return graph
 
 #Funcion sumatoria

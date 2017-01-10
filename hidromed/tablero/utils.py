@@ -22,19 +22,19 @@ def GetChart(data, medidor):
 	if medidor == 'todos los medidores':
 		title = ('Consumo acumulado mensual - ' + str(medidor))
 		graph = ColumnChart(
-			data_source, height=500, width=1000, options={'title': title})
+			data_source, height=350, width='100%', options={'title': title})
 
 	#por cada medidor
 	elif medidor == 'por cada medidor':
 		title = ('Consumo acumulado total - ' + str(medidor))
 		graph = ColumnChart(
-			data_source, height=500, width=1000, options={'title': title})
+			data_source, height=350, width='100%', options={'title': title})
 
 	#grafico circular
 	elif medidor == 'Porcentaje de cosumo':
 		title = (str(medidor) + ' - por medidor')
 		graph = PieChart(
-			data_source, height=300, width=495, options={'title': title})
+			data_source, height=350, width='100%', options={'title': title})
 
 	return graph
 
