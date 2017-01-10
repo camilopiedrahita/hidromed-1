@@ -54,6 +54,14 @@ def GetMedidoresLoc(data):
 	data['flag_dia'] = np.where(
 		data['dia'] == data['dia'].shift(-1), 0, 1)
 
+	#marcar localicacion de cada medidor para sumatoria de consumo
+	data['flag_medidor_consumo'] = np.where(
+		data['medidor'] == data['medidor'].shift(1), 0, 1)
+	data['flag_mes_consumo'] = np.where(
+		data['mes'] == data['mes'].shift(1), 0, 1)
+	data['flag_dia_consumo'] = np.where(
+		data['dia'] == data['dia'].shift(1), 0, 1)
+
 	return data
 
 #get serial medidores
@@ -161,6 +169,7 @@ def GetData(medidores):
 
 		#obtener consumo sumatoria de todos los medidores
 		df_sum_total['flag'] = df_sum_total['flag_mes']
+		df_sum_total['flag_consumo'] = df_sum_total['flag_mes_consumo']
 		df_sum_total = FuncSumatoria(df_sum_total)
 
 		#lista de datos sumatoria consumo todos medidores
@@ -171,6 +180,7 @@ def GetData(medidores):
 
 		#obtener sumatoria consumo para datos de interes
 		df['flag'] = df['flag_mes']
+		df['flag_consumo'] = df['flag_mes_consumo']
 		df = FuncSumatoria(df)
 
 		#obtener datos de interes
@@ -178,6 +188,7 @@ def GetData(medidores):
 
 		#obtener consumo sumatoria por medidor
 		df['flag'] = df['flag_medidor']
+		df['flag_consumo'] = df['flag_medidor_consumo']
 		df = FuncSumatoria(df)
 
 		#serial de los medidores
