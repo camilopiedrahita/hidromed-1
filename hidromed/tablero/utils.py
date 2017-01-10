@@ -76,24 +76,6 @@ def GetMedidorname(data):
 
 	return data
 
-#obtener sumatoria consumo local
-def FuncSumatoriaLocal(data_medidor):
-
-	#realizar sumatoria por periodo de datos
-	data_medidor['reset'] = data_medidor['flag'].cumsum()
-	data_medidor['consumo_acumulado'] = (
-		data_medidor.groupby(['reset'])['consumo'].cumsum())
-	
-	#ajuste sumatoria por flag
-	data_medidor['consumo_acumulado'] = (
-		data_medidor['consumo_acumulado'].shift(1))
-
-	#reemplazar nan
-	data_medidor['consumo_acumulado'].fillna(
-		data_medidor['consumo'], inplace=True)
-
-	return data_medidor
-
 #get data mes actual
 def GetMesActual(data):
 
@@ -104,11 +86,12 @@ def GetMesActual(data):
 	#filtrar mes actual
 	data['mes'] = data['mes'].map(str)
 	data['anho'] = data['anho'].map(str)
-	data = (data[((data['mes'] == mes) & (data['anho'] == anho))])
+	#data = (data[((data['mes'] == mes) & (data['anho'] == anho))])
+	data = (data[((data['mes'] == '10') & (data['anho'] == '2016'))])
 
 	#obtener sumatoria consumo para datos de interes
 	data['flag'] = data['flag_mes']
-	data = FuncSumatoriaLocal(data)
+	data = FuncSumatoria(data)
 
 	return data
 
@@ -149,30 +132,6 @@ def GetInteresData(data):
 
 	return data
 
-#obtener sumatoria consumo todos los medidores
-def FuncSumatoriaAll(data_medidor):
-
-	#realizar sumatoria por periodo de datos
-	data_medidor['reset'] = data_medidor['flag']
-	data_medidor['consumo_acumulado'] = (
-		data_medidor.groupby(['reset'])['consumo'].cumsum())
-	data_medidor['reset'] = (
-		data_medidor.groupby(['reset'])['reset'].cumsum())
-
-	data_medidor['consumo_acumulado'] = np.where(
-		data_medidor['reset'] > 1,
-		data_medidor['consumo_acumulado'].shift(1) - data_medidor['consumo_acumulado'],
-		data_medidor['consumo_acumulado'])
-	
-	last_id_reset = data_medidor.iloc[-1, data_medidor.columns.get_loc('reset')]
-
-	data_medidor['consumo_acumulado'] = np.where(
-		data_medidor['reset'] < last_id_reset,
-		data_medidor['consumo_acumulado'].shift(1) + data_medidor['consumo'],
-		data_medidor['consumo_acumulado'])
-
-	return data_medidor
-
 #obtenere datos de izarnet
 def GetData(medidores):
 
@@ -202,7 +161,7 @@ def GetData(medidores):
 
 		#obtener consumo sumatoria de todos los medidores
 		df_sum_total['flag'] = df_sum_total['flag_mes']
-		df_sum_total = FuncSumatoriaAll(df_sum_total)
+		df_sum_total = FuncSumatoria(df_sum_total)
 
 		#lista de datos sumatoria consumo todos medidores
 		df_todos = df_sum_total[df_sum_total['flag'] == 1]
@@ -212,14 +171,14 @@ def GetData(medidores):
 
 		#obtener sumatoria consumo para datos de interes
 		df['flag'] = df['flag_mes']
-		df = FuncSumatoriaLocal(df)
+		df = FuncSumatoria(df)
 
 		#obtener datos de interes
 		datos_interes = GetInteresData(df)
 
 		#obtener consumo sumatoria por medidor
 		df['flag'] = df['flag_medidor']
-		df = FuncSumatoriaLocal(df)
+		df = FuncSumatoria(df)
 
 		#serial de los medidores
 		medidores_serial = GetMedidorname(medidores)

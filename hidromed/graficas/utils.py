@@ -38,29 +38,54 @@ def GetPeriodoData(data_medidor, periodo_datos):
 		data_medidor['semana'] == data_medidor['semana'].shift(-1), 0, 1)
 	data_medidor['flag_minuto'] = 1
 	data_medidor['mod_15'] = data_medidor['minutos'] % 15
+
+	#flags segun periodo de tiempo para sumatoria de consumo
+	data_medidor['flag_anho_consumo'] = np.where(
+		data_medidor['anho'] == data_medidor['anho'].shift(1), 0, 1)
+	data_medidor['flag_mes_consumo'] = np.where(
+		data_medidor['mes'] == data_medidor['mes'].shift(1), 0, 1)
+	data_medidor['flag_dia_consumo'] = np.where(
+		data_medidor['dia'] == data_medidor['dia'].shift(1), 0, 1)
+	data_medidor['flag_hora_consumo'] = np.where(
+		data_medidor['hora'] == data_medidor['hora'].shift(1), 0, 1)
+	data_medidor['flag_semana_consumo'] = np.where(
+		data_medidor['semana'] == data_medidor['semana'].shift(1), 0, 1)
+	data_medidor['flag_minuto_consumo'] = 1
+	data_medidor['mod_15_consumo'] = data_medidor['minutos'] % 15
 	
 	#nuevo data frame con mod 15 invertido
 	df = data_medidor['mod_15'][::-1]
+	df = data_medidor['mod_15_consumo'][::-1]
 
 	#flag para perido de 15 minutos
 	data_medidor['flag_15'] = np.where(
 		data_medidor['flag_hora'] == 1, 1,
 		np.where(df == 14, 1,
 			np.where(df > df.shift(1), 1, 0)))
+	data_medidor['flag_15_consumo'] = np.where(
+		data_medidor['flag_hora_consumo'] == 1, 1,
+		np.where(df == 14, 1,
+			np.where(df > df.shift(1), 1, 0)))
 
 	#asignando periodo de datos al dataframe
 	if periodo_datos == '1':
 		data_medidor['flag'] = data_medidor['flag_minuto']
+		data_medidor['flag_consumo'] = data_medidor['flag_minuto_consumo']
 	elif periodo_datos == '2':
 		data_medidor['flag'] = data_medidor['flag_15']
+		data_medidor['flag_consumo'] = data_medidor['flag_15_consumo']
 	elif periodo_datos == '3':
 		data_medidor['flag'] = data_medidor['flag_hora']
+		data_medidor['flag_consumo'] = data_medidor['flag_hora_consumo']
 	elif periodo_datos == '4':
 		data_medidor['flag'] = data_medidor['flag_dia']
+		data_medidor['flag_consumo'] = data_medidor['flag_dia_consumo']
 	elif periodo_datos == '5':
 		data_medidor['flag'] = data_medidor['flag_semana']
+		data_medidor['flag_consumo'] = data_medidor['flag_semana_consumo']
 	elif periodo_datos == '6':
 		data_medidor['flag'] = data_medidor['flag_mes']
+		data_medidor['flag_consumo'] = data_medidor['flag_mes_consumo']
 
 	return data_medidor
 
@@ -91,22 +116,9 @@ def GetChartFree(data, poliza, medidor, unidad, tipo):
 def FuncSumatoria(data_medidor):
 
 	#realizar sumatoria por periodo de datos
-	data_medidor['reset'] = data_medidor['flag']
+	data_medidor['reset'] = data_medidor['flag_consumo'].cumsum()
 	data_medidor['consumo_acumulado'] = (
 		data_medidor.groupby(['reset'])['consumo'].cumsum())
-	
-	#ajuste sumatoria por flag
-	data_medidor['consumo_acumulado'] = (
-		data_medidor['consumo_acumulado'].shift(1))
-
-	#reemplazar nan
-	data_medidor['consumo_acumulado'].fillna(
-		data_medidor['consumo'], inplace=True)
-
-	if data_medidor[data_medidor['flag'] == 1].count()['flag'] > 1:
-		data_medidor.iloc[-1, data_medidor.columns.get_loc('consumo_acumulado')] = (
-			data_medidor.iloc[-1, data_medidor.columns.get_loc('consumo_acumulado')] - 
-			data_medidor.iloc[-1, data_medidor.columns.get_loc('consumo')])
 
 	return data_medidor
 
