@@ -37,7 +37,6 @@ def GetPeriodoData(data_medidor, periodo_datos):
 	data_medidor['flag_semana'] = np.where(
 		data_medidor['semana'] == data_medidor['semana'].shift(-1), 0, 1)
 	data_medidor['flag_minuto'] = 1
-	data_medidor['mod_15'] = data_medidor['minutos'] % 15
 
 	#flags segun periodo de tiempo para sumatoria de consumo
 	data_medidor['flag_anho_consumo'] = np.where(
@@ -51,21 +50,13 @@ def GetPeriodoData(data_medidor, periodo_datos):
 	data_medidor['flag_semana_consumo'] = np.where(
 		data_medidor['semana'] == data_medidor['semana'].shift(1), 0, 1)
 	data_medidor['flag_minuto_consumo'] = 1
-	data_medidor['mod_15_consumo'] = data_medidor['minutos'] % 15
-	
-	#nuevo data frame con mod 15 invertido
-	df = data_medidor['mod_15'][::-1]
-	df = data_medidor['mod_15_consumo'][::-1]
 
 	#flag para perido de 15 minutos
+	data_medidor['mod_15'] = data_medidor['minutos'] % 15
 	data_medidor['flag_15'] = np.where(
-		data_medidor['flag_hora'] == 1, 1,
-		np.where(df == 14, 1,
-			np.where(df > df.shift(1), 1, 0)))
+		data_medidor['mod_15'] == 0, 1, 0)
 	data_medidor['flag_15_consumo'] = np.where(
-		data_medidor['flag_hora_consumo'] == 1, 1,
-		np.where(df == 14, 1,
-			np.where(df > df.shift(1), 1, 0)))
+		data_medidor['mod_15'] == 1, 1, 0)
 
 	#asignando periodo de datos al dataframe
 	if periodo_datos == '1':
@@ -174,6 +165,8 @@ def DownloadExcel(request, medidor, desde, hasta, periodo_datos, tipo_de_grafico
 	medidor = Medidor.objects.get(serial=medidor)
 	if tipo_de_grafico == 'volumen_litros':
 		value_header = 'Volumen (Litros)'
+	elif tipo_de_grafico == 'caudal':
+		value_header = 'Caudal (Litros / Hora)'
 	else:
 		value_header = 'Consumo (Litros)'
 
@@ -214,4 +207,9 @@ def FiltroRapido(tipo_de_filtro, medidor):
 		elif tipo_de_filtro == '6':
 			desde = hasta - relativedelta(years=1)
 
-	return {'desde': desde, 'hasta': hasta}
+	data = {
+		'desde': desde,
+		'hasta': hasta,
+	}
+
+	return data
