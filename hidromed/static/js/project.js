@@ -5,6 +5,7 @@ var hora = {
 };
 
 var dia = {
+	'1': 'Cada minuto',
 	'2': 'Cada 15 minutos',
 	'3': 'Cada hora'
 };
