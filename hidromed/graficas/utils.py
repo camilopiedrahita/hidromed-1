@@ -102,8 +102,8 @@ def GetMedidor(request, usuario):
 def GetChartFree(data, poliza, medidor, unidad, tipo):
 	data_source = SimpleDataSource(data=data)
 	title = (
-		'PÓLIZA: ' + str(poliza) + ' (' + str(unidad) + ')' + 
-		' - MEDIDOR: ' + str(medidor) + ' (' + str(unidad) + ')')
+		'PÓLIZA: ' + str(poliza) + ' - MEDIDOR: ' + str(medidor) + 
+		' - Unidad: (' + str(unidad) + ')')
 	if tipo == 'liena':
 		graph = AreaChart(
 			data_source, height=350, width='100%', options={'title': title})
