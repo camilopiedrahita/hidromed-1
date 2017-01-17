@@ -19,6 +19,7 @@ from .utils import *
 def FreeChartView(request):
 
 	#Inicializacion de variables
+	unidad = 'Litros'
 	usuario = request.user
 	usuario_medidores = GetMedidor(request, usuario)
 	acueducto_data = ''
@@ -66,6 +67,11 @@ def FreeChartView(request):
 					rango = FiltroRapido(tipo_de_filtro, medidor)
 					desde = rango['desde']
 					hasta = rango['hasta']
+
+				#unidades
+				if tipo_de_grafico == 'caudal':
+					unidad = 'Litros / Hora'
+
 			else:
 				messages.error(request,
 			'No ha diligenciado todos los campos del formulario')
@@ -102,7 +108,7 @@ def FreeChartView(request):
 						usuario=usuario).poliza,
 					Poliza_Medidor_User.objects.get(medidor=medidor,
 						usuario=usuario).medidor,
-					'Litros',
+					unidad,
 					grafico)
 				date_control = False
 			else:

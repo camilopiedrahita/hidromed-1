@@ -11,7 +11,7 @@ TIPO_CHOICES = (
 	)
 
 GRAFICO_CHOICES = (
-		('liena', 'Líena'),
+		('liena', 'Línea'),
 		('barras', 'Barras'),
 	)
 
