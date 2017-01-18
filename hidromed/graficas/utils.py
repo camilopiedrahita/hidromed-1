@@ -171,7 +171,7 @@ def DownloadExcel(request, medidor, desde, hasta, periodo_datos, tipo_de_grafico
 	elif tipo_de_grafico == 'caudal':
 		value_header = 'Caudal (Litros / Hora)'
 	else:
-		value_header = 'Consumo (Litros)'
+		value_header = 'Consumo (m³)'
 
 	data = GetData(
 		Izarnet.objects.filter(
