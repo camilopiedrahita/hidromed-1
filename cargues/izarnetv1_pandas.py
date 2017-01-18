@@ -1,16 +1,10 @@
 import os
 import glob
 import shutil
-import MySQLdb
 import pandas as pd
+import mysql.connector
 from datetime import datetime
-
-#crear conexion a db
-conn = MySQLdb.connect(host='localhost',
-                  user='root',
-                  passwd='root',
-                  db='hidromed')
-cursor = conn.cursor()
+from sqlalchemy import create_engine
 
 #convertir excel en dataframe
 def CargueExcel(archivo):
@@ -25,7 +19,15 @@ def Log(mensaje):
 
 #cargue de datos a db
 def CargueRegistros(data, file_name):
-	print (data)
+	
+	#crear conexion a db
+	engine = create_engine(
+		'mysql+mysqlconnector://root:root@localhost/hidromed', echo=False)
+
+	#enviar data a db
+	data.to_sql(name='izarnet_izarnet', con=engine, if_exists = 'append', index=False)
+
+	#cerrar conexion
 
 #conversion de cadena a numero
 def FloatNormalize(data):
@@ -92,7 +94,3 @@ for file in file_names:
 	if not os.path.exists('Procesados/'):
 		os.makedirs('Procesados/')
 	#shutil.move(file, 'Procesados/' + file)
-
-#cerrar conexion
-cursor.close()
-conn.close()
