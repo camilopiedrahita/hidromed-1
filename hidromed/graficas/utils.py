@@ -119,14 +119,16 @@ def FuncSumatoria(data_medidor):
 #Funcion caudal promedio
 def FuncCaudal(data_medidor):
 
-	#calcular caudal promedio
+	#calcular diferencia de minutos
 	data_medidor['diferencia_minutos'] = (
-		data_medidor['minutos'] - data_medidor['minutos'].shift(1))
-	data_medidor['diferencia_minutos'] = np.where(
-		data_medidor['diferencia_minutos'] == 0, 1, 
-		data_medidor['diferencia_minutos'])
+		(data_medidor['fecha'] - data_medidor['fecha'].shift(1)).astype('timedelta64[m]'))
+
+	#calcular caudal promedio
 	data_medidor['caudal_promedio'] = (
-		data_medidor['consumo'] / data_medidor['diferencia_minutos'] * 60)
+		data_medidor['consumo_acumulado'] / data_medidor['diferencia_minutos'] * 60)
+
+	data_medidor['caudal_promedio'] = data_medidor['caudal_promedio'].fillna(
+		data_medidor['consumo_acumulado']/60)
 
 	return data_medidor
 
@@ -149,6 +151,10 @@ def GetData(data_medidor, periodo_datos, campo):
 	
 	elif campo == 'caudal':
 
+		#obtener consumo acumulado
+		new_data_medidor = FuncSumatoria(new_data_medidor)
+		new_data_medidor = new_data_medidor[new_data_medidor['flag'] == 1]
+
 		#obtener caudal promedio
 		new_data_medidor = FuncCaudal(new_data_medidor)
 		campo = 'caudal_promedio'
@@ -169,7 +175,7 @@ def DownloadExcel(request, medidor, desde, hasta, periodo_datos, tipo_de_grafico
 	if tipo_de_grafico == 'volumen_litros':
 		value_header = 'Volumen (Litros)'
 	elif tipo_de_grafico == 'caudal':
-		value_header = 'Caudal (Litros / Hora)'
+		value_header = 'Caudal (m³ / Hora)'
 	else:
 		value_header = 'Consumo (m³)'
 
