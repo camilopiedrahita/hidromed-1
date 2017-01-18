@@ -49,8 +49,8 @@ def TablerRapidoView(request):
 		if data_medidores != None:
 
 			#generar graficos
-			data_cirular_seis_meses = GetChart(data_medidores['df_por_medidor'], 'Porcentaje de cosumo')
-			data_cirular_mes_actual = GetChart(data_medidores['df_mes_actual'], 'Porcentaje de cosumo')
+			data_cirular_seis_meses = GetChart(data_medidores['df_por_medidor'], 'Porcentaje de consumo')
+			data_cirular_mes_actual = GetChart(data_medidores['df_mes_actual'], 'Porcentaje de consumo')
 			data_todos_medidores = GetChart(data_medidores['df_todos'], 'todos los medidores')
 			data_por_medidor = GetChart(data_medidores['df_por_medidor'], 'por cada medidor')
 

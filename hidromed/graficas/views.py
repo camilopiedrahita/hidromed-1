@@ -71,6 +71,8 @@ def FreeChartView(request):
 				#unidades
 				if tipo_de_grafico == 'caudal':
 					unidad = 'Litros / Hora'
+				elif tipo_de_grafico == 'consumo':
+					unidad = 'm³'
 
 			else:
 				messages.error(request,

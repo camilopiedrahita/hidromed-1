@@ -17,6 +17,9 @@ from hidromed.users.models import Poliza_Medidor_User
 #Get periodo de datos
 def GetPeriodoData(data_medidor, periodo_datos):
 
+	#conversion de consumo de litros a metros cubicos
+	data_medidor['consumo'] = data_medidor['consumo'] / 1000
+
 	#dividir tiempo en columnas
 	data_medidor['anho'] = data_medidor['fecha'].dt.year
 	data_medidor['mes'] = data_medidor['fecha'].dt.month

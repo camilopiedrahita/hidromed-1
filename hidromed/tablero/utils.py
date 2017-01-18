@@ -33,7 +33,7 @@ def GetChart(data, medidor):
 			data_source, height=350, width='100%', options={'title': title})
 
 	#grafico circular
-	elif medidor == 'Porcentaje de cosumo':
+	elif medidor == 'Porcentaje de consumo':
 		title = (str(medidor) + ' - por medidor' + 
 			' - Unidad: m³')
 		graph = PieChart(
@@ -43,6 +43,9 @@ def GetChart(data, medidor):
 
 #get medidor y mes
 def GetMedidoresLoc(data):
+
+	#Conversion consumo de litros a metros cubicos
+	data['consumo'] = data['consumo'] / 1000
 
 	#dividir tiempo en columnas
 	data['mes'] = data['fecha'].dt.month
