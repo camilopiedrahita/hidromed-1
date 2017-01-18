@@ -65,3 +65,7 @@ tests/.hitch
 # MailHog binary
 mailhog
 
+# Excel
+*.xls
+*.xlsx
+
