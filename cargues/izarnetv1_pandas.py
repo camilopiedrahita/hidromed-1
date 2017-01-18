@@ -27,8 +27,25 @@ def Log(mensaje):
 def CargueRegistros(data, file_name):
 	print (data)
 
+#conversion de cadena a numero
+def FloatNormalize(data):
+	try:
+		data = float(str(data).replace(',', '.'))
+	except Exception, e:
+		data = 0
+	return data
+
+#normalizacion de alarmas
+def AlarmaNormalize(data):
+	data = u'%s' % data
+	data = data.encode('ascii', 'ignore')
+	return data
+
 #normalizacion de datos
-def normalize(data):
+def Normalize(data):
+
+	#declaracion de variables
+	headers = []
 
 	#normalizar nan
 	data = data.fillna(0)
@@ -40,6 +57,17 @@ def normalize(data):
 
 	#ordernar por fecha
 	data = data.sort_values('Marca de tiempo')
+
+	#obtener headers del archivo
+	for header in list(data.columns.values):
+		headers.append(header)
+
+	#normalizar tipos de datos
+	data[headers[1]] = data[headers[1]].apply(FloatNormalize) #volumen
+	data[headers[2]] = data[headers[2]].apply(FloatNormalize) #consumo
+	data[headers[4]] = data[headers[4]].apply(AlarmaNormalize) #alarmas
+	data['volumen_litros'] = data[headers[1]] * 1000 #volumen a litros
+	data[headers[2]] = data[headers[2]] * 1000 #consumo a litros
 
 	return data
 
@@ -55,7 +83,7 @@ for file in file_names:
 	data = CargueExcel(file)
 
 	#normalizar data
-	data = normalize(data)
+	data = Normalize(data)
 	
 	#cargar registros a db
 	CargueRegistros(data, file)
@@ -63,7 +91,7 @@ for file in file_names:
 	#mover archivo
 	if not os.path.exists('Procesados/'):
 		os.makedirs('Procesados/')
-	shutil.move(file, 'Procesados/' + file)
+	#shutil.move(file, 'Procesados/' + file)
 
 #cerrar conexion
 cursor.close()

@@ -103,7 +103,7 @@ for file in file_names:
 		format='%d/%m/%y %I:%M %p')
 	data = data.sort_values('Marca de tiempo')
 	CargueRegistros(data, file)
-	shutil.move(file, 'Procesados/' + file)
+	#shutil.move(file, 'Procesados/' + file)
 
 cursor.close()
 conn.close()
