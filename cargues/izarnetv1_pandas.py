@@ -1,10 +1,16 @@
 import os
 import glob
 import shutil
+import numpy as np
 import pandas as pd
 import mysql.connector
 from datetime import datetime
 from sqlalchemy import create_engine
+
+import time
+
+start = time.time()
+
 
 #crear conexion a db
 engine = create_engine(
@@ -78,10 +84,13 @@ def RegistrosUnicos(data):
 		con=engine)
 	del existing_data['id']
 
-	print ('existing_data')
-	print (existing_data)
+	#concatenar dataframes
+	data = [existing_data, data]
+	data = pd.concat(data, ignore_index=True)
 
-	print ('data')
+	#filtrar registros duplicados
+	data = data.drop_duplicates(keep=False)
+
 	print (data)
 
 #cargue de datos a db
@@ -174,3 +183,8 @@ for file in file_names:
 	if not os.path.exists('Procesados/'):
 		os.makedirs('Procesados/')
 	#shutil.move(file, 'Procesados/' + file)
+
+
+end = time.time()
+print ('tiempo transcurrido')
+print(end - start)
