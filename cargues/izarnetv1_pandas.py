@@ -6,6 +6,10 @@ import mysql.connector
 from datetime import datetime
 from sqlalchemy import create_engine
 
+#crear conexion a db
+engine = create_engine(
+	'mysql+mysqlconnector://root:root@localhost/hidromed', echo=False)
+
 #convertir excel en dataframe
 def CargueExcel(archivo):
 	return pd.read_excel(archivo)
@@ -17,15 +21,26 @@ def Log(mensaje):
 	file_log.write(mensaje + '\n')
 	file_log.close()
 
+#obtener id medidor
+def MedidorId(file_name):
+
+	#obtener medidor del archivo
+	parsed_file_name = file_name.split('_')[1]
+	parsed_file_name = parsed_file_name.replace(".xls", "")
+
+	#obtener id del medidor
+	medidor_id = pd.read_sql(
+		'SELECT id FROM medidores_medidor WHERE serial = "{}"'.format(parsed_file_name), con=engine)
+
+	medidor_id = medidor_id['id'][0]
+
+	return medidor_id
+
 #cargue de datos a db
 def CargueRegistros(data, file_name):
-	
-	#get medidor id
-	data['medidor_id'] = 5
 
-	#crear conexion a db
-	engine = create_engine(
-		'mysql+mysqlconnector://root:root@localhost/hidromed', echo=False)
+	#get medidor id
+	data['medidor_id'] = MedidorId(file_name)
 
 	#enviar data a db
 	try:
@@ -33,8 +48,6 @@ def CargueRegistros(data, file_name):
 		print ('data cargada correctamente')
 	except Exception, e:
 		print (str(e))
-
-	#cerrar conexion
 
 #conversion de cadena a numero
 def FloatNormalize(data):
