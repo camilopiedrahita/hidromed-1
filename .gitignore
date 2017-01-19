@@ -67,3 +67,7 @@ mailhog
 
 #Static Files
 staticfiles/
+
+# Excel
+*.xls
+*.xlsx
