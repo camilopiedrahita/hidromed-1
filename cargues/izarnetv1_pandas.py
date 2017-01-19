@@ -7,11 +7,6 @@ import mysql.connector
 from datetime import datetime
 from sqlalchemy import create_engine
 
-import time
-
-start = time.time()
-
-
 #crear conexion a db
 engine = create_engine(
 	'mysql+mysqlconnector://root:root@localhost/hidromed', echo=False)
@@ -91,7 +86,7 @@ def RegistrosUnicos(data):
 	#filtrar registros duplicados
 	data = data.drop_duplicates(keep=False)
 
-	print (data)
+	return data
 
 #cargue de datos a db
 def CargueRegistros(data, file_name):
@@ -104,7 +99,7 @@ def CargueRegistros(data, file_name):
 
 	#enviar data a db
 	try:
-		#data.to_sql(name='izarnet_izarnet', con=engine, if_exists = 'append', index=False)
+		data.to_sql(name='izarnet_izarnet', con=engine, if_exists = 'append', index=False)
 		print ('data cargada correctamente')
 		estado = 'Cargue correcto'
 	except Exception, e:
@@ -112,7 +107,7 @@ def CargueRegistros(data, file_name):
 		estado = 'Cargue con errores'
 		Log('Error en archivo {}'.format(file_name))
 
-	#ArchivoProcesado(file_name, estado)
+	ArchivoProcesado(file_name, estado)
 
 #conversion de cadena a numero
 def FloatNormalize(data):
@@ -182,9 +177,4 @@ for file in file_names:
 	#mover archivo
 	if not os.path.exists('Procesados/'):
 		os.makedirs('Procesados/')
-	#shutil.move(file, 'Procesados/' + file)
-
-
-end = time.time()
-print ('tiempo transcurrido')
-print(end - start)
+	shutil.move(file, 'Procesados/' + file)
