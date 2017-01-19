@@ -20,12 +20,19 @@ def Log(mensaje):
 #cargue de datos a db
 def CargueRegistros(data, file_name):
 	
+	#get medidor id
+	data['medidor_id'] = 5
+
 	#crear conexion a db
 	engine = create_engine(
 		'mysql+mysqlconnector://root:root@localhost/hidromed', echo=False)
 
 	#enviar data a db
-	data.to_sql(name='izarnet_izarnet', con=engine, if_exists = 'append', index=False)
+	try:
+		data.to_sql(name='izarnet_izarnet', con=engine, if_exists = 'append', index=False)
+		print ('data cargada correctamente')
+	except Exception, e:
+		print (str(e))
 
 	#cerrar conexion
 
@@ -70,6 +77,10 @@ def Normalize(data):
 	data[headers[4]] = data[headers[4]].apply(AlarmaNormalize) #alarmas
 	data['volumen_litros'] = data[headers[1]] * 1000 #volumen a litros
 	data[headers[2]] = data[headers[2]] * 1000 #consumo a litros
+
+	#normalizando nombre de columnas
+	data = data[[headers[0], headers[1], headers[2], 'volumen_litros', headers[4]]]
+	data.columns = ['fecha', 'volumen', 'consumo', 'volumen_litros', 'alarma']
 
 	return data
 
