@@ -58,6 +58,31 @@ def ArchivoProcesado(file_name, estado):
 	estado_cargue.to_sql(
 		name='izarnet_izarnetprocesados', con=engine, if_exists = 'append', index=False)
 
+#flitrar registros ya existentes en db
+def RegistrosUnicos(data):
+
+	#declaracion de variables
+	medidor_id = data['medidor_id'][0]
+	fecha_inicial = data['fecha'][0].to_pydatetime()
+	fecha_final = data['fecha'][data.index[-1]].to_pydatetime()
+
+	#obtener datos actuales
+	existing_data = pd.read_sql(
+		'SELECT * FROM izarnet_izarnet WHERE medidor_id = %(medidor_id)s ' +
+		'AND fecha BETWEEN %(fecha_inicial)s AND %(fecha_final)s',
+		params={
+			'fecha_final': fecha_final,
+			'medidor_id': int(medidor_id),
+			'fecha_inicial': fecha_inicial
+		},
+		con=engine)
+	del existing_data['id']
+
+	print ('existing_data')
+	print (existing_data)
+
+	print ('data')
+	print (data)
 
 #cargue de datos a db
 def CargueRegistros(data, file_name):
@@ -65,9 +90,12 @@ def CargueRegistros(data, file_name):
 	#get medidor id
 	data['medidor_id'] = MedidorId(file_name)
 
+	#filtrar registros ya existentes en db
+	data = RegistrosUnicos(data)
+
 	#enviar data a db
 	try:
-		data.to_sql(name='izarnet_izarnet', con=engine, if_exists = 'append', index=False)
+		#data.to_sql(name='izarnet_izarnet', con=engine, if_exists = 'append', index=False)
 		print ('data cargada correctamente')
 		estado = 'Cargue correcto'
 	except Exception, e:
@@ -75,7 +103,7 @@ def CargueRegistros(data, file_name):
 		estado = 'Cargue con errores'
 		Log('Error en archivo {}'.format(file_name))
 
-	ArchivoProcesado(file_name, estado)
+	#ArchivoProcesado(file_name, estado)
 
 #conversion de cadena a numero
 def FloatNormalize(data):
@@ -100,17 +128,17 @@ def Normalize(data):
 	#normalizar nan
 	data = data.fillna(0)
 
-	#normalizar fecha
-	data['Marca de tiempo'] = pd.to_datetime(
-		data['Marca de tiempo'],
-		format='%d/%m/%y %I:%M %p')
-
-	#ordernar por fecha
-	data = data.sort_values('Marca de tiempo')
-
 	#obtener headers del archivo
 	for header in list(data.columns.values):
 		headers.append(header)
+
+	#normalizar fecha
+	data[headers[0]] = pd.to_datetime(
+		data[headers[0]],
+		format='%d/%m/%y %I:%M %p')
+
+	#ordernar por fecha
+	data = data.sort_values(headers[0])
 
 	#normalizar tipos de datos
 	data[headers[1]] = data[headers[1]].apply(FloatNormalize) #volumen
