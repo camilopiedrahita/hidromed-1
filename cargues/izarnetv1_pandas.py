@@ -30,11 +30,34 @@ def MedidorId(file_name):
 
 	#obtener id del medidor
 	medidor_id = pd.read_sql(
-		'SELECT id FROM medidores_medidor WHERE serial = "{}"'.format(parsed_file_name), con=engine)
+		'SELECT id FROM medidores_medidor WHERE serial = "{}"'.format(parsed_file_name),
+		con=engine)
 
-	medidor_id = medidor_id['id'][0]
+	if not medidor_id.empty:
+		medidor_id = medidor_id['id'][0]
+	else:
+		Log('No existe el medidor {}'.format(parsed_file_name))
+		Log('Error en archivo {}'.format(file_name))
 
 	return medidor_id
+
+#registrar estado del cargue
+def ArchivoProcesado(file_name, estado):
+
+	#diccionario de data
+	data = {
+		'nombre': [file_name],
+		'fecha': [datetime.now().strftime('%Y-%m-%d %H:%M:%S')],
+		'estado': [estado]
+	}
+
+	#crear dataframe
+	estado_cargue = pd.DataFrame(data)
+
+	#enviar estado a db
+	estado_cargue.to_sql(
+		name='izarnet_izarnetprocesados', con=engine, if_exists = 'append', index=False)
+
 
 #cargue de datos a db
 def CargueRegistros(data, file_name):
@@ -46,8 +69,13 @@ def CargueRegistros(data, file_name):
 	try:
 		data.to_sql(name='izarnet_izarnet', con=engine, if_exists = 'append', index=False)
 		print ('data cargada correctamente')
+		estado = 'Cargue correcto'
 	except Exception, e:
-		print (str(e))
+		Log(str(e))
+		estado = 'Cargue con errores'
+		Log('Error en archivo {}'.format(file_name))
+
+	ArchivoProcesado(file_name, estado)
 
 #conversion de cadena a numero
 def FloatNormalize(data):
