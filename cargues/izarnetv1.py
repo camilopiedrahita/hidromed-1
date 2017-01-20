@@ -99,7 +99,12 @@ def CargueRegistros(data, file_name):
 
 	#enviar data a db
 	try:
-		data.to_sql(name='izarnet_izarnet', con=engine, if_exists = 'append', index=False)
+		data.to_sql(
+			name='izarnet_izarnet',
+			con=engine,
+			if_exists = 'append',
+			index=False,
+			chunksize=1000)
 		print ('data cargada correctamente')
 		estado = 'Cargue correcto'
 	except Exception, e:
