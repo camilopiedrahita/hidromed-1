@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 """
+Autor: Francisco Morales
+Cel: 318 456 16 74
+Email: fjmoralesp@outlook.com
+
 Production Configurations
 
 - Use djangosecure
