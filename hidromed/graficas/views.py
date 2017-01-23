@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 from hidromed.izarnet.models import Izarnet
-from hidromed.medidores.models import Medidor, Medidor_Acueducto
+from hidromed.medidores.models import Medidor, Medidor_Acueducto, Medidor_Cliente
 from hidromed.users.models import User, Poliza_Medidor_User
 
 from .forms import FiltrosForm
@@ -90,6 +90,11 @@ def FreeChartView(request):
 			acueducto_data = Medidor_Acueducto.objects.get(
 				medidor=medidor).acueducto
 
+		#datos de la empresa cliente del medidor
+		if Medidor_Cliente.objects.filter(medidor=medidor):
+			client_data = Medidor_Cliente.objects.get(
+				medidor=medidor).cliente
+
 		#datos del medidor en Izarnet
 		if Izarnet.objects.filter(medidor=medidor,
 			fecha__range=[desde, hasta]):
@@ -126,7 +131,8 @@ def FreeChartView(request):
 			'graficos': graficos,
 			'medidores': medidores,
 			'form': form,
-			'client_data': usuario,
+			'usuario': usuario,
+			'client_data': client_data,
 			'acueducto_data': acueducto_data,
 			'medidor': str(medidor),
 			'desde': desde,

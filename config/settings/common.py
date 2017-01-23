@@ -2,6 +2,10 @@
 """
 Django settings for HidroMed S.A. project.
 
+Autor: Francisco Morales
+Cel: 318 456 16 74
+Email: fjmoralesp@outlook.com
+
 For more information on this file, see
 https://docs.djangoproject.com/en/dev/topics/settings/
 

@@ -1,111 +1,185 @@
-import pandas as pd
-import MySQLdb
+import os
 import glob
 import shutil
+import numpy as np
+import pandas as pd
+import mysql.connector
 from datetime import datetime
+from sqlalchemy import create_engine
 
-conn = MySQLdb.connect(host='localhost',
-                  user='root',
-                  passwd='root',
-                  db='hidromed')
+#crear conexion a db
+engine = create_engine(
+	'mysql+mysqlconnector://root:root@localhost/hidromed', echo=False)
 
-cursor = conn.cursor()
-
+#convertir excel en dataframe
 def CargueExcel(archivo):
 	return pd.read_excel(archivo, sheetname=1)
 
+#funcion para crer log de errores
 def Log(mensaje):
 	file_log = open(str(datetime.now().
-		strftime("%Y-%m-%d")) + '_log','a')
+		strftime("%Y-%m-%d")) + '_log.log','a')
 	file_log.write(mensaje + '\n')
 	file_log.close()
 
-def CargueRegistros(data, file_name):
-	#Queries partials
-	add_procesados_partial = ('INSERT INTO izarnet_izarnetprocesados '
-		'(nombre, fecha, estado) ')
-	add_partial = ('INSERT INTO izarnet_izarnet '
-		'(fecha, volumen, consumo, volumen_litros, alarma, medidor_id) ')
-	get_medidor_partial = ('SELECT id FROM medidores_medidor ')
-	id_match_partial = ('SELECT id FROM izarnet_izarnet ')
+#obtener id medidor
+def MedidorId(file_name):
 
-	#Local vars
-	headers = []
-	estado = 'Cargue correcto'
+	#obtener medidor del archivo
 	parsed_file_name = file_name.split('_')[1]
 	parsed_file_name = parsed_file_name.replace(".xls", "")
-	get_medidor = get_medidor_partial + (
-		'WHERE serial = "{}"'.format(parsed_file_name))
-	cursor.execute(get_medidor)
-	medidor_id = cursor.fetchone()
-	if medidor_id == None:
+
+	#obtener id del medidor
+	medidor_id = pd.read_sql(
+		'SELECT id FROM medidores_medidor WHERE serial = "{}"'.format(parsed_file_name),
+		con=engine)
+
+	if not medidor_id.empty:
+		medidor_id = medidor_id['id'][0]
+	else:
 		Log('No existe el medidor {}'.format(parsed_file_name))
 		Log('Error en archivo {}'.format(file_name))
+
+	return medidor_id
+
+#registrar estado del cargue
+def ArchivoProcesado(file_name, estado):
+
+	#diccionario de data
+	data = {
+		'nombre': [file_name],
+		'fecha': [datetime.now().strftime('%Y-%m-%d %H:%M:%S')],
+		'estado': [estado]
+	}
+
+	#crear dataframe
+	estado_cargue = pd.DataFrame(data)
+
+	#enviar estado a db
+	estado_cargue.to_sql(
+		name='izarnet_izarnetprocesados', con=engine, if_exists = 'append', index=False)
+
+#flitrar registros ya existentes en db
+def RegistrosUnicos(data):
+
+	#declaracion de variables
+	medidor_id = data['medidor_id'][0]
+	fecha_inicial = data['fecha'][0].to_pydatetime()
+	fecha_final = data['fecha'][data.index[-1]].to_pydatetime()
+
+	#obtener datos actuales
+	existing_data = pd.read_sql(
+		'SELECT * FROM izarnet_izarnet WHERE medidor_id = %(medidor_id)s ' +
+		'AND fecha BETWEEN %(fecha_inicial)s AND %(fecha_final)s',
+		params={
+			'fecha_final': fecha_final,
+			'medidor_id': int(medidor_id),
+			'fecha_inicial': fecha_inicial
+		},
+		con=engine)
+	del existing_data['id']
+
+	#concatenar dataframes
+	data = [existing_data, data]
+	data = pd.concat(data, ignore_index=True)
+
+	#filtrar registros duplicados
+	data = data.drop_duplicates(keep=False)
+
+	return data
+
+#cargue de datos a db
+def CargueRegistros(data, file_name):
+
+	#get medidor id
+	data['medidor_id'] = MedidorId(file_name)
+
+	#filtrar registros ya existentes en db
+	data = RegistrosUnicos(data)
+
+	#enviar data a db
+	try:
+		data.to_sql(
+			name='izarnet_izarnet',
+			con=engine,
+			if_exists = 'append',
+			index=False,
+			chunksize=1000)
+		Log ('data cargada correctamente')
+
+		estado = 'Cargue correcto'
+	except Exception, e:
+		Log(str(e))
 		estado = 'Cargue con errores'
-	else:	
-		medidor_id = medidor_id[0]
+		Log('Error en archivo {}'.format(file_name))
+
+	ArchivoProcesado(file_name, estado)
+
+#conversion de cadena a numero
+def FloatNormalize(data):
+	try:
+		data = float(str(data).replace(',', '.'))
+	except Exception, e:
+		data = 0
+	return data
+
+#normalizacion de alarmas
+def AlarmaNormalize(data):
+	data = u'%s' % data
+	data = data.encode('ascii', 'ignore')
+	return data
+
+#normalizacion de datos
+def Normalize(data):
+
+	#declaracion de variables
+	headers = []
+
+	#normalizar nan
+	data = data.fillna(0)
+
+	#obtener headers del archivo
 	for header in list(data.columns.values):
 		headers.append(header)
 
-	#Insert Data
-	if not medidor_id == None:
-		for row in data.iterrows():
-			try:
-				fecha = row[1][headers[0]]
-				fecha = datetime.strptime(str(fecha), '%Y-%m-%d %H:%M:%S')
-				volumen_litros = float(str(row[1][headers[1]]).replace(',', '.'))
-				consumo = float(str(row[1][headers[2]]).replace(',', '.'))
-				if not volumen_litros == 0:
-					volumen = volumen_litros/1000
-				else:
-					volumen = 0
-				alarma = u'%s' % row[1][headers[4]]
-				alarma = alarma.encode('ascii', 'ignore')
+	#normalizar fecha
+	data[headers[0]] = pd.to_datetime(
+		data[headers[0]],
+		format='%d-%m-%Y %H:%M:%S')
 
-				id_match = id_match_partial + (
-					'WHERE fecha = "{}" AND medidor_id = {}'.format(
-						str(fecha), medidor_id))
-				cursor.execute(id_match)
-				id_match_data = cursor.fetchone()
-				if not id_match_data == None:
-					id_match_data = id_match_data[0]
+	#ordernar por fecha
+	data = data.sort_values(headers[0])
 
-				if id_match_data == None:
-					add_row = add_partial + ('VALUES ("{}", {}, {}, {}, "{}", {})'.
-						format(fecha, volumen, consumo, volumen_litros, 
-							alarma, medidor_id))
-					try:
-						cursor.execute(add_row)
-					except Exception, e:
-						Log(str(e))
-						Log('Error en {}'.format(add_row))
-						Log('Error en archivo {}'.format(file_name))
-						estado = 'Cargue con errores'
-			except Exception, e:
-				Log(str(e))
-				Log('Error en Headers del archivo Excel')
-				Log('Error en archivo {}'.format(file_name))
-				estado = 'Cargue con errores'
-		add_procesados = add_procesados_partial + ('VALUES ("{}", "{}", "{}")'.
-			format(file_name, 
-				datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 
-				estado))
-		cursor.execute(add_procesados)
-		conn.commit()
-		print 'Se han cargado todos los datos'
-		
+	#normalizar tipos de datos
+	data['volumen_litros'] = data[headers[1]].apply(FloatNormalize) #volumen en litros
+	data[headers[1]] = data['volumen_litros'] / 1000 #volumen a cm
+	data[headers[2]] = data[headers[2]].apply(FloatNormalize) #consumo en litros
+	data[headers[4]] = data[headers[4]].apply(AlarmaNormalize) #alarmas
+
+	#normalizando nombre de columnas
+	data = data[[headers[0], headers[1], headers[2], 'volumen_litros', headers[4]]]
+	data.columns = ['fecha', 'volumen', 'consumo', 'volumen_litros', 'alarma']
+
+	return data
+
+#main	
 path = ''
 file_names = glob.glob(path + 'IzarNet2*.xls')
 for file in file_names:
-	print file
-	data = CargueExcel(file)
-	data = data.fillna(0)
-	data['event.timestamp'] = pd.to_datetime(
-		data['event.timestamp'],
-		format='%d-%m-%Y %H:%M:%S')
-	data = data.sort_values('event.timestamp')
-	CargueRegistros(data, file)
-	shutil.move(file, 'Procesados/' + file)
 
-cursor.close()
-conn.close()
+	#inicio del cargue
+	Log (file)
+
+	#cargar archivo excel
+	data = CargueExcel(file)
+
+	#normalizar data
+	data = Normalize(data)
+	
+	#cargar registros a db
+	CargueRegistros(data, file)
+
+	#mover archivo
+	if not os.path.exists('Procesados/'):
+		os.makedirs('Procesados/')
+	shutil.move(file, 'Procesados/' + file)

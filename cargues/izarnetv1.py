@@ -18,7 +18,7 @@ def CargueExcel(archivo):
 #funcion para crer log de errores
 def Log(mensaje):
 	file_log = open(str(datetime.now().
-		strftime("%Y-%m-%d")) + '_log','a')
+		strftime("%Y-%m-%d")) + '_log.log','a')
 	file_log.write(mensaje + '\n')
 	file_log.close()
 
@@ -105,7 +105,7 @@ def CargueRegistros(data, file_name):
 			if_exists = 'append',
 			index=False,
 			chunksize=1000)
-		print ('data cargada correctamente')
+		Log ('data cargada correctamente')
 		estado = 'Cargue correcto'
 	except Exception, e:
 		Log(str(e))
@@ -168,7 +168,7 @@ file_names = glob.glob(path + 'IzarNet1*.xls')
 for file in file_names:
 
 	#inicio del cargue
-	print (file)
+	Log (file)
 
 	#cargar archivo excel
 	data = CargueExcel(file)
