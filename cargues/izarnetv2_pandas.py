@@ -13,7 +13,7 @@ engine = create_engine(
 
 #convertir excel en dataframe
 def CargueExcel(archivo):
-	return pd.read_excel(archivo)
+	return pd.read_excel(archivo, sheetname=1)
 
 #funcion para crer log de errores
 def Log(mensaje):
@@ -106,6 +106,7 @@ def CargueRegistros(data, file_name):
 			index=False,
 			chunksize=1000)
 		Log ('data cargada correctamente')
+
 		estado = 'Cargue correcto'
 	except Exception, e:
 		Log(str(e))
@@ -144,17 +145,16 @@ def Normalize(data):
 	#normalizar fecha
 	data[headers[0]] = pd.to_datetime(
 		data[headers[0]],
-		format='%d/%m/%y %I:%M %p')
+		format='%d-%m-%Y %H:%M:%S')
 
 	#ordernar por fecha
 	data = data.sort_values(headers[0])
 
 	#normalizar tipos de datos
-	data[headers[1]] = data[headers[1]].apply(FloatNormalize) #volumen
-	data[headers[2]] = data[headers[2]].apply(FloatNormalize) #consumo
+	data['volumen_litros'] = data[headers[1]].apply(FloatNormalize) #volumen en litros
+	data[headers[1]] = data['volumen_litros'] / 1000 #volumen a cm
+	data[headers[2]] = data[headers[2]].apply(FloatNormalize) #consumo en litros
 	data[headers[4]] = data[headers[4]].apply(AlarmaNormalize) #alarmas
-	data['volumen_litros'] = data[headers[1]] * 1000 #volumen a litros
-	data[headers[2]] = data[headers[2]] * 1000 #consumo a litros
 
 	#normalizando nombre de columnas
 	data = data[[headers[0], headers[1], headers[2], 'volumen_litros', headers[4]]]
@@ -164,7 +164,7 @@ def Normalize(data):
 
 #main	
 path = ''
-file_names = glob.glob(path + 'IzarNet1*.xls')
+file_names = glob.glob(path + 'IzarNet2*.xls')
 for file in file_names:
 
 	#inicio del cargue
