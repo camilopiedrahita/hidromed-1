@@ -91,7 +91,7 @@
                         {% endif %}
                     </div>
 
-                    {% if data.client_data %}
+                    {% if data.usuario %}
                         <div class="col-lg-12">
                             <table>
                                 <thead>
@@ -106,10 +106,10 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>{{ data.client_data.username }}</td>
-                                        <td>{{ data.client_data.cliente }}</td>
-                                        <td>{{ data.client_data.cliente.nit }}</td>
-                                        <td>{{ data.client_data.cliente.direccion }}</td>
+                                        <td>{{ data.usuario.username }}</td>
+                                        <td>{{ data.client_data }}</td>
+                                        <td>{{ data.client_data.nit }}</td>
+                                        <td>{{ data.client_data.direccion }}</td>
                                         <td>{{ data.acueducto_data.nombre }}</td>
                                         <td>{{ data.acueducto_data.nit }}</td>
                                     </tr>
