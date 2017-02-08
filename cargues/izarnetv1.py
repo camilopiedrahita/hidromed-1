@@ -64,8 +64,8 @@ def RegistrosUnicos(data):
 
 	#declaracion de variables
 	medidor_id = data['medidor_id'][0]
-	fecha_inicial = data['fecha'][0].to_pydatetime()
-	fecha_final = data['fecha'][data.index[-1]].to_pydatetime()
+	fecha_inicial = data['fecha'].min().to_pydatetime()
+	fecha_final = data['fecha'].max().to_pydatetime()
 
 	#obtener datos actuales
 	existing_data = pd.read_sql(
