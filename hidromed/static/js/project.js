@@ -83,14 +83,7 @@ function peridos(value){
 		else if (value == '4') { newOptions = mes; }
 		else if (value == '5') { newOptions = tres_meses; }
 		else if (value == '6') { newOptions = anho; }
-		else if (value == 'error') { 
-			newOptions = error;
-			var parentDiv = document.getElementsByClassName('row');
-			var newDiv = document.createElement('div');
-			newDiv.className = 'alert alert-error';
-			newDiv.innerHTML = 'El periodo de datos no puede ser superior a un año';
-			parentDiv[0].insertBefore(newDiv, parentDiv[0].firstChild);;
-		}
+		else if (value == 'error') { newOptions = error; }
 
 		//asignar nuevos valores
 		if (typeof newOptions !== 'undefined') {
