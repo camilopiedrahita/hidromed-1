@@ -115,6 +115,11 @@ def GetInteresData(data):
 	#consumo total
 	consumo_total_seis_meses =  data['consumo'].sum()
 
+	#total de meses
+	fecha_minima = data['fecha'].min().to_pydatetime()
+	fecha_maxima = data['fecha'].max().to_pydatetime()
+	total_meses = relativedelta(fecha_maxima, fecha_minima).months
+
 	#consumo promedio mensual
 	cant_meses = data['mes'].value_counts().count()
 	promedio_consumo_mensual = consumo_total_seis_meses / cant_meses
@@ -137,6 +142,7 @@ def GetInteresData(data):
 
 	#diccionario de datos
 	data = {
+		'total_meses': total_meses,
 		'cant_alarmas': cant_alarmas,
 		'consumo_mes_actual': consumo_mes_actual,
 		'promedio_consumo_diario': promedio_consumo_diario,
