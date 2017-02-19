@@ -25,7 +25,11 @@ var tres_meses = {
 };
 
 var anho = {
-	'6': 'Cada mes'	
+	'6': 'Cada mes'
+};
+
+var error = {
+	'0': 'El periodo de datos no puede ser superior a un año'
 };
 
 //funcion detectar fechas
@@ -42,11 +46,12 @@ function PeriodoDatosFecha(){
 		var diferencia = daydiff(desde, hasta);
 
 		//asignar valores segun seleccion
-		if (diferencia == 0 ){ peridos('2') }
-		else if (diferencia >= 1 && diferencia < 30 ){ peridos('3') }
-		else if (diferencia >= 30 && diferencia < 90 ){ peridos('4') }
-		else if (diferencia >= 90 && diferencia < 360 ){ peridos('5') }
-		else if (diferencia >= 360 ){ peridos('6') }
+		if (diferencia == 0 ){ peridos('2'); }
+		else if (diferencia >= 1 && diferencia < 30 ){ peridos('3'); }
+		else if (diferencia >= 30 && diferencia < 90 ){ peridos('4'); }
+		else if (diferencia >= 90 && diferencia < 360 ){ peridos('5'); }
+		else if (diferencia == 365 ){ peridos('6'); }
+		else if (diferencia > 365 ){ peridos('error'); }
 	}
 }
 
@@ -78,6 +83,14 @@ function peridos(value){
 		else if (value == '4') { newOptions = mes; }
 		else if (value == '5') { newOptions = tres_meses; }
 		else if (value == '6') { newOptions = anho; }
+		else if (value == 'error') { 
+			newOptions = error;
+			var parentDiv = document.getElementsByClassName('row');
+			var newDiv = document.createElement('div');
+			newDiv.className = 'alert alert-error';
+			newDiv.innerHTML = 'El periodo de datos no puede ser superior a un año';
+			parentDiv[0].insertBefore(newDiv, parentDiv[0].firstChild);;
+		}
 
 		//asignar nuevos valores
 		if (typeof newOptions !== 'undefined') {
