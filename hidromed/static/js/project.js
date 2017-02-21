@@ -1,12 +1,12 @@
 //opciones de perido datos
 var hora = {
 	'1': 'Cada minuto',
-	'2': 'Cada 15 minutos'
+	//'2': 'Cada 15 minutos'
 };
 
 var dia = {
 	'1': 'Cada minuto',
-	'2': 'Cada 15 minutos',
+	//'2': 'Cada 15 minutos',
 	'3': 'Cada hora'
 };
 
