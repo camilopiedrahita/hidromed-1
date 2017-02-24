@@ -163,7 +163,10 @@ def GetData(medidores):
 	desde = hasta - relativedelta(months=6)
 
 	#obtener datos de Izarnet
-	if Izarnet.objects.filter(medidor__in=medidores.values('medidor')).exists():
+	if Izarnet.objects.filter(
+			medidor__in=medidores.values('medidor'),
+			fecha__range=[desde, hasta]
+		).exists():
 
 		#generar queryset
 		data_izarnet = Izarnet.objects.filter(
