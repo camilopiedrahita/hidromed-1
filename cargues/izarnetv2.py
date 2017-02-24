@@ -68,23 +68,29 @@ def RegistrosUnicos(data):
 	fecha_final = data['fecha'].max().to_pydatetime()
 
 	#obtener datos actuales
-	existing_data = pd.read_sql(
-		'SELECT * FROM izarnet_izarnet WHERE medidor_id = %(medidor_id)s ' +
-		'AND fecha BETWEEN %(fecha_inicial)s AND %(fecha_final)s',
-		params={
-			'fecha_final': fecha_final,
-			'medidor_id': int(medidor_id),
-			'fecha_inicial': fecha_inicial
-		},
-		con=engine)
-	del existing_data['id']
+	try:
+		existing_data = pd.read_sql(
+			'SELECT * FROM izarnet_izarnet WHERE medidor_id = %(medidor_id)s ' +
+			'AND fecha BETWEEN %(fecha_inicial)s AND %(fecha_final)s',
+			params={
+				'fecha_final': fecha_final,
+				'medidor_id': int(medidor_id),
+				'fecha_inicial': fecha_inicial
+			},
+			con=engine)
+		del existing_data['id']
 
-	#concatenar dataframes
-	data = [existing_data, data]
-	data = pd.concat(data, ignore_index=True)
+		#concatenar dataframes
+		data = [existing_data, data]
+		data = pd.concat(data, ignore_index=True)
 
-	#filtrar registros duplicados
-	data = data.drop_duplicates(keep=False)
+		#filtrar registros duplicados
+		data = data.drop_duplicates(keep=False)
+
+	except Exception, e:
+		Log(str(e))
+		estado = 'Cargue con errores'
+		Log('El Id de medidor no es correcto')
 
 	return data
 
