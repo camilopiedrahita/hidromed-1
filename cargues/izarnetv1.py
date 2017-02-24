@@ -188,4 +188,4 @@ for file in file_names:
 	#mover archivo
 	if not os.path.exists(path + 'Procesados/'):
 		os.makedirs(path + 'Procesados/')
-	shutil.move(file, path + 'Procesados/' + file)
+	shutil.move(file, path + 'Procesados/')
