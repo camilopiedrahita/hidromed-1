@@ -54,6 +54,6 @@ pandas==0.18.1
 xlrd==1.0.0
 django-chartit==0.2.6
 django-excel==0.0.5
-pyexcel-xlsx==0.2.2
+pyexcel-xlsx
 django-graphos==0.3.2
 SQLAlchemy==1.1.5
