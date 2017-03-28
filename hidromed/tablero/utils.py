@@ -119,6 +119,7 @@ def GetInteresData(data):
 	fecha_minima = data['fecha'].min().to_pydatetime()
 	fecha_maxima = data['fecha'].max().to_pydatetime()
 	total_meses = relativedelta(fecha_maxima, fecha_minima).months
+	if total_meses == 0: total_meses = 1
 
 	#consumo promedio mensual
 	cant_meses = data['mes'].value_counts().count()

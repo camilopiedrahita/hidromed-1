@@ -186,6 +186,16 @@ for file in file_names:
 	CargueRegistros(data, file)
 
 	#mover archivo
-	if not os.path.exists(path + 'Procesados/'):
-		os.makedirs(path + 'Procesados/')
-	shutil.move(file, path + 'Procesados/')
+	now = str(datetime.now().strftime("%Y-%m-%d %H:%M"))
+	if not os.path.exists(path 
+			+ 'Procesados/' 
+			+ now
+			+ '/'):
+		os.makedirs(path 
+			+ 'Procesados/' 
+			+ now
+			+ '/')
+	shutil.move(file, path 
+		+ 'Procesados/' 
+		+ now
+		+ '/')
