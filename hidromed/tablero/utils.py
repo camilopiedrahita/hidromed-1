@@ -68,6 +68,14 @@ def GetMedidoresLoc(data):
 	data['flag_dia_consumo'] = np.where(
 		data['dia'] == data['dia'].shift(1), 0, 1)
 
+	#fix mes actual por medidor
+	data['flag_mes_consumo_fix'] = np.where(
+		(((data['flag_medidor_consumo'] == 1) 
+			| (data['flag_mes_consumo'] == 1))), 1, 0)
+	data['flag_mes_fix'] = np.where(
+		(((data['flag_medidor'] == 1) 
+			| (data['flag_mes'] == 1))), 1, 0)
+
 	return data
 
 #get serial medidores
@@ -103,8 +111,8 @@ def GetMesActual(data):
 	data = (data[((data['mes'] == mes) & (data['anho'] == anho))])
 
 	#obtener sumatoria consumo para datos de interes
-	data['flag'] = data['flag_mes']
-	data['flag_consumo'] = data['flag_mes_consumo']
+	data['flag'] = data['flag_mes_fix']
+	data['flag_consumo'] = data['flag_mes_consumo_fix']
 	data = FuncSumatoria(data)
 
 	return data
@@ -217,6 +225,8 @@ def GetData(medidores):
 
 		#lista de datos sumatoria consumo cada medidor
 		df_por_medidor = df[df['flag'] == 1]
+		df_por_medidor['consumo_acumulado'] = (
+			df_por_medidor['consumo_acumulado'] / 1000)
 		df_por_medidor = df_por_medidor[['medidor', 'consumo_acumulado']]
 		df_por_medidor = df_por_medidor.values.tolist()
 		df_por_medidor.insert(0,['Medidor', 'consumo_acumulado'])
@@ -239,4 +249,3 @@ def GetData(medidores):
 		}
 
 		return data
-
