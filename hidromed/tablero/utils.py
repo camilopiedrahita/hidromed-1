@@ -135,8 +135,6 @@ def GetInteresData(data):
     # consumo total
     consumo_total_seis_meses = data['consumo'].sum()
 
-    print (consumo_total_seis_meses)
-
     # total de meses
     fecha_minima = data['fecha'].min().to_pydatetime()
     fecha_maxima = data['fecha'].max().to_pydatetime()
