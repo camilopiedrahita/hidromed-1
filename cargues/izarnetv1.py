@@ -137,7 +137,7 @@ def CargueRegistros(data, file_name):
 def FloatNormalize(data):
     try:
         data = float(str(data).replace(',', '.'))
-    except Exception, :
+    except Exception, e:
         data = 0
     return data
 
