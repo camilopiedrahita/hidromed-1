@@ -143,8 +143,7 @@ def GetInteresData(data):
         total_meses = 1
 
     # consumo promedio mensual
-    cant_meses = data['mes'].value_counts().count()
-    promedio_consumo_mensual = consumo_total_seis_meses / cant_meses
+    promedio_consumo_mensual = consumo_total_seis_meses / total_meses
 
     # consumo mes actual
     mes_actual = GetMesActual(data)
