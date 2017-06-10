@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 
 # crear conexion a db
 engine = create_engine(
-    'mysql+mysqlconnector://root:root@localhost/hidromed', echo=False)
+    'mysql://hidromeddb:wf569KZp5m@localhost/hidromed', echo=False)
 
 # convertir excel en dataframe
 
@@ -19,8 +19,8 @@ def CargueExcel(archivo):
 
 
 def Log(mensaje):
-    file_log = open(str(datetime.now().
-                        strftime("%Y-%m-%d")) + '_log.log', 'a')
+    file_log = open('/home/hidromedftp/' + str(datetime.now().
+                       strftime("%Y-%m-%d")) + '_log.log','a')
     file_log.write(mensaje + '\n')
     file_log.close()
 
@@ -191,7 +191,7 @@ def Normalize(data):
 # main
 
 
-path = ''
+path = '/home/hidromedftp/'
 file_names = glob.glob(path + 'IzarNet2*.xls')
 for file in file_names:
 
